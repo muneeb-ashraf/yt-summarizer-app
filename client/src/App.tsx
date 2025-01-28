@@ -21,7 +21,22 @@ function ProtectedRoutes() {
   }
 
   if (!user) {
-    return <Home />;
+    if (window.location.pathname.startsWith('/dashboard')) {
+      window.location.href = '/auth';
+      return null;
+    }
+    return (
+      <Switch>
+        <Route path="/" component={Home} />
+        <Route path="/auth" component={AuthPage} />
+        <Route component={NotFound} />
+      </Switch>
+    );
+  }
+
+  if (window.location.pathname === '/auth') {
+    window.location.href = '/dashboard';
+    return null;
   }
 
   return (
