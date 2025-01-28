@@ -1,0 +1,72 @@
+
+> rest-express@1.0.0 dev
+> tsx server/index.ts
+
+6:58:52 PM [express] serving on port 5000
+6:58:56 PM [express] GET /api/user 401 in 2ms
+6:58:56 PM [express] GET /api/user 401 in 1ms
+7:01:22 PM [express] POST /api/login 200 in 1008ms :: {"message":"Login successful","user":{"id":1,"…
+7:01:22 PM [express] GET /api/user 304 in 237ms :: {"id":1,"username":"muneebashraf987@gmail.com","p…
+7:02:00 PM [express] GET /api/summaries 304 in 1198ms :: [{"id":10,"userId":1,"videoId":"rxUm-2x-2dM…
+7:02:22 PM [express] GET /api/user 304 in 237ms :: {"id":1,"username":"muneebashraf987@gmail.com","p…
+7:02:23 PM [express] GET /api/summaries 304 in 479ms :: [{"id":10,"userId":1,"videoId":"rxUm-2x-2dM"…
+7:02:36 PM [express] GET /api/user 304 in 235ms :: {"id":1,"username":"muneebashraf987@gmail.com","p…
+7:02:37 PM [express] GET /api/summaries 304 in 468ms :: [{"id":10,"userId":1,"videoId":"rxUm-2x-2dM"…
+7:06:41 PM [express] POST /api/summaries 200 in 7894ms :: {"id":11,"userId":1,"videoId":"bVNTNeNMH8Q…
+7:06:42 PM [express] GET /api/summaries 200 in 476ms :: [{"id":11,"userId":1,"videoId":"bVNTNeNMH8Q"…
+7:07:20 PM [express] POST /api/summaries 200 in 8832ms :: {"id":12,"userId":1,"videoId":"bVNTNeNMH8Q…
+7:07:20 PM [express] GET /api/summaries 200 in 468ms :: [{"id":12,"userId":1,"videoId":"bVNTNeNMH8Q"…
+7:17:14 PM [express] POST /api/logout 200 in 1605ms :: {"message":"Logout successful"}
+7:17:14 PM [express] GET /api/user 401 in 1ms
+7:17:41 PM [express] POST /api/login 200 in 1006ms :: {"message":"Login successful","user":{"id":1,"…
+7:17:41 PM [express] GET /api/user 304 in 238ms :: {"id":1,"username":"muneebashraf987@gmail.com","p…
+/home/runner/workspace/server/routes.ts:13
+    if (!req.isAuthenticated()) {
+             ^
+
+
+TypeError: req.isAuthenticated is not a function
+    at <anonymous> (/home/runner/workspace/server/routes.ts:13:14)
+    at Layer.handle [as handle_request] (/home/runner/workspace/node_modules/express/lib/router/layer.js:95:5)
+    at next (/home/runner/workspace/node_modules/express/lib/router/route.js:149:13)
+    at Route.dispatch (/home/runner/workspace/node_modules/express/lib/router/route.js:119:3)
+    at Layer.handle [as handle_request] (/home/runner/workspace/node_modules/express/lib/router/layer.js:95:5)
+    at /home/runner/workspace/node_modules/express/lib/router/index.js:284:15
+    at Function.process_params (/home/runner/workspace/node_modules/express/lib/router/index.js:346:12)
+    at next (/home/runner/workspace/node_modules/express/lib/router/index.js:280:10)
+    at <anonymous> (/home/runner/workspace/server/index.ts:36:3)
+    at Layer.handle [as handle_request] (/home/runner/workspace/node_modules/express/lib/router/layer.js:95:5)
+    at trim_prefix (/home/runner/workspace/node_modules/express/lib/router/index.js:328:13)
+    at /home/runner/workspace/node_modules/express/lib/router/index.js:286:9
+    at Function.process_params (/home/runner/workspace/node_modules/express/lib/router/index.js:346:12)
+    at next (/home/runner/workspace/node_modules/express/lib/router/index.js:280:10)
+    at urlencodedParser (/home/runner/workspace/node_modules/body-parser/lib/types/urlencoded.js:103:7)
+    at Layer.handle [as handle_request] (/home/runner/workspace/node_modules/express/lib/router/layer.js:95:5)
+    at trim_prefix (/home/runner/workspace/node_modules/express/lib/router/index.js:328:13)
+    at /home/runner/workspace/node_modules/express/lib/router/index.js:286:9
+    at Function.process_params (/home/runner/workspace/node_modules/express/lib/router/index.js:346:12)
+    at next (/home/runner/workspace/node_modules/express/lib/router/index.js:280:10)
+    at jsonParser (/home/runner/workspace/node_modules/body-parser/lib/types/json.js:122:7)
+    at Layer.handle [as handle_request] (/home/runner/workspace/node_modules/express/lib/router/layer.js:95:5)
+    at trim_prefix (/home/runner/workspace/node_modules/express/lib/router/index.js:328:13)
+    at /home/runner/workspace/node_modules/express/lib/router/index.js:286:9
+    at Function.process_params (/home/runner/workspace/node_modules/express/lib/router/index.js:346:12)
+    at next (/home/runner/workspace/node_modules/express/lib/router/index.js:280:10)
+    at expressInit (/home/runner/workspace/node_modules/express/lib/middleware/init.js:40:5)
+    at Layer.handle [as handle_request] (/home/runner/workspace/node_modules/express/lib/router/layer.js:95:5)
+    at trim_prefix (/home/runner/workspace/node_modules/express/lib/router/index.js:328:13)
+    at /home/runner/workspace/node_modules/express/lib/router/index.js:286:9
+    at Function.process_params (/home/runner/workspace/node_modules/express/lib/router/index.js:346:12)
+    at next (/home/runner/workspace/node_modules/express/lib/router/index.js:280:10)
+    at query (/home/runner/workspace/node_modules/express/lib/middleware/query.js:45:5)
+    at Layer.handle [as handle_request] (/home/runner/workspace/node_modules/express/lib/router/layer.js:95:5)
+    at trim_prefix (/home/runner/workspace/node_modules/express/lib/router/index.js:328:13)
+    at /home/runner/workspace/node_modules/express/lib/router/index.js:286:9
+    at Function.process_params (/home/runner/workspace/node_modules/express/lib/router/index.js:346:12)
+    at next (/home/runner/workspace/node_modules/express/lib/router/index.js:280:10)
+    at Function.handle (/home/runner/workspace/node_modules/express/lib/router/index.js:175:3)
+    at Function.handle (/home/runner/workspace/node_modules/express/lib/application.js:181:10)
+    at Server.app (/home/runner/workspace/node_modules/express/lib/express.js:39:9)
+    at Server.emit (node:events:518:28)
+    at parserOnIncoming (node:_http_server:1141:12)
+    at HTTPParser.parserOnHeadersComplete (node:_http_common:118:17)

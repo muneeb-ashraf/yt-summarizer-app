@@ -1,0 +1,159 @@
+Here’s a **revised, enhanced, and technically detailed version** of your requirements for clarity and seamless implementation. This structure ensures your developer/AI agent understands the scope, dependencies, and technical steps:
+
+---
+
+### **1. Authentication Implementation**  
+**Objective**: Enable registration/login via **Google, GitHub, Apple, Facebook, and HubSpot** using NextAuth.js.  
+
+**Technical Specifications**:  
+- **NextAuth.js Setup**:  
+  - Configure `[...nextauth].js` with all providers.  
+  - Use `providers[]` array for Google, GitHub, Facebook, and custom HubSpot OAuth2.  
+  - Apple requires `@next-auth/prisma-adapter` and `apple` provider configuration (needs Apple Developer Team ID).  
+- **HubSpot Custom Provider**:  
+  - Create a custom OAuth2 configuration for HubSpot (requires HubSpot `client_id`, `client_secret`, and OAuth2 endpoints).  
+  ```javascript
+  // Example HubSpot Provider in NextAuth.js
+  import HubSpot from "next-auth/providers/hubspot";
+  providers: [
+    HubSpot({
+      clientId: process.env.HUBSPOT_CLIENT_ID,
+      clientSecret: process.env.HUBSPOT_CLIENT_SECRET,
+    }),
+    // Add other providers
+  ]
+  ```  
+- **Session Management**:  
+  - Store sessions in a database (e.g., PostgreSQL/MySQL) using Prisma.  
+  - Enable JWT encryption for security.  
+- **UI Requirements**:  
+  - Replace default NextAuth.js login page with custom UI matching the app’s theme.  
+  - Add branded provider buttons (e.g., “Continue with Google”) with icons.  
+
+**Prerequisites**:  
+- API keys/secrets from all providers (Google Cloud, GitHub OAuth, Facebook Developer, HubSpot, Apple Developer).  
+- Apple Developer Account ($99/year) for Apple Sign-In.  
+
+---
+
+### **2. Modern Landing Page**  
+**Objective**: Replace the default login screen with a polished landing page.  
+
+**Functional Requirements**:  
+- **Sections**:  
+  1. **Hero Section**:  
+     - Headline (e.g., “Start Your Journey Today”).  
+     - Subheadline + CTA buttons: “Sign Up” (triggers NextAuth.js modal) and “View Pricing”.  
+     - Animated background (e.g., gradient waves).  
+  2. **Pricing/Subscription Plans**:  
+     - Display tiers (Basic, Pro, Enterprise) with features and “Buy Now” buttons.  
+     - Integrate Stripe checkout on “Buy Now” click (see section 5).  
+  3. **Testimonials/Footer**:  
+     - Social proof + contact info.  
+- **Design Guidelines**:  
+  - Use Tailwind CSS for styling.  
+  - Mobile-responsive layout.  
+  - Smooth animations (e.g., Framer Motion for hover effects).  
+
+**Mockup Approval**:  
+- Provide a Figma/PDF mockup for approval before coding.  
+
+---
+
+### **3. Fix 404 Errors on Dashboard/Subscription/Settings Pages**  
+**Objective**: Ensure authenticated users can access these pages.  
+
+**Technical Steps**:  
+- **Routing**:  
+  - Verify Next.js file structure (e.g., `pages/dashboard/index.js`, `pages/settings/index.js`).  
+  - Use Next.js dynamic routing if needed (e.g., `pages/subscription/[id].js`).  
+- **Authentication Guards**:  
+  - Add server-side checks in `getServerSideProps` to validate sessions.  
+  ```javascript
+  // Example: Auth guard for Dashboard
+  export async function getServerSideProps(context) {
+    const session = await getSession(context);
+    if (!session) {
+      return { redirect: { destination: '/', permanent: false } };
+    }
+    return { props: { session } };
+  }
+  ```  
+- **Subscription Page**:  
+  - Integrate Stripe API to fetch/purchase subscriptions (see section 5).  
+
+---
+
+### **4. Logout Redirect to Homepage**  
+**Objective**: Redirect users to `/` after logout.  
+
+**Implementation**:  
+- Modify NextAuth.js configuration:  
+  ```javascript
+  // pages/api/auth/[...nextauth].js
+  export default NextAuth({
+    callbacks: {
+      async signOut({ url, baseUrl }) {
+        return `${baseUrl}/`; // Redirect to homepage
+      },
+    },
+  });
+  ```  
+
+---
+
+### **5. Fix Stripe Subscriptions**  
+**Objective**: Ensure subscription purchases and renewals work via Stripe.  
+
+**Technical Requirements**:  
+- **Stripe Setup**:  
+  - Use `stripe` npm package and `@stripe/stripe-react-components`.  
+  - Add Stripe keys (publishable + secret) to `.env.local`.  
+- **Checkout Flow**:  
+  - Create a Stripe Checkout session on the backend (Next.js API route).  
+  - Handle success/cancel redirects.  
+- **Webhooks**:  
+  - Deploy a `pages/api/webhooks/stripe.js` endpoint to process:  
+    - `checkout.session.completed` (successful payment).  
+    - `invoice.paid` (renewals).  
+    - `customer.subscription.deleted` (cancellations).  
+  - Test with Stripe CLI locally.  
+
+**Prerequisites**:  
+- Your Stripe sandbox credentials (`STRIPE_PUBLIC_KEY`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`).  
+
+---
+
+### **Additional Notes**  
+1. **Tech Stack Clarification**:  
+   - Frontend: Next.js + React.  
+   - Backend: Next.js API routes.  
+   - Database: Prisma with PostgreSQL/MySQL.  
+   - Hosting: Vercel (recommended for Next.js + serverless functions).  
+2. **Testing**:  
+   - Write Jest/Cypress tests for critical flows (login, checkout).  
+3. **Security**:  
+   - Encrypt sensitive environment variables.  
+   - Rate-limiting on authentication endpoints.  
+
+---
+
+### **Cost & Timeline Estimate**  
+| Task                          | Cost       | Time  |  
+|-------------------------------|------------|-------|  
+| Authentication (NextAuth.js)  | $1,000     | 5 days|  
+| Landing Page                  | $800       | 4 days|  
+| Fix 404 Errors + Routing      | $500       | 2 days|  
+| Stripe Integration + Fixes    | $600       | 3 days|  
+| **Total**                     | **$2,900** | **14 days** |  
+
+---
+
+### **Next Steps**  
+1. Share:  
+   - Stripe sandbox credentials.  
+   - OAuth API keys (Google, GitHub, etc.).  
+   - Preferred database schema (if existing).  
+2. Approve the landing page design mockup.  
+
+Let me know if you’d like to refine this further! 🛠️
