@@ -15,9 +15,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useUser } from "@/hooks/use-user";
-import { SiYoutube } from "react-icons/si";
+import { SiYoutube, SiGoogle, SiGithub, SiApple } from "react-icons/si";
 import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { Separator } from "@/components/ui/separator";
 
 const authSchema = z.object({
   username: z.string().min(3, "Username must be at least 3 characters"),
@@ -58,6 +59,14 @@ export default function AuthPage() {
     }
   };
 
+  const handleSocialLogin = (provider: string) => {
+    toast({
+      title: "Not Configured",
+      description: `${provider} authentication is not yet configured. Please try username/password login.`,
+      variant: "default",
+    });
+  };
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <header className="border-b">
@@ -77,6 +86,44 @@ export default function AuthPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
+            <div className="space-y-4 mb-4">
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={() => handleSocialLogin("Google")}
+              >
+                <SiGoogle className="mr-2 h-4 w-4" />
+                Continue with Google
+              </Button>
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={() => handleSocialLogin("GitHub")}
+              >
+                <SiGithub className="mr-2 h-4 w-4" />
+                Continue with GitHub
+              </Button>
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={() => handleSocialLogin("Apple")}
+              >
+                <SiApple className="mr-2 h-4 w-4" />
+                Continue with Apple
+              </Button>
+            </div>
+
+            <div className="relative mb-4">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-background px-2 text-muted-foreground">
+                  Or continue with
+                </span>
+              </div>
+            </div>
+
             <Tabs defaultValue="login">
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="login">Login</TabsTrigger>

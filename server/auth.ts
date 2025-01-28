@@ -28,6 +28,7 @@ const crypto = {
   },
 };
 
+// Extend express user object with our schema
 declare global {
   namespace Express {
     interface User extends User {}
@@ -58,6 +59,7 @@ export function setupAuth(app: Express) {
   app.use(passport.initialize());
   app.use(passport.session());
 
+  // Local strategy for username/password auth
   passport.use(
     new LocalStrategy(async (username, password, done) => {
       try {
@@ -67,12 +69,13 @@ export function setupAuth(app: Express) {
           .where(eq(users.username, username))
           .limit(1);
 
-        if (!user) {
-          return done(null, false, { message: "Incorrect username." });
+        if (!user || !user.password) {
+          return done(null, false, { message: "Incorrect username or password." });
         }
+
         const isMatch = await crypto.compare(password, user.password);
         if (!isMatch) {
-          return done(null, false, { message: "Incorrect password." });
+          return done(null, false, { message: "Incorrect username or password." });
         }
         return done(null, user);
       } catch (err) {
@@ -98,16 +101,15 @@ export function setupAuth(app: Express) {
     }
   });
 
+  // Routes for local authentication
   app.post("/api/register", async (req, res, next) => {
     try {
       const { username, password } = req.body;
 
-      // Validate input
       if (!username || !password) {
         return res.status(400).send("Username and password are required");
       }
 
-      // Check if user already exists
       const [existingUser] = await db
         .select()
         .from(users)
@@ -118,27 +120,27 @@ export function setupAuth(app: Express) {
         return res.status(400).send("Username already exists");
       }
 
-      // Hash the password
       const hashedPassword = await crypto.hash(password);
 
-      // Create the new user
       const [newUser] = await db
         .insert(users)
         .values({
           username,
           password: hashedPassword,
           subscription: "free",
+          provider: null,
+          email: null,
+          avatar: null,
         })
         .returning();
 
-      // Log the user in after registration
       req.login(newUser, (err) => {
         if (err) {
           return next(err);
         }
         return res.json({
           message: "Registration successful",
-          user: { id: newUser.id, username: newUser.username },
+          user: newUser,
         });
       });
     } catch (error) {
@@ -156,14 +158,14 @@ export function setupAuth(app: Express) {
         return res.status(400).send(info.message ?? "Login failed");
       }
 
-      req.logIn(user, (err) => {
+      req.login(user, (err) => {
         if (err) {
           return next(err);
         }
 
         return res.json({
           message: "Login successful",
-          user: { id: user.id, username: user.username },
+          user,
         });
       });
     })(req, res, next);
@@ -185,5 +187,19 @@ export function setupAuth(app: Express) {
     }
 
     res.status(401).send("Not logged in");
+  });
+
+  // Placeholder routes for social authentication
+  // These will be configured when OAuth credentials are available
+  app.get("/auth/google", (req, res) => {
+    res.status(501).send("Google authentication not configured");
+  });
+
+  app.get("/auth/github", (req, res) => {
+    res.status(501).send("GitHub authentication not configured");
+  });
+
+  app.get("/auth/apple", (req, res) => {
+    res.status(501).send("Apple authentication not configured");
   });
 }
