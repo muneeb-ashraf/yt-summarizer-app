@@ -12,6 +12,7 @@ import {
 import { Card } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 import { useCreateSummary } from "@/hooks/use-summary";
+import { FormControl, FormField, FormItem, Form } from "@/components/ui/form";
 
 interface FormData {
   videoUrl: string;
@@ -20,7 +21,14 @@ interface FormData {
 }
 
 export function SummaryCreator() {
-  const { register, handleSubmit, formState: { errors } } = useForm<FormData>();
+  const form = useForm<FormData>({
+    defaultValues: {
+      videoUrl: "",
+      format: "paragraph",
+      language: "en"
+    }
+  });
+
   const { mutate: createSummary, isLoading } = useCreateSummary();
   const [videoId, setVideoId] = useState<string | null>(null);
 
@@ -41,53 +49,81 @@ export function SummaryCreator() {
 
   return (
     <Card className="p-6">
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        <div>
-          <Input
-            placeholder="Paste YouTube video URL"
-            {...register("videoUrl", { required: true })}
-            className={errors.videoUrl ? "border-red-500" : ""}
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <FormField
+            control={form.control}
+            name="videoUrl"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <Input
+                    placeholder="Paste YouTube video URL"
+                    {...field}
+                  />
+                </FormControl>
+              </FormItem>
+            )}
           />
-          {errors.videoUrl && (
-            <p className="text-sm text-red-500 mt-1">Video URL is required</p>
-          )}
-        </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          <Select {...register("format")}>
-            <SelectTrigger>
-              <SelectValue placeholder="Summary format" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="paragraph">Paragraph</SelectItem>
-              <SelectItem value="bullets">Bullet Points</SelectItem>
-              <SelectItem value="timestamped">Timestamped</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="grid grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="format"
+              render={({ field }) => (
+                <FormItem>
+                  <Select
+                    defaultValue={field.value}
+                    onValueChange={field.onChange}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Summary format" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="paragraph">Paragraph</SelectItem>
+                      <SelectItem value="bullets">Bullet Points</SelectItem>
+                      <SelectItem value="timestamped">Timestamped</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </FormItem>
+              )}
+            />
 
-          <Select {...register("language")}>
-            <SelectTrigger>
-              <SelectValue placeholder="Language" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="en">English</SelectItem>
-              <SelectItem value="es">Spanish</SelectItem>
-              <SelectItem value="fr">French</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+            <FormField
+              control={form.control}
+              name="language"
+              render={({ field }) => (
+                <FormItem>
+                  <Select
+                    defaultValue={field.value}
+                    onValueChange={field.onChange}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Language" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="en">English</SelectItem>
+                      <SelectItem value="es">Spanish</SelectItem>
+                      <SelectItem value="fr">French</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </FormItem>
+              )}
+            />
+          </div>
 
-        <Button type="submit" className="w-full" disabled={isLoading}>
-          {isLoading ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Generating Summary...
-            </>
-          ) : (
-            "Generate Summary"
-          )}
-        </Button>
-      </form>
+          <Button type="submit" className="w-full" disabled={isLoading}>
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Generating Summary...
+              </>
+            ) : (
+              "Generate Summary"
+            )}
+          </Button>
+        </form>
+      </Form>
 
       {videoId && (
         <div className="mt-4">
