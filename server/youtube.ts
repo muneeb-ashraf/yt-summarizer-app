@@ -25,13 +25,17 @@ const createSummarySchema = z.object({
 
 async function getYouTubeMetadata(videoId: string): Promise<YouTubeMetadata> {
   try {
-    const apiKey = 'AIzaSyCS1TKwQh9EI4gD3qBJe6-gYEqHR-FbQHc'; // This is a public API key for demo
+    const apiKey = process.env.YOUTUBE_API_KEY;
+    if (!apiKey) {
+      throw new Error('YouTube API key not configured');
+    }
+
     const response = await fetch(
       `https://www.googleapis.com/youtube/v3/videos?id=${videoId}&part=snippet,contentDetails&key=${apiKey}`
     );
 
     if (!response.ok) {
-      throw new Error('Failed to fetch video metadata');
+      throw new Error(`YouTube API error: ${response.status}`);
     }
 
     const data = await response.json();
@@ -40,26 +44,42 @@ async function getYouTubeMetadata(videoId: string): Promise<YouTubeMetadata> {
     }
 
     const video = data.items[0];
+    const duration = parseDuration(video.contentDetails.duration);
+
     return {
       title: video.snippet.title,
-      duration: parseDuration(video.contentDetails.duration),
+      duration,
       channelTitle: video.snippet.channelTitle,
       description: video.snippet.description
     };
-  } catch (error) {
+  } catch (error: any) {
     console.error('YouTube API error:', error);
-    throw new Error('Failed to fetch video metadata');
+    // Fallback to extract title from video page if API fails
+    try {
+      const response = await fetch(`https://www.youtube.com/watch?v=${videoId}`);
+      const html = await response.text();
+      const titleMatch = html.match(/<title>(.*?)<\/title>/);
+      const title = titleMatch ? titleMatch[1].replace(' - YouTube', '') : `Video ${videoId}`;
+
+      return {
+        title,
+        duration: 0,
+        channelTitle: 'Unknown Channel',
+        description: 'Video description unavailable'
+      };
+    } catch (fallbackError) {
+      console.error('Fallback error:', fallbackError);
+      throw new Error('Failed to fetch video metadata');
+    }
   }
 }
 
-// Helper function to parse ISO 8601 duration to seconds
 function parseDuration(duration: string): number {
-  const match = duration.match(/PT(\d+H)?(\d+M)?(\d+S)?/);
-  const hours = (match[1] || '0H').slice(0, -1);
-  const minutes = (match[2] || '0M').slice(0, -1);
-  const seconds = (match[3] || '0S').slice(0, -1);
+  const match = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
+  if (!match) return 0;
 
-  return Number(hours) * 3600 + Number(minutes) * 60 + Number(seconds);
+  const [_, hours = '0', minutes = '0', seconds = '0'] = match;
+  return (parseInt(hours) * 3600) + (parseInt(minutes) * 60) + parseInt(seconds);
 }
 
 export function setupYouTubeRoutes(app: Express) {
@@ -69,7 +89,6 @@ export function setupYouTubeRoutes(app: Express) {
     }
 
     try {
-      // Validate input
       const result = createSummarySchema.safeParse(req.body);
       if (!result.success) {
         return res.status(400).send(result.error.issues.map(i => i.message).join(", "));
@@ -82,7 +101,7 @@ export function setupYouTubeRoutes(app: Express) {
       const metadata = await getYouTubeMetadata(videoId);
 
       // Check video duration for free users
-      if (user.subscription === 'free' && metadata.duration > 900) { // 15 minutes = 900 seconds
+      if (user.subscription === 'free' && metadata.duration > 900) {
         return res.status(400).send("Free users can only summarize videos up to 15 minutes long");
       }
 
