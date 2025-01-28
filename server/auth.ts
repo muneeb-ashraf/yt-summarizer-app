@@ -28,10 +28,10 @@ const crypto = {
   },
 };
 
-// Extend express user object with our schema
+// Fixed type declaration to avoid recursive reference
 declare global {
   namespace Express {
-    interface User extends User {}
+    interface User extends Omit<User, 'password'> { }
   }
 }
 
@@ -77,7 +77,9 @@ export function setupAuth(app: Express) {
         if (!isMatch) {
           return done(null, false, { message: "Incorrect username or password." });
         }
-        return done(null, user);
+
+        const { password: _, ...userWithoutPassword } = user;
+        return done(null, userWithoutPassword);
       } catch (err) {
         return done(err);
       }
@@ -95,7 +97,13 @@ export function setupAuth(app: Express) {
         .from(users)
         .where(eq(users.id, id))
         .limit(1);
-      done(null, user);
+
+      if (!user) {
+        return done(new Error('User not found'));
+      }
+
+      const { password: _, ...userWithoutPassword } = user;
+      done(null, userWithoutPassword);
     } catch (err) {
       done(err);
     }
@@ -108,6 +116,14 @@ export function setupAuth(app: Express) {
 
       if (!username || !password) {
         return res.status(400).send("Username and password are required");
+      }
+
+      if (username.length < 3) {
+        return res.status(400).send("Username must be at least 3 characters");
+      }
+
+      if (password.length < 6) {
+        return res.status(400).send("Password must be at least 6 characters");
       }
 
       const [existingUser] = await db
@@ -134,13 +150,16 @@ export function setupAuth(app: Express) {
         })
         .returning();
 
-      req.login(newUser, (err) => {
+      // Remove password from response
+      const { password: _, ...userWithoutPassword } = newUser;
+
+      req.login(userWithoutPassword, (err) => {
         if (err) {
           return next(err);
         }
         return res.json({
           message: "Registration successful",
-          user: newUser,
+          user: userWithoutPassword,
         });
       });
     } catch (error) {
@@ -149,7 +168,7 @@ export function setupAuth(app: Express) {
   });
 
   app.post("/api/login", (req, res, next) => {
-    passport.authenticate("local", (err: any, user: Express.User, info: IVerifyOptions) => {
+    passport.authenticate("local", (err: any, user: Express.User | false, info: IVerifyOptions) => {
       if (err) {
         return next(err);
       }
