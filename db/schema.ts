@@ -5,7 +5,7 @@ import { relations } from "drizzle-orm";
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   username: text("username").unique().notNull(),
-  password: text("password"), // Made optional for social auth
+  password: text("password").notNull(),
   subscription: text("subscription").default("free").notNull(),
   stripeCustomerId: text("stripe_customer_id"),
   provider: text("provider"), // 'google', 'github', 'apple', or null for local auth
