@@ -2,9 +2,11 @@ import { useState } from "react";
 import { NavSidebar } from "@/components/nav-sidebar";
 import { SummaryCreator } from "@/components/summary-creator";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { useUser } from "@/hooks/use-user";
 import { useSummaries } from "@/hooks/use-summary";
-import { Loader2 } from "lucide-react";
+import { Loader2, Download, ExternalLink, Clock, Layout } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 export default function Dashboard() {
   const { user } = useUser();
@@ -69,7 +71,13 @@ export default function Dashboard() {
                   <Loader2 className="h-8 w-8 animate-spin" />
                 </div>
               ) : summaries?.length === 0 ? (
-                <p className="text-muted-foreground">No summaries yet</p>
+                <Card>
+                  <CardContent className="p-6 text-center text-muted-foreground">
+                    <Layout className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                    <p>No summaries yet</p>
+                    <p className="text-sm mt-1">Create your first summary to get started</p>
+                  </CardContent>
+                </Card>
               ) : (
                 <div className="space-y-4">
                   {summaries?.map(summary => (
@@ -81,11 +89,29 @@ export default function Dashboard() {
                       onClick={() => setSelectedSummaryId(summary.id)}
                     >
                       <CardContent className="p-4">
-                        <h3 className="font-semibold mb-2">{summary.videoTitle}</h3>
-                        <div className="text-sm text-muted-foreground space-y-1">
-                          <p>Format: <span className="capitalize">{summary.format}</span></p>
-                          <p>Language: <span className="capitalize">{summary.language}</span></p>
-                          <p>Created: {new Date(summary.createdAt).toLocaleDateString()}</p>
+                        <div className="flex items-start justify-between mb-2">
+                          <h3 className="font-semibold">{summary.videoTitle}</h3>
+                          <a
+                            href={`https://youtube.com/watch?v=${summary.videoId}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-muted-foreground hover:text-foreground"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <ExternalLink className="h-4 w-4" />
+                          </a>
+                        </div>
+                        <div className="flex flex-wrap gap-2 mb-2">
+                          <Badge variant="secondary" className="capitalize">
+                            {summary.format}
+                          </Badge>
+                          <Badge variant="secondary" className="capitalize">
+                            {summary.language}
+                          </Badge>
+                        </div>
+                        <div className="flex items-center text-sm text-muted-foreground">
+                          <Clock className="h-4 w-4 mr-1" />
+                          {new Date(summary.createdAt).toLocaleDateString()}
                         </div>
                       </CardContent>
                     </Card>
@@ -97,12 +123,41 @@ export default function Dashboard() {
 
           {selectedSummary && (
             <Card className="mt-8">
-              <CardHeader>
-                <CardTitle>{selectedSummary.videoTitle}</CardTitle>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <div>
+                  <CardTitle>{selectedSummary.videoTitle}</CardTitle>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Generated on {new Date(selectedSummary.createdAt).toLocaleDateString()}
+                  </p>
+                </div>
+                <Button variant="outline" size="sm" onClick={() => {
+                  const blob = new Blob([selectedSummary.summary], { type: 'text/plain' });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.href = url;
+                  a.download = `summary-${selectedSummary.videoId}.txt`;
+                  document.body.appendChild(a);
+                  a.click();
+                  document.body.removeChild(a);
+                  URL.revokeObjectURL(url);
+                }}>
+                  <Download className="h-4 w-4 mr-2" />
+                  Download
+                </Button>
               </CardHeader>
               <CardContent>
-                <div className="prose max-w-none">
-                  <p className="whitespace-pre-wrap">{selectedSummary.summary}</p>
+                <div className="prose prose-sm md:prose-base lg:prose-lg max-w-none">
+                  {selectedSummary.format === 'bullets' ? (
+                    <div dangerouslySetInnerHTML={{ 
+                      __html: selectedSummary.summary
+                        .split('\n')
+                        .filter(line => line.trim())
+                        .map(line => `<p>${line}</p>`)
+                        .join('')
+                    }} />
+                  ) : (
+                    <div className="whitespace-pre-wrap">{selectedSummary.summary}</div>
+                  )}
                 </div>
               </CardContent>
             </Card>

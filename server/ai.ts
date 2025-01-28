@@ -16,7 +16,7 @@ function initializeAI() {
   return genAI;
 }
 
-function formatPrompt(format: string, language: string): string {
+function formatPrompt(format: string, language: string, description: string): string {
   const languageMap = {
     en: "English",
     es: "Spanish",
@@ -24,47 +24,54 @@ function formatPrompt(format: string, language: string): string {
   };
 
   const formatMap = {
-    paragraph: "Write a comprehensive paragraph summary",
-    bullets: "Create a bullet-point summary with the main points",
-    timestamped: "Create a timestamped summary showing key moments"
+    paragraph: `Create a comprehensive paragraph summary that captures the main ideas and key insights from the video.
+                Focus on the most important points while maintaining a clear narrative flow.`,
+    bullets: `Create a structured bullet-point summary with:
+             - Main topic and overall theme
+             - Key points and major takeaways
+             - Important details and examples
+             - Conclusions or final thoughts`,
+    timestamped: `Create a chronological summary that highlights key moments and transitions in the video:
+                  - Start with a brief overview
+                  - List major points with estimated timestamps
+                  - Include transitions between main topics
+                  - End with key takeaways`
   };
 
-  return `Please ${formatMap[format as keyof typeof formatMap]} 
-          of the following YouTube video transcript in ${languageMap[language as keyof typeof languageMap]}.
-          Focus on the main ideas, key points, and important details.`;
+  return `You are an expert content summarizer.
+
+Task: ${formatMap[format as keyof typeof formatMap]}
+
+Language: Please provide the summary in ${languageMap[language as keyof typeof languageMap]}.
+
+Video Description:
+${description}
+
+Guidelines:
+- Maintain accuracy and objectivity
+- Focus on key information and main ideas
+- Use clear and concise language
+- Ensure the summary is self-contained and understandable
+- Length should be appropriate to cover all key points`;
 }
 
 export async function generateSummary(
   videoId: string, 
   format: string,
-  language: string
+  language: string,
+  description: string
 ): Promise<string> {
   try {
-    // For now, return mock data until we have the API key
     if (!process.env.GEMINI_API_KEY) {
-      return `This is a sample summary for video ${videoId} in ${format} format.
-
-Key points:
-- First important point
-- Second important point
-- Third important point
-
-The video discusses various topics and provides valuable insights.`;
+      throw new Error("GEMINI_API_KEY is required for summary generation");
     }
 
     const ai = initializeAI();
     const model = ai.getGenerativeModel({ model: "gemini-pro" });
 
-    // TODO: Integrate with YouTube API to get actual transcript
-    const mockTranscript = `This is a mock transcript for video ${videoId}. 
-                           It contains important information and key points.`;
+    const prompt = formatPrompt(format, language, description);
 
-    const prompt = formatPrompt(format, language);
-
-    const result = await model.generateContent([
-      prompt,
-      mockTranscript
-    ]);
+    const result = await model.generateContent([prompt]);
     const response = await result.response;
     return response.text();
   } catch (error: any) {
