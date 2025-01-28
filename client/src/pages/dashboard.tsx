@@ -12,11 +12,16 @@ export default function Dashboard() {
   const [selectedSummaryId, setSelectedSummaryId] = useState<number | null>(null);
 
   const selectedSummary = summaries?.find(s => s.id === selectedSummaryId);
+  const summaryCount = summaries?.length || 0;
+
+  const availableCredits = user?.subscription === 'free' 
+    ? Math.max(5 - summaryCount, 0)
+    : 'Unlimited';
 
   return (
     <div className="flex h-screen bg-background">
       <NavSidebar />
-      
+
       <main className="flex-1 overflow-auto">
         <div className="container mx-auto px-4 py-8">
           <h1 className="text-3xl font-bold mb-8">Welcome, {user?.username}</h1>
@@ -28,7 +33,7 @@ export default function Dashboard() {
               </CardHeader>
               <CardContent>
                 <p className="text-3xl font-bold">
-                  {isLoading ? <Loader2 className="animate-spin" /> : summaries?.length ?? 0}
+                  {isLoading ? <Loader2 className="h-6 w-6 animate-spin" /> : summaryCount}
                 </p>
               </CardContent>
             </Card>
@@ -46,7 +51,7 @@ export default function Dashboard() {
               </CardHeader>
               <CardContent>
                 <p className="text-3xl font-bold">
-                  {user?.subscription === 'free' ? '5' : 'Unlimited'}
+                  {availableCredits}
                 </p>
               </CardContent>
             </Card>
@@ -70,16 +75,18 @@ export default function Dashboard() {
                   {summaries?.map(summary => (
                     <Card
                       key={summary.id}
-                      className={`cursor-pointer ${
+                      className={`cursor-pointer transition-all hover:ring-2 hover:ring-primary/20 ${
                         selectedSummaryId === summary.id ? 'ring-2 ring-primary' : ''
                       }`}
                       onClick={() => setSelectedSummaryId(summary.id)}
                     >
                       <CardContent className="p-4">
                         <h3 className="font-semibold mb-2">{summary.videoTitle}</h3>
-                        <p className="text-sm text-muted-foreground">
-                          Created on {new Date(summary.createdAt).toLocaleDateString()}
-                        </p>
+                        <div className="text-sm text-muted-foreground space-y-1">
+                          <p>Format: <span className="capitalize">{summary.format}</span></p>
+                          <p>Language: <span className="capitalize">{summary.language}</span></p>
+                          <p>Created: {new Date(summary.createdAt).toLocaleDateString()}</p>
+                        </div>
                       </CardContent>
                     </Card>
                   ))}
@@ -94,7 +101,9 @@ export default function Dashboard() {
                 <CardTitle>{selectedSummary.videoTitle}</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="whitespace-pre-wrap">{selectedSummary.summary}</p>
+                <div className="prose max-w-none">
+                  <p className="whitespace-pre-wrap">{selectedSummary.summary}</p>
+                </div>
               </CardContent>
             </Card>
           )}

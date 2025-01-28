@@ -9,16 +9,22 @@ interface CreateSummaryParams {
 }
 
 export function useSummaries() {
-  return useQuery<Summary[]>({
+  const { data, isLoading, error } = useQuery<Summary[]>({
     queryKey: ['/api/summaries'],
   });
+
+  return {
+    summaries: data || [],
+    isLoading,
+    error
+  };
 }
 
 export function useCreateSummary() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  return useMutation({
+  const mutation = useMutation({
     mutationFn: async (params: CreateSummaryParams) => {
       const res = await fetch('/api/summaries', {
         method: 'POST',
@@ -49,4 +55,9 @@ export function useCreateSummary() {
       });
     },
   });
+
+  return {
+    createSummary: mutation.mutate,
+    isLoading: mutation.isPending
+  };
 }

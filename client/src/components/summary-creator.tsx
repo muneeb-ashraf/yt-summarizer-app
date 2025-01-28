@@ -13,15 +13,21 @@ import { Card } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 import { useCreateSummary } from "@/hooks/use-summary";
 import { FormControl, FormField, FormItem, Form } from "@/components/ui/form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
-interface FormData {
-  videoUrl: string;
-  format: string;
-  language: string;
-}
+const formSchema = z.object({
+  videoUrl: z.string().min(1, "Video URL is required")
+    .regex(/(?:youtube\.com\/watch\?v=|youtu.be\/)([^&\s]+)/, "Invalid YouTube URL"),
+  format: z.enum(["paragraph", "bullets", "timestamped"]),
+  language: z.enum(["en", "es", "fr"])
+});
+
+type FormData = z.infer<typeof formSchema>;
 
 export function SummaryCreator() {
   const form = useForm<FormData>({
+    resolver: zodResolver(formSchema),
     defaultValues: {
       videoUrl: "",
       format: "paragraph",
@@ -29,19 +35,18 @@ export function SummaryCreator() {
     }
   });
 
-  const { mutate: createSummary, isLoading } = useCreateSummary();
+  const { createSummary, isLoading } = useCreateSummary();
   const [videoId, setVideoId] = useState<string | null>(null);
 
   const onSubmit = (data: FormData) => {
-    // Extract video ID from URL
     const videoIdMatch = data.videoUrl.match(/(?:youtube\.com\/watch\?v=|youtu.be\/)([^&\s]+)/);
-    if (!videoIdMatch) {
-      return;
-    }
+    if (!videoIdMatch) return;
 
-    setVideoId(videoIdMatch[1]);
+    const extractedVideoId = videoIdMatch[1];
+    setVideoId(extractedVideoId);
+
     createSummary({
-      videoId: videoIdMatch[1],
+      videoId: extractedVideoId,
       format: data.format,
       language: data.language
     });
@@ -73,7 +78,7 @@ export function SummaryCreator() {
               render={({ field }) => (
                 <FormItem>
                   <Select
-                    defaultValue={field.value}
+                    value={field.value}
                     onValueChange={field.onChange}
                   >
                     <SelectTrigger>
@@ -95,7 +100,7 @@ export function SummaryCreator() {
               render={({ field }) => (
                 <FormItem>
                   <Select
-                    defaultValue={field.value}
+                    value={field.value}
                     onValueChange={field.onChange}
                   >
                     <SelectTrigger>
