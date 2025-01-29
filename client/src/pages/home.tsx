@@ -1,9 +1,9 @@
 import { Link } from "wouter";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "../components/ui/button";
+import { Card, CardContent } from "../components/ui/card";
 import { SiYoutube, SiGoogle, SiGithub, SiApple } from "react-icons/si";
-import SubscriptionCard from "@/components/subscription-card";
-import { Separator } from "@/components/ui/separator";
+import SubscriptionCard from "../components/subscription-card";
+import { Separator } from "../components/ui/separator";
 
 export default function Home() {
   return (
