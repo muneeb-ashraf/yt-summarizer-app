@@ -4,15 +4,11 @@
   "framework": "vite",
   "rewrites": [
     {
-      "source": "/api/:path*",
-      "destination": "/api/:path*"
-    },
-    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
   ],
   "env": {
-    "VITE_API_URL": "https://your-backend-url.repl.co"
+    "VITE_API_URL": "https://<your-replit-app-name>.repl.co"
   }
 }
