@@ -16,18 +16,27 @@ export function useUser() {
   const { data: user, error, isLoading } = useQuery<User | null, AuthError>({
     queryKey: ['user'],
     queryFn: async () => {
-      const { data: { user: authUser }, error: authError } = await supabase.auth.getUser();
-      if (authError) throw authError;
-      if (!authUser) return null;
+      try {
+        const { data: { user: authUser }, error: authError } = await supabase.auth.getUser();
+        if (authError) throw authError;
+        if (!authUser) return null;
 
-      const { data: profile, error: profileError } = await supabase
-        .from('users')
-        .select('*')
-        .eq('id', authUser.id)
-        .single();
+        const { data: profile, error: profileError } = await supabase
+          .from('users')
+          .select('*')
+          .eq('id', authUser.id)
+          .single();
 
-      if (profileError) throw profileError;
-      return profile;
+        if (profileError) {
+          console.error('Profile fetch error:', profileError);
+          return null;
+        }
+
+        return profile;
+      } catch (error) {
+        console.error('Auth error:', error);
+        return null;
+      }
     },
   });
 
@@ -65,10 +74,6 @@ export function useUser() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user'] });
-      toast({
-        title: "Success",
-        description: "Please check your email to verify your account.",
-      });
     },
   });
 
@@ -97,6 +102,7 @@ export function useUser() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user'] });
+      window.location.href = '/';
     },
   });
 

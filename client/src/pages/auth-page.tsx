@@ -19,6 +19,7 @@ import { SiYoutube, SiGoogle, SiGithub, SiApple } from "react-icons/si";
 import { Loader2 } from "lucide-react";
 import { useToast } from "../hooks/use-toast";
 import { Separator } from "../components/ui/separator";
+import { useLocation } from "wouter";
 
 const authSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -29,6 +30,7 @@ const authSchema = z.object({
 type AuthFormData = z.infer<typeof authSchema>;
 
 export default function AuthPage() {
+  const [, setLocation] = useLocation();
   const [isLoading, setIsLoading] = useState(false);
   const { login, register, socialLogin } = useUser();
   const { toast } = useToast();
@@ -43,16 +45,32 @@ export default function AuthPage() {
   });
 
   const onSubmit = async (data: AuthFormData, mode: "login" | "register") => {
+    if (isLoading) return;
     setIsLoading(true);
+
     try {
-      const action = mode === "login" ? login : register;
-      await action(data);
-      toast({
-        title: mode === "login" ? "Welcome back!" : "Account created",
-        description: mode === "login" 
-          ? "You have successfully logged in."
-          : "Please check your email to verify your account.",
-      });
+      if (mode === "register" && !data.username) {
+        throw new Error("Username is required for registration");
+      }
+
+      if (mode === "login") {
+        await login({ email: data.email, password: data.password });
+        toast({
+          title: "Welcome back!",
+          description: "You have successfully logged in.",
+        });
+      } else {
+        await register({
+          email: data.email,
+          password: data.password,
+          username: data.username!,
+        });
+        toast({
+          title: "Account created",
+          description: "Please check your email to verify your account.",
+        });
+      }
+      setLocation("/dashboard");
     } catch (error: any) {
       toast({
         title: "Error",
@@ -65,6 +83,7 @@ export default function AuthPage() {
   };
 
   const handleSocialLogin = async (provider: 'google' | 'github' | 'apple') => {
+    if (isLoading) return;
     try {
       await socialLogin(provider);
     } catch (error: any) {
@@ -100,6 +119,7 @@ export default function AuthPage() {
                 variant="outline"
                 className="w-full"
                 onClick={() => handleSocialLogin('google')}
+                disabled={isLoading}
               >
                 <SiGoogle className="mr-2 h-4 w-4" />
                 Continue with Google
@@ -108,6 +128,7 @@ export default function AuthPage() {
                 variant="outline"
                 className="w-full"
                 onClick={() => handleSocialLogin('github')}
+                disabled={isLoading}
               >
                 <SiGithub className="mr-2 h-4 w-4" />
                 Continue with GitHub
@@ -116,6 +137,7 @@ export default function AuthPage() {
                 variant="outline"
                 className="w-full"
                 onClick={() => handleSocialLogin('apple')}
+                disabled={isLoading}
               >
                 <SiApple className="mr-2 h-4 w-4" />
                 Continue with Apple
@@ -152,7 +174,7 @@ export default function AuthPage() {
                         <FormItem>
                           <FormLabel>Email</FormLabel>
                           <FormControl>
-                            <Input type="email" {...field} />
+                            <Input type="email" {...field} disabled={isLoading} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -165,7 +187,7 @@ export default function AuthPage() {
                         <FormItem>
                           <FormLabel>Password</FormLabel>
                           <FormControl>
-                            <Input type="password" {...field} />
+                            <Input type="password" {...field} disabled={isLoading} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -188,9 +210,7 @@ export default function AuthPage() {
               <TabsContent value="register">
                 <Form {...form}>
                   <form
-                    onSubmit={form.handleSubmit((data) =>
-                      onSubmit(data, "register")
-                    )}
+                    onSubmit={form.handleSubmit((data) => onSubmit(data, "register"))}
                     className="space-y-4"
                   >
                     <FormField
@@ -200,7 +220,7 @@ export default function AuthPage() {
                         <FormItem>
                           <FormLabel>Email</FormLabel>
                           <FormControl>
-                            <Input type="email" {...field} />
+                            <Input type="email" {...field} disabled={isLoading} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -213,7 +233,7 @@ export default function AuthPage() {
                         <FormItem>
                           <FormLabel>Username</FormLabel>
                           <FormControl>
-                            <Input {...field} />
+                            <Input {...field} disabled={isLoading} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -226,7 +246,7 @@ export default function AuthPage() {
                         <FormItem>
                           <FormLabel>Password</FormLabel>
                           <FormControl>
-                            <Input type="password" {...field} />
+                            <Input type="password" {...field} disabled={isLoading} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
