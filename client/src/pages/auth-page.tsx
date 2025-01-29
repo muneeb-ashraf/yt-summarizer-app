@@ -30,7 +30,7 @@ type AuthFormData = z.infer<typeof authSchema>;
 
 export default function AuthPage() {
   const [isLoading, setIsLoading] = useState(false);
-  const { login, register } = useUser();
+  const { login, register, socialLogin } = useUser();
   const { toast } = useToast();
 
   const form = useForm<AuthFormData>({
@@ -46,10 +46,13 @@ export default function AuthPage() {
     setIsLoading(true);
     try {
       const action = mode === "login" ? login : register;
-      const result = await action(data);
-      if (!result.ok) {
-        throw new Error(result.message);
-      }
+      await action(data);
+      toast({
+        title: mode === "login" ? "Welcome back!" : "Account created",
+        description: mode === "login" 
+          ? "You have successfully logged in."
+          : "Please check your email to verify your account.",
+      });
     } catch (error: any) {
       toast({
         title: "Error",
@@ -61,12 +64,16 @@ export default function AuthPage() {
     }
   };
 
-  const handleSocialLogin = (provider: string) => {
-    toast({
-      title: "Not Configured",
-      description: `${provider} authentication is not yet configured. Please try email/password login.`,
-      variant: "default",
-    });
+  const handleSocialLogin = async (provider: 'google' | 'github' | 'apple') => {
+    try {
+      await socialLogin(provider);
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -92,7 +99,7 @@ export default function AuthPage() {
               <Button
                 variant="outline"
                 className="w-full"
-                onClick={() => handleSocialLogin("Google")}
+                onClick={() => handleSocialLogin('google')}
               >
                 <SiGoogle className="mr-2 h-4 w-4" />
                 Continue with Google
@@ -100,7 +107,7 @@ export default function AuthPage() {
               <Button
                 variant="outline"
                 className="w-full"
-                onClick={() => handleSocialLogin("GitHub")}
+                onClick={() => handleSocialLogin('github')}
               >
                 <SiGithub className="mr-2 h-4 w-4" />
                 Continue with GitHub
@@ -108,7 +115,7 @@ export default function AuthPage() {
               <Button
                 variant="outline"
                 className="w-full"
-                onClick={() => handleSocialLogin("Apple")}
+                onClick={() => handleSocialLogin('apple')}
               >
                 <SiApple className="mr-2 h-4 w-4" />
                 Continue with Apple
@@ -135,9 +142,7 @@ export default function AuthPage() {
               <TabsContent value="login">
                 <Form {...form}>
                   <form
-                    onSubmit={form.handleSubmit((data) =>
-                      onSubmit(data, "login")
-                    )}
+                    onSubmit={form.handleSubmit((data) => onSubmit(data, "login"))}
                     className="space-y-4"
                   >
                     <FormField

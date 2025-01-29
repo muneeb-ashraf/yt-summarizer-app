@@ -2,6 +2,7 @@ import { useCallback, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../lib/supabase';
 import type { User } from '../lib/supabase';
+import { useToast } from '../hooks/use-toast';
 
 export type AuthError = {
   message: string;
@@ -9,21 +10,23 @@ export type AuthError = {
 
 export function useUser() {
   const queryClient = useQueryClient();
+  const { toast } = useToast();
 
   // Fetch user data including profile
   const { data: user, error, isLoading } = useQuery<User | null, AuthError>({
     queryKey: ['user'],
     queryFn: async () => {
-      const { data: { user: authUser } } = await supabase.auth.getUser();
-
+      const { data: { user: authUser }, error: authError } = await supabase.auth.getUser();
+      if (authError) throw authError;
       if (!authUser) return null;
 
-      const { data: profile } = await supabase
+      const { data: profile, error: profileError } = await supabase
         .from('users')
         .select('*')
         .eq('id', authUser.id)
         .single();
 
+      if (profileError) throw profileError;
       return profile;
     },
   });
@@ -50,26 +53,22 @@ export function useUser() {
       const { error: signUpError, data } = await supabase.auth.signUp({
         email,
         password,
+        options: {
+          data: {
+            username
+          }
+        }
       });
 
       if (signUpError) throw signUpError;
-
-      // Create user profile
-      const { error: profileError } = await supabase
-        .from('users')
-        .insert([{
-          id: data.user?.id,
-          email,
-          username,
-          subscription: 'free',
-        }]);
-
-      if (profileError) throw profileError;
-
       return { ok: true };
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user'] });
+      toast({
+        title: "Success",
+        description: "Please check your email to verify your account.",
+      });
     },
   });
 
@@ -79,7 +78,8 @@ export function useUser() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`
+          redirectTo: `${window.location.origin}/auth/callback`,
+          scopes: 'email profile',
         }
       });
 
@@ -102,8 +102,10 @@ export function useUser() {
 
   // Listen to auth state changes
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
-      queryClient.invalidateQueries({ queryKey: ['user'] });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        queryClient.invalidateQueries({ queryKey: ['user'] });
+      }
     });
 
     return () => {
