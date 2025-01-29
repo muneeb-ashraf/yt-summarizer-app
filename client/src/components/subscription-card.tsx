@@ -35,8 +35,8 @@ export default function SubscriptionCard({
             </li>
           ))}
         </ul>
-        <Button className="w-full mt-6">
-          {price === 0 ? 'Get Started' : 'Subscribe Now'}
+        <Button className="w-full mt-6" disabled>
+          {highlighted ? 'Current Plan' : 'Coming Soon'}
         </Button>
       </CardContent>
     </Card>

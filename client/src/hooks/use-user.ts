@@ -1,104 +1,107 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import type { User } from '@db/schema';
-import { apiConfig } from '../config';
+import { useCallback, useEffect } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { supabase } from '../lib/supabase';
+import type { Tables } from '../lib/supabase';
 
-type RequestResult = {
-  ok: true;
-} | {
-  ok: false;
+type User = Tables['users'];
+
+export type AuthError = {
   message: string;
 };
-
-type UserCredentials = {
-  username: string;
-  password: string;
-};
-
-async function handleRequest(
-  url: string,
-  method: string,
-  body?: UserCredentials
-): Promise<RequestResult> {
-  try {
-    const fullUrl = `${apiConfig.apiUrl}${url}`;
-    const response = await fetch(fullUrl, {
-      method,
-      headers: body ? { "Content-Type": "application/json" } : undefined,
-      body: body ? JSON.stringify(body) : undefined,
-      credentials: "include",
-    });
-
-    if (!response.ok) {
-      if (response.status >= 500) {
-        return { ok: false, message: response.statusText };
-      }
-
-      const message = await response.text();
-      return { ok: false, message };
-    }
-
-    return { ok: true };
-  } catch (e: any) {
-    return { ok: false, message: e.toString() };
-  }
-}
-
-async function fetchUser(): Promise<User | null> {
-  const fullUrl = `${apiConfig.apiUrl}/api/user`;
-  const response = await fetch(fullUrl, {
-    credentials: 'include'
-  });
-
-  if (!response.ok) {
-    if (response.status === 401) {
-      return null;
-    }
-
-    if (response.status >= 500) {
-      throw new Error(`${response.status}: ${response.statusText}`);
-    }
-
-    throw new Error(`${response.status}: ${await response.text()}`);
-  }
-
-  return response.json();
-}
 
 export function useUser() {
   const queryClient = useQueryClient();
 
-  const { data: user, error, isLoading } = useQuery<User | null, Error>({
+  // Fetch user data including profile
+  const { data: user, error, isLoading } = useQuery<User | null, AuthError>({
     queryKey: ['user'],
-    queryFn: fetchUser,
-    staleTime: Infinity,
-    retry: false
+    queryFn: async () => {
+      const { data: { user: authUser } } = await supabase.auth.getUser();
+
+      if (!authUser) return null;
+
+      const { data: profile } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', authUser.id)
+        .single();
+
+      return profile;
+    },
   });
 
+  // Login with email/password
   const loginMutation = useMutation({
-    mutationFn: (userData: UserCredentials) => handleRequest('/api/login', 'POST', userData),
+    mutationFn: async ({ email, password }: { email: string; password: string }) => {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) throw error;
+      return { ok: true };
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user'] });
     },
   });
 
-  const logoutMutation = useMutation({
-    mutationFn: () => handleRequest('/api/logout', 'POST'),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['user'] });
-    },
-  });
-
+  // Register new user
   const registerMutation = useMutation({
-    mutationFn: (userData: UserCredentials) => handleRequest('/api/register', 'POST', userData),
+    mutationFn: async ({ email, password, username }: { email: string; password: string; username: string }) => {
+      const { error: signUpError, data } = await supabase.auth.signUp({
+        email,
+        password,
+      });
+
+      if (signUpError) throw signUpError;
+
+      // Create user profile
+      const { error: profileError } = await supabase
+        .from('users')
+        .insert([{
+          id: data.user?.id,
+          email,
+          username,
+          subscription: 'free',
+        }]);
+
+      if (profileError) throw profileError;
+
+      return { ok: true };
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user'] });
     },
   });
+
+  // Logout
+  const logoutMutation = useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      return { ok: true };
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['user'] });
+    },
+  });
+
+  // Listen to auth state changes
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
+      queryClient.invalidateQueries({ queryKey: ['user'] });
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [queryClient]);
 
   return {
     user,
-    isLoading,
     error,
+    isLoading,
     login: loginMutation.mutateAsync,
     logout: logoutMutation.mutateAsync,
     register: registerMutation.mutateAsync,

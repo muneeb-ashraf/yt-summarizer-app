@@ -21,8 +21,9 @@ import { useToast } from "../hooks/use-toast";
 import { Separator } from "../components/ui/separator";
 
 const authSchema = z.object({
-  username: z.string().min(3, "Username must be at least 3 characters"),
+  email: z.string().email("Invalid email address"),
   password: z.string().min(6, "Password must be at least 6 characters"),
+  username: z.string().min(3, "Username must be at least 3 characters").optional(),
 });
 
 type AuthFormData = z.infer<typeof authSchema>;
@@ -35,8 +36,9 @@ export default function AuthPage() {
   const form = useForm<AuthFormData>({
     resolver: zodResolver(authSchema),
     defaultValues: {
-      username: "",
+      email: "",
       password: "",
+      username: "",
     },
   });
 
@@ -62,7 +64,7 @@ export default function AuthPage() {
   const handleSocialLogin = (provider: string) => {
     toast({
       title: "Not Configured",
-      description: `${provider} authentication is not yet configured. Please try username/password login.`,
+      description: `${provider} authentication is not yet configured. Please try email/password login.`,
       variant: "default",
     });
   };
@@ -140,12 +142,12 @@ export default function AuthPage() {
                   >
                     <FormField
                       control={form.control}
-                      name="username"
+                      name="email"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Username</FormLabel>
+                          <FormLabel>Email</FormLabel>
                           <FormControl>
-                            <Input {...field} />
+                            <Input type="email" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -186,6 +188,19 @@ export default function AuthPage() {
                     )}
                     className="space-y-4"
                   >
+                    <FormField
+                      control={form.control}
+                      name="email"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Email</FormLabel>
+                          <FormControl>
+                            <Input type="email" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                     <FormField
                       control={form.control}
                       name="username"

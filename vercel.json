@@ -9,6 +9,10 @@
     }
   ],
   "env": {
-    "VITE_API_URL": "https://<your-replit-app-name>.repl.co"
+    "VITE_SUPABASE_URL": "https://<your-supabase-project-id>.supabase.co",
+    "VITE_SUPABASE_ANON_KEY": "your-supabase-anon-key",
+    "VITE_API_URL": "https://<your-replit-app-name>.repl.co",
+    "GEMINI_API_KEY": "your-gemini-api-key",
+    "YOUTUBE_API_KEY": "your-youtube-api-key"
   }
 }

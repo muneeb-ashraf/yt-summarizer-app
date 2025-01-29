@@ -1,4 +1,4 @@
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { useUser } from "@/hooks/use-user";
 import { SiYoutube } from "react-icons/si";
@@ -11,6 +11,7 @@ import {
 
 export function NavSidebar() {
   const { logout } = useUser();
+  const [location] = useLocation();
 
   return (
     <div className="w-64 border-r bg-card h-screen flex flex-col">
@@ -25,7 +26,7 @@ export function NavSidebar() {
         <div className="space-y-2">
           <Link href="/dashboard">
             <Button
-              variant="ghost"
+              variant={location === '/dashboard' ? 'secondary' : 'ghost'}
               className="w-full justify-start"
             >
               <LayoutDashboard className="mr-2 h-5 w-5" />
@@ -34,7 +35,7 @@ export function NavSidebar() {
           </Link>
           <Link href="/dashboard/subscription">
             <Button
-              variant="ghost"
+              variant={location === '/dashboard/subscription' ? 'secondary' : 'ghost'}
               className="w-full justify-start"
             >
               <CreditCard className="mr-2 h-5 w-5" />
@@ -43,7 +44,7 @@ export function NavSidebar() {
           </Link>
           <Link href="/dashboard/settings">
             <Button
-              variant="ghost"
+              variant={location === '/dashboard/settings' ? 'secondary' : 'ghost'}
               className="w-full justify-start"
             >
               <Settings className="mr-2 h-5 w-5" />
