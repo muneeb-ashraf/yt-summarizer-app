@@ -1,10 +1,12 @@
 import { QueryClient } from "@tanstack/react-query";
+import { apiConfig } from "../config";
 
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       queryFn: async ({ queryKey }) => {
-        const res = await fetch(queryKey[0] as string, {
+        const url = `${apiConfig.apiUrl}${queryKey[0]}`;
+        const res = await fetch(url, {
           credentials: "include",
         });
 

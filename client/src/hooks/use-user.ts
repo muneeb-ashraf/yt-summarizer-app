@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { User } from '@db/schema';
+import { apiConfig } from '../config';
 
 type RequestResult = {
   ok: true;
@@ -19,7 +20,8 @@ async function handleRequest(
   body?: UserCredentials
 ): Promise<RequestResult> {
   try {
-    const response = await fetch(url, {
+    const fullUrl = `${apiConfig.apiUrl}${url}`;
+    const response = await fetch(fullUrl, {
       method,
       headers: body ? { "Content-Type": "application/json" } : undefined,
       body: body ? JSON.stringify(body) : undefined,
@@ -42,7 +44,8 @@ async function handleRequest(
 }
 
 async function fetchUser(): Promise<User | null> {
-  const response = await fetch('/api/user', {
+  const fullUrl = `${apiConfig.apiUrl}/api/user`;
+  const response = await fetch(fullUrl, {
     credentials: 'include'
   });
 
