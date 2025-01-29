@@ -10,10 +10,16 @@ if (!import.meta.env.VITE_SUPABASE_ANON_KEY) {
 
 export const supabase = createClient(
   import.meta.env.VITE_SUPABASE_URL,
-  import.meta.env.VITE_SUPABASE_ANON_KEY
+  import.meta.env.VITE_SUPABASE_ANON_KEY,
+  {
+    auth: {
+      autoRefreshToken: true,
+      persistSession: true,
+    }
+  }
 );
 
-// Types based on your Supabase database schema
+// Types based on your database schema
 export type Tables = {
   users: {
     id: string;
@@ -32,8 +38,11 @@ export type Tables = {
     video_duration: number;
     summary: string;
     format: 'paragraph' | 'bullets' | 'timestamped';
-    language: 'en' | 'es' | 'fr';
-    metadata: any;
+    language: string;
+    metadata: Record<string, any>;
     created_at: string;
   };
-}
+};
+
+export type User = Tables['users'];
+export type Summary = Tables['summaries'];

@@ -1,9 +1,7 @@
 import { useCallback, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../lib/supabase';
-import type { Tables } from '../lib/supabase';
-
-type User = Tables['users'];
+import type { User } from '../lib/supabase';
 
 export type AuthError = {
   message: string;
@@ -75,6 +73,21 @@ export function useUser() {
     },
   });
 
+  // Social login
+  const socialLoginMutation = useMutation({
+    mutationFn: async (provider: 'google' | 'github' | 'apple') => {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`
+        }
+      });
+
+      if (error) throw error;
+      return { ok: true };
+    }
+  });
+
   // Logout
   const logoutMutation = useMutation({
     mutationFn: async () => {
@@ -103,6 +116,7 @@ export function useUser() {
     error,
     isLoading,
     login: loginMutation.mutateAsync,
+    socialLogin: socialLoginMutation.mutateAsync,
     logout: logoutMutation.mutateAsync,
     register: registerMutation.mutateAsync,
   };
