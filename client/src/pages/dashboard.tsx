@@ -1,13 +1,13 @@
 import { useState } from "react";
-import { NavSidebar } from "@/components/nav-sidebar";
-import { SummaryCreator } from "@/components/summary-creator";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { useUser } from "@/hooks/use-user";
-import { useSummaries } from "@/hooks/use-summary";
+import { NavSidebar } from "../components/nav-sidebar";
+import { SummaryCreator } from "../components/summary-creator";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../components/ui/card";
+import { Button } from "../components/ui/button";
+import { useUser } from "../hooks/use-user";
+import { useSummaries } from "../hooks/use-summary";
 import { Loader2, Download, ExternalLink, Clock, Layout, RefreshCcw } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { Badge } from "../components/ui/badge";
+import { ScrollArea } from "../components/ui/scroll-area";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export default function Dashboard() {

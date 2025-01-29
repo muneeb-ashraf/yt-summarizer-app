@@ -1,6 +1,6 @@
 import { Link, useLocation } from "wouter";
-import { Button } from "@/components/ui/button";
-import { useUser } from "@/hooks/use-user";
+import { Button } from "../components/ui/button";
+import { useUser } from "../hooks/use-user";
 import { SiYoutube } from "react-icons/si";
 import {
   LayoutDashboard,

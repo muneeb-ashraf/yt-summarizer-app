@@ -9,10 +9,11 @@ import Subscription from "./pages/subscription";
 import Home from "./pages/home";
 import { useUser } from "./hooks/use-user";
 import { Loader2 } from "lucide-react";
-import { Switch, Route } from "wouter";
+import { Switch, Route, useLocation } from "wouter";
 
 function ProtectedRoutes() {
   const { user, isLoading } = useUser();
+  const [location] = useLocation();
 
   if (isLoading) {
     return (
@@ -23,7 +24,7 @@ function ProtectedRoutes() {
   }
 
   if (!user) {
-    if (window.location.pathname.startsWith('/dashboard')) {
+    if (location.startsWith('/dashboard')) {
       window.location.href = '/auth';
       return null;
     }
@@ -36,7 +37,7 @@ function ProtectedRoutes() {
     );
   }
 
-  if (window.location.pathname === '/auth') {
+  if (location === '/auth') {
     window.location.href = '/dashboard';
     return null;
   }
