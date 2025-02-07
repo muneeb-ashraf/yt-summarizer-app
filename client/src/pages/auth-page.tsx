@@ -21,13 +21,19 @@ import { useToast } from "../hooks/use-toast";
 import { Separator } from "../components/ui/separator";
 import { useLocation } from "wouter";
 
-const authSchema = z.object({
+const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
   password: z.string().min(6, "Password must be at least 6 characters"),
-  username: z.string().min(3, "Username must be at least 3 characters").optional(),
 });
 
-type AuthFormData = z.infer<typeof authSchema>;
+const registerSchema = z.object({
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+  username: z.string().min(3, "Username must be at least 3 characters"),
+});
+
+type LoginFormData = z.infer<typeof loginSchema>;
+type RegisterFormData = z.infer<typeof registerSchema>;
 
 export default function AuthPage() {
   const [, setLocation] = useLocation();
@@ -35,8 +41,16 @@ export default function AuthPage() {
   const { login, register, socialLogin } = useUser();
   const { toast } = useToast();
 
-  const form = useForm<AuthFormData>({
-    resolver: zodResolver(authSchema),
+  const loginForm = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+
+  const registerForm = useForm<RegisterFormData>({
+    resolver: zodResolver(registerSchema),
     defaultValues: {
       email: "",
       password: "",
@@ -44,32 +58,42 @@ export default function AuthPage() {
     },
   });
 
-  const onSubmit = async (data: AuthFormData, mode: "login" | "register") => {
+  const handleLogin = async (data: LoginFormData) => {
     if (isLoading) return;
     setIsLoading(true);
 
     try {
-      if (mode === "register" && !data.username) {
-        throw new Error("Username is required for registration");
-      }
+      await login({ email: data.email, password: data.password });
+      toast({
+        title: "Welcome back!",
+        description: "You have successfully logged in.",
+      });
+      setLocation("/dashboard");
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-      if (mode === "login") {
-        await login({ email: data.email, password: data.password });
-        toast({
-          title: "Welcome back!",
-          description: "You have successfully logged in.",
-        });
-      } else {
-        await register({
-          email: data.email,
-          password: data.password,
-          username: data.username!,
-        });
-        toast({
-          title: "Account created",
-          description: "Please check your email to verify your account.",
-        });
-      }
+  const handleRegister = async (data: RegisterFormData) => {
+    if (isLoading) return;
+    setIsLoading(true);
+
+    try {
+      await register({
+        email: data.email,
+        password: data.password,
+        username: data.username,
+      });
+      toast({
+        title: "Account created",
+        description: "Please check your email to verify your account.",
+      });
       setLocation("/dashboard");
     } catch (error: any) {
       toast({
@@ -153,13 +177,13 @@ export default function AuthPage() {
               </TabsList>
 
               <TabsContent value="login">
-                <Form {...form}>
+                <Form {...loginForm}>
                   <form
-                    onSubmit={form.handleSubmit((data) => onSubmit(data, "login"))}
+                    onSubmit={loginForm.handleSubmit(handleLogin)}
                     className="space-y-4"
                   >
                     <FormField
-                      control={form.control}
+                      control={loginForm.control}
                       name="email"
                       render={({ field }) => (
                         <FormItem>
@@ -172,7 +196,7 @@ export default function AuthPage() {
                       )}
                     />
                     <FormField
-                      control={form.control}
+                      control={loginForm.control}
                       name="password"
                       render={({ field }) => (
                         <FormItem>
@@ -199,13 +223,13 @@ export default function AuthPage() {
               </TabsContent>
 
               <TabsContent value="register">
-                <Form {...form}>
+                <Form {...registerForm}>
                   <form
-                    onSubmit={form.handleSubmit((data) => onSubmit(data, "register"))}
+                    onSubmit={registerForm.handleSubmit(handleRegister)}
                     className="space-y-4"
                   >
                     <FormField
-                      control={form.control}
+                      control={registerForm.control}
                       name="email"
                       render={({ field }) => (
                         <FormItem>
@@ -218,7 +242,7 @@ export default function AuthPage() {
                       )}
                     />
                     <FormField
-                      control={form.control}
+                      control={registerForm.control}
                       name="username"
                       render={({ field }) => (
                         <FormItem>
@@ -231,7 +255,7 @@ export default function AuthPage() {
                       )}
                     />
                     <FormField
-                      control={form.control}
+                      control={registerForm.control}
                       name="password"
                       render={({ field }) => (
                         <FormItem>

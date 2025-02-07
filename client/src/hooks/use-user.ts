@@ -43,13 +43,13 @@ export function useUser() {
   // Login with email/password
   const loginMutation = useMutation({
     mutationFn: async ({ email, password }: { email: string; password: string }) => {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (error) throw error;
-      return { ok: true };
+      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user'] });
@@ -59,7 +59,7 @@ export function useUser() {
   // Register new user
   const registerMutation = useMutation({
     mutationFn: async ({ email, password, username }: { email: string; password: string; username: string }) => {
-      const { error: signUpError, data } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -69,8 +69,8 @@ export function useUser() {
         }
       });
 
-      if (signUpError) throw signUpError;
-      return { ok: true };
+      if (error) throw error;
+      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user'] });
@@ -80,7 +80,7 @@ export function useUser() {
   // Social login
   const socialLoginMutation = useMutation({
     mutationFn: async (provider: 'google' | 'github') => {
-      const { error } = await supabase.auth.signInWithOAuth({
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
           redirectTo: `${window.location.origin}/auth/callback`,
@@ -89,7 +89,7 @@ export function useUser() {
       });
 
       if (error) throw error;
-      return { ok: true };
+      return data;
     }
   });
 
