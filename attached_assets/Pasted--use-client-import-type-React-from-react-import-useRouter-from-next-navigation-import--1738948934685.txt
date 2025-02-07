@@ -1,0 +1,556 @@
+"use client"
+
+import type React from "react"
+import { useRouter } from "next/navigation"
+import { motion } from "framer-motion"
+import {
+  Play,
+  Facebook,
+  Twitter,
+  Instagram,
+  Linkedin,
+  Brain,
+  Zap,
+  Globe,
+  List,
+  Book,
+  Pen,
+  Headphones,
+  Briefcase,
+  Star,
+  Link,
+  Wand2,
+} from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+
+const LandingPage: React.FC = () => {
+  const router = useRouter()
+
+  const handleTryNow = () => {
+    router.push("/dashboard/summarize")
+  }
+
+  const handleLogin = () => {
+    router.push("/auth/login")
+  }
+
+  const navigateTo = (path: string) => {
+    router.push(path)
+  }
+
+  // Hero component
+  const Hero: React.FC = () => (
+    <section className="relative h-screen flex items-center justify-center overflow-hidden">
+      <div className="absolute inset-0 z-0">
+        <video className="w-full h-full object-cover opacity-20" autoPlay loop muted playsInline>
+          <source src="/hero-background.mp4" type="video/mp4" />
+        </video>
+      </div>
+      <div className="relative z-10 text-center">
+        <motion.h1
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="text-5xl font-bold mb-4"
+        >
+          Summarize Any YouTube Video in Seconds
+        </motion.h1>
+        <motion.p
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+          className="text-xl mb-8"
+        >
+          AI-powered instant summaries to save you time & effort.
+        </motion.p>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.4 }}
+          className="flex justify-center space-x-4"
+        >
+          <Button onClick={handleTryNow} size="lg">
+            Try Now
+          </Button>
+          <Button onClick={handleLogin} variant="outline" size="lg">
+            Login
+          </Button>
+          <Button variant="outline" size="lg">
+            <Play className="mr-2 h-4 w-4" /> Watch How It Works
+          </Button>
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.6 }}
+          className="mt-8 flex justify-center space-x-8"
+        >
+          <div>🚀 Used by 10,000+ professionals</div>
+          <div>⭐ Featured on TechCrunch, Forbes, Product Hunt</div>
+          <div>🔒 Secure & AI-driven</div>
+        </motion.div>
+      </div>
+    </section>
+  )
+
+  // HowItWorks component
+  const HowItWorks: React.FC = () => {
+    const steps = [
+      {
+        icon: <Link className="w-12 h-12 text-blue-500" />,
+        title: "Paste the YouTube Link",
+        description: "Copy any video URL",
+      },
+      {
+        icon: <Wand2 className="w-12 h-12 text-purple-500" />,
+        title: "Choose Summary Type",
+        description: "Bullet points, short paragraphs, key takeaways",
+      },
+      {
+        icon: <Zap className="w-12 h-12 text-yellow-500" />,
+        title: "Get Instant Summary",
+        description: "AI-powered output in seconds",
+      },
+    ]
+
+    return (
+      <section id="how-it-works" className="py-20 bg-white">
+        <div className="container mx-auto">
+          <h2 className="text-4xl font-bold text-center mb-12">How It Works</h2>
+          <div className="flex justify-around items-start">
+            {steps.map((step, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 50 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.2 }}
+                className="text-center max-w-xs"
+              >
+                <div className="mb-4 flex justify-center">{step.icon}</div>
+                <h3 className="text-xl font-semibold mb-2">{step.title}</h3>
+                <p>{step.description}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  // Features component
+  const Features: React.FC = () => {
+    const features = [
+      {
+        icon: <Brain className="w-12 h-12 text-purple-500" />,
+        title: "AI-Powered Precision",
+        description: "Get summaries with 99% accuracy",
+      },
+      {
+        icon: <Zap className="w-12 h-12 text-yellow-500" />,
+        title: "Super Fast Processing",
+        description: "Summarize a 1-hour video in seconds",
+      },
+      {
+        icon: <Globe className="w-12 h-12 text-blue-500" />,
+        title: "Supports Multiple Languages",
+        description: "English, Spanish, French & more",
+      },
+      {
+        icon: <List className="w-12 h-12 text-green-500" />,
+        title: "Multiple Formats",
+        description: "Bullet points, key takeaways, paragraphs",
+      },
+    ]
+
+    return (
+      <section id="features" className="py-20 bg-gray-50">
+        <div className="container mx-auto">
+          <h2 className="text-4xl font-bold text-center mb-12">What Makes Our Summarizer Unique?</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {features.map((feature, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 50 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                className="bg-white p-6 rounded-lg shadow-md"
+              >
+                <div className="mb-4 flex justify-center">{feature.icon}</div>
+                <h3 className="text-xl font-semibold mb-2 text-center">{feature.title}</h3>
+                <p className="text-center">{feature.description}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  // SubscriptionPlans component
+  const SubscriptionPlans: React.FC = () => {
+    const plans = [
+      {
+        name: "Basic",
+        price: "Free",
+        features: [
+          "10 summaries/month",
+          "Standard processing speed",
+          "Basic summary format",
+          "No API access",
+          "No priority support",
+        ],
+        cta: "Get Started",
+        popular: false,
+      },
+      {
+        name: "Pro",
+        price: "$9.99/mo",
+        features: [
+          "Unlimited summaries",
+          "Fast processing speed",
+          "Customizable summary format",
+          "No API access",
+          "Priority support",
+        ],
+        cta: "Try Pro",
+        popular: true,
+      },
+      {
+        name: "Enterprise",
+        price: "$29.99/mo",
+        features: [
+          "Unlimited summaries",
+          "Instant processing speed",
+          "Advanced summary format",
+          "API access",
+          "Priority support",
+        ],
+        cta: "Contact Us",
+        popular: false,
+      },
+    ]
+
+    return (
+      <section id="pricing" className="py-20 bg-white">
+        <div className="container mx-auto">
+          <h2 className="text-4xl font-bold text-center mb-12">Plans for Every User</h2>
+          <div className="flex flex-wrap justify-center gap-8">
+            {plans.map((plan, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 50 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                className={`bg-white p-8 rounded-lg shadow-md w-full max-w-sm relative ${
+                  plan.popular ? "border-2 border-blue-500" : ""
+                }`}
+              >
+                {plan.popular && (
+                  <div className="absolute top-0 right-0 bg-blue-500 text-white px-2 py-1 text-sm rounded-bl">
+                    Most Popular
+                  </div>
+                )}
+                <h3 className="text-2xl font-bold mb-4">{plan.name}</h3>
+                <p className="text-3xl font-bold mb-6">{plan.price}</p>
+                <ul className="mb-8">
+                  {plan.features.map((feature, i) => (
+                    <li key={i} className="flex items-center mb-2">
+                      {feature.startsWith("No") ? (
+                        <Zap className="w-5 h-5 text-red-500 mr-2" />
+                      ) : (
+                        <Zap className="w-5 h-5 text-green-500 mr-2" />
+                      )}
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
+                <Button onClick={handleTryNow} className="w-full" variant={plan.popular ? "default" : "outline"}>
+                  {plan.cta}
+                </Button>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  // UseCases component
+  const UseCases: React.FC = () => {
+    const useCases = [
+      {
+        icon: <Book className="w-12 h-12 text-blue-500" />,
+        title: "Students & Researchers",
+        description: "Summarize educational videos",
+      },
+      {
+        icon: <Pen className="w-12 h-12 text-green-500" />,
+        title: "Content Creators & Bloggers",
+        description: "Quickly extract key points",
+      },
+      {
+        icon: <Headphones className="w-12 h-12 text-purple-500" />,
+        title: "Podcast & Audiobook Listeners",
+        description: "Save time on long content",
+      },
+      {
+        icon: <Briefcase className="w-12 h-12 text-red-500" />,
+        title: "Professionals & Businesses",
+        description: "Extract insights from webinars",
+      },
+    ]
+
+    return (
+      <section className="py-20 bg-gray-50">
+        <div className="container mx-auto">
+          <h2 className="text-4xl font-bold text-center mb-12">Perfect for Professionals & Content Creators</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {useCases.map((useCase, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 50 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                className="bg-white p-6 rounded-lg shadow-md text-center"
+              >
+                <div className="mb-4 flex justify-center">{useCase.icon}</div>
+                <h3 className="text-xl font-semibold mb-2">{useCase.title}</h3>
+                <p>{useCase.description}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  // Testimonials component
+  const Testimonials: React.FC = () => {
+    const testimonials = [
+      {
+        name: "John D.",
+        review: "Game changer! Saves me hours of watching long videos.",
+      },
+      {
+        name: "Emma S.",
+        review: "Summarization is accurate and to the point!",
+      },
+      {
+        name: "Mike L.",
+        review: "Best AI summarizer I've used so far!",
+      },
+    ]
+
+    return (
+      <section className="py-20 bg-white">
+        <div className="container mx-auto">
+          <h2 className="text-4xl font-bold text-center mb-12">What Our Users Say</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {testimonials.map((testimonial, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 50 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                className="bg-gray-50 p-6 rounded-lg shadow-md"
+              >
+                <div className="flex items-center mb-4">
+                  <div className="w-12 h-12 rounded-full mr-4 bg-gray-300 flex items-center justify-center">
+                    <span className="text-xl font-bold text-gray-600">{testimonial.name[0]}</span>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold">{testimonial.name}</h3>
+                    <div className="flex">
+                      {[...Array(5)].map((_, i) => (
+                        <Star key={i} className="w-4 h-4 text-yellow-400 fill-current" />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                <p className="italic">"{testimonial.review}"</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  // FAQ component
+  const FAQ: React.FC = () => {
+    const faqs = [
+      {
+        question: "How does the summarizer work?",
+        answer:
+          "Our AI-powered summarizer uses advanced natural language processing to analyze YouTube videos and extract key information. It then generates concise summaries in various formats to suit your needs.",
+      },
+      {
+        question: "Is there a free trial?",
+        answer:
+          "Yes! Our Basic plan offers 10 free summaries per month, allowing you to try out our service without any commitment.",
+      },
+      {
+        question: "Can I summarize non-English videos?",
+        answer:
+          "Our summarizer supports multiple languages, including English, Spanish, French, and more. Simply paste the YouTube link, and we'll detect the language automatically.",
+      },
+      {
+        question: "Do you offer refunds?",
+        answer:
+          "We offer a 30-day money-back guarantee for our paid plans. If you're not satisfied with our service, please contact our support team for a full refund.",
+      },
+    ]
+
+    return (
+      <section className="py-20 bg-gray-50">
+        <div className="container mx-auto">
+          <h2 className="text-4xl font-bold text-center mb-12">Got Questions? We've Got Answers!</h2>
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="max-w-2xl mx-auto"
+          >
+            <Accordion type="single" collapsible>
+              {faqs.map((faq, index) => (
+                <AccordionItem key={index} value={`item-${index}`}>
+                  <AccordionTrigger>{faq.question}</AccordionTrigger>
+                  <AccordionContent>{faq.answer}</AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          </motion.div>
+        </div>
+      </section>
+    )
+  }
+
+  // CTA component
+  const CTA: React.FC = () => (
+    <section className="py-20 bg-blue-500 text-white">
+      <div className="container mx-auto text-center">
+        <motion.h2
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="text-4xl font-bold mb-8"
+        >
+          Start Summarizing Instantly!
+        </motion.h2>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="flex justify-center space-x-4"
+        >
+          <Button onClick={handleTryNow} size="lg" className="bg-white text-blue-500 hover:bg-blue-100">
+            Try Now for Free
+          </Button>
+        </motion.div>
+      </div>
+    </section>
+  )
+
+  // Footer component
+  const Footer: React.FC = () => (
+    <footer className="bg-gray-900 text-white py-12">
+      <div className="container mx-auto">
+        <div className="flex flex-wrap justify-between items-center">
+          <div className="w-full md:w-auto mb-6 md:mb-0">
+            <h2 className="text-2xl font-bold">YouTube Summarizer</h2>
+            <p className="mt-2">AI-powered Video Summarization</p>
+          </div>
+          <div className="w-full md:w-auto">
+            <ul className="flex flex-wrap justify-center md:justify-end space-x-6">
+              <li>
+                <a href="#" className="hover:text-blue-400">
+                  Privacy Policy
+                </a>
+              </li>
+              <li>
+                <a href="#" className="hover:text-blue-400">
+                  Terms of Service
+                </a>
+              </li>
+              <li>
+                <a href="mailto:contact@bitechdigital.com" className="hover:text-blue-400">
+                  Contact
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div className="mt-8 flex justify-center space-x-6">
+          <a href="#" className="text-gray-400 hover:text-white">
+            <Facebook />
+          </a>
+          <a href="#" className="text-gray-400 hover:text-white">
+            <Twitter />
+          </a>
+          <a href="#" className="text-gray-400 hover:text-white">
+            <Instagram />
+          </a>
+          <a href="#" className="text-gray-400 hover:text-white">
+            <Linkedin />
+          </a>
+        </div>
+        <div className="mt-8 text-center text-gray-400">
+          A Product from{" "}
+          <a href="https://bitech.digital/" target="_blank" rel="noopener noreferrer" className="hover:text-blue-400">
+            BiTech Digital
+          </a>
+        </div>
+      </div>
+    </footer>
+  )
+
+  // NavHeader component
+  const NavHeader: React.FC = () => (
+    <header className="absolute top-0 left-0 right-0 z-10 bg-white bg-opacity-90">
+      <nav className="container mx-auto px-6 py-3 flex justify-between items-center">
+        <div className="text-2xl font-bold text-blue-600">YT Summarizer</div>
+        <ul className="flex space-x-6 items-center">
+          <li>
+            <button onClick={() => navigateTo("/how-it-works")} className="text-gray-700 hover:text-blue-600">
+              How It Works
+            </button>
+          </li>
+          <li>
+            <button onClick={() => navigateTo("/features")} className="text-gray-700 hover:text-blue-600">
+              Features
+            </button>
+          </li>
+          <li>
+            <button onClick={() => navigateTo("/pricing")} className="text-gray-700 hover:text-blue-600">
+              Pricing
+            </button>
+          </li>
+          <li>
+            <Button onClick={handleTryNow} size="sm">
+              Get Started
+            </Button>
+          </li>
+        </ul>
+      </nav>
+    </header>
+  )
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-purple-100 to-blue-100">
+      <NavHeader />
+      <Hero />
+      <HowItWorks />
+      <Features />
+      <SubscriptionPlans />
+      <UseCases />
+      <Testimonials />
+      <FAQ />
+      <CTA />
+      <Footer />
+    </div>
+  )
+}
+
+export default LandingPage
+
