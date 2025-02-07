@@ -2,19 +2,16 @@ import { useState } from "react";
 import { NavSidebar } from "../components/nav-sidebar";
 import { SummaryCreator } from "../components/summary-creator";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../components/ui/card";
-import { Button } from "../components/ui/button";
 import { useUser } from "../hooks/use-user";
 import { useSummaries } from "../hooks/use-summary";
-import { Loader2, Download, ExternalLink, Clock, Layout, RefreshCcw } from "lucide-react";
+import { Loader2, Download, ExternalLink, Clock, Layout } from "lucide-react";
 import { Badge } from "../components/ui/badge";
 import { ScrollArea } from "../components/ui/scroll-area";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export default function Dashboard() {
   const { user } = useUser();
   const { summaries, isLoading } = useSummaries();
   const [selectedSummaryId, setSelectedSummaryId] = useState<number | null>(null);
-  const queryClient = useQueryClient();
 
   const selectedSummary = summaries?.find(s => s.id === selectedSummaryId);
   const summaryCount = summaries?.length || 0;
@@ -22,21 +19,6 @@ export default function Dashboard() {
   const availableCredits = user?.subscription === 'free' 
     ? Math.max(5 - summaryCount, 0)
     : 'Unlimited';
-
-  const resetCreditsMutation = useMutation({
-    mutationFn: async () => {
-      const res = await fetch('/api/reset-credits', {
-        method: 'POST',
-        credentials: 'include'
-      });
-      if (!res.ok) throw new Error('Failed to reset credits');
-      return res.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['user'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/summaries'] });
-    }
-  });
 
   return (
     <div className="flex h-screen bg-background">
@@ -46,19 +28,6 @@ export default function Dashboard() {
         <div className="container mx-auto px-4 py-8">
           <div className="flex justify-between items-center mb-8">
             <h1 className="text-3xl font-bold">Welcome, {user?.username}</h1>
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => resetCreditsMutation.mutate()}
-              disabled={resetCreditsMutation.isPending}
-            >
-              {resetCreditsMutation.isPending ? (
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              ) : (
-                <RefreshCcw className="h-4 w-4 mr-2" />
-              )}
-              Reset Credits
-            </Button>
           </div>
 
           <div className="grid lg:grid-cols-3 gap-6 mb-8">

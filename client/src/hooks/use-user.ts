@@ -83,7 +83,6 @@ export function useUser() {
         provider,
         options: {
           redirectTo: `${window.location.origin}/auth/callback`,
-          scopes: 'email profile',
         }
       });
 
@@ -96,11 +95,13 @@ export function useUser() {
   const logoutMutation = useMutation({
     mutationFn: async () => {
       const { error } = await supabase.auth.signOut();
-      if (error) throw error;
-      return { ok: true };
+      if (error) {
+        throw error;
+      }
+      queryClient.setQueryData(['user'], null);
+      return null;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['user'] });
       window.location.href = '/';
     },
   });
@@ -110,6 +111,8 @@ export function useUser() {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session?.user) {
         queryClient.invalidateQueries({ queryKey: ['user'] });
+      } else {
+        queryClient.setQueryData(['user'], null);
       }
     });
 
