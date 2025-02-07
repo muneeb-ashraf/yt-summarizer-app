@@ -42,13 +42,13 @@ export function useUser() {
   // Login with email/password
   const loginMutation = useMutation({
     mutationFn: async ({ email, password }: { email: string; password: string }) => {
-      const response = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
-      if (response.error) throw response.error;
-      return response.data.user;
+      if (error) throw error;
+      return data.user;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user'] });
@@ -58,7 +58,7 @@ export function useUser() {
   // Register new user
   const registerMutation = useMutation({
     mutationFn: async ({ email, password, username }: { email: string; password: string; username: string }) => {
-      const response = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -68,8 +68,8 @@ export function useUser() {
         }
       });
 
-      if (response.error) throw response.error;
-      return response.data.user;
+      if (error) throw error;
+      return data.user;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user'] });
