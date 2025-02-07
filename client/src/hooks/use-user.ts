@@ -79,7 +79,7 @@ export function useUser() {
 
   // Social login
   const socialLoginMutation = useMutation({
-    mutationFn: async (provider: 'google' | 'github' | 'apple') => {
+    mutationFn: async (provider: 'google' | 'github') => {
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {

@@ -15,7 +15,7 @@ import {
 import { Input } from "../components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
 import { useUser } from "../hooks/use-user";
-import { SiYoutube, SiGoogle, SiGithub, SiApple } from "react-icons/si";
+import { SiYoutube, SiGoogle, SiGithub } from "react-icons/si";
 import { Loader2 } from "lucide-react";
 import { useToast } from "../hooks/use-toast";
 import { Separator } from "../components/ui/separator";
@@ -82,7 +82,7 @@ export default function AuthPage() {
     }
   };
 
-  const handleSocialLogin = async (provider: 'google' | 'github' | 'apple') => {
+  const handleSocialLogin = async (provider: 'google' | 'github') => {
     if (isLoading) return;
     try {
       await socialLogin(provider);
@@ -132,15 +132,6 @@ export default function AuthPage() {
               >
                 <SiGithub className="mr-2 h-4 w-4" />
                 Continue with GitHub
-              </Button>
-              <Button
-                variant="outline"
-                className="w-full"
-                onClick={() => handleSocialLogin('apple')}
-                disabled={isLoading}
-              >
-                <SiApple className="mr-2 h-4 w-4" />
-                Continue with Apple
               </Button>
             </div>
 
