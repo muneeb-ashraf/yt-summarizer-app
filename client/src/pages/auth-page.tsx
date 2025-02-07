@@ -108,6 +108,7 @@ export default function AuthPage() {
 
   const handleSocialLogin = async (provider: 'google' | 'github') => {
     if (isLoading) return;
+    setIsLoading(true);
     try {
       await socialLogin(provider);
     } catch (error: any) {
@@ -116,6 +117,8 @@ export default function AuthPage() {
         description: error.message,
         variant: "destructive",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 

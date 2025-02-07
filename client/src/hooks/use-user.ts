@@ -17,14 +17,14 @@ export function useUser() {
     queryKey: ['user'],
     queryFn: async () => {
       try {
-        const { data: { user: authUser }, error: authError } = await supabase.auth.getUser();
-        if (authError) throw authError;
-        if (!authUser) return null;
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        if (sessionError) throw sessionError;
+        if (!session?.user) return null;
 
         const { data: profile, error: profileError } = await supabase
           .from('users')
           .select('*')
-          .eq('id', authUser.id)
+          .eq('id', session.user.id)
           .single();
 
         if (profileError) {
@@ -43,13 +43,13 @@ export function useUser() {
   // Login with email/password
   const loginMutation = useMutation({
     mutationFn: async ({ email, password }: { email: string; password: string }) => {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { data: { session }, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (error) throw error;
-      return data;
+      return session?.user;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user'] });
@@ -59,7 +59,7 @@ export function useUser() {
   // Register new user
   const registerMutation = useMutation({
     mutationFn: async ({ email, password, username }: { email: string; password: string; username: string }) => {
-      const { data, error } = await supabase.auth.signUp({
+      const { data: { session }, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -70,7 +70,7 @@ export function useUser() {
       });
 
       if (error) throw error;
-      return data;
+      return session?.user;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user'] });
