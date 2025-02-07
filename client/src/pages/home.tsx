@@ -43,11 +43,19 @@ export default function Home() {
                   Start Free Trial
                 </Button>
               </Link>
-              <Link href="#features">
-                <Button size="lg" variant="outline" className="w-full sm:w-auto">
-                  Learn More
-                </Button>
-              </Link>
+              <Button 
+                size="lg" 
+                variant="outline" 
+                className="w-full sm:w-auto"
+                onClick={() => {
+                  const featuresSection = document.getElementById('features');
+                  if (featuresSection) {
+                    featuresSection.scrollIntoView({ behavior: 'smooth' });
+                  }
+                }}
+              >
+                Learn More
+              </Button>
             </div>
           </div>
         </section>
