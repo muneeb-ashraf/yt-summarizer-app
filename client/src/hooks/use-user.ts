@@ -12,7 +12,6 @@ export function useUser() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  // Fetch user data including profile
   const { data: user, error, isLoading } = useQuery<User | null, AuthError>({
     queryKey: ['user'],
     queryFn: async () => {
@@ -43,13 +42,13 @@ export function useUser() {
   // Login with email/password
   const loginMutation = useMutation({
     mutationFn: async ({ email, password }: { email: string; password: string }) => {
-      const { data: { session }, error } = await supabase.auth.signInWithPassword({
+      const response = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
-      if (error) throw error;
-      return session?.user;
+      if (response.error) throw response.error;
+      return response.data.user;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user'] });
@@ -59,7 +58,7 @@ export function useUser() {
   // Register new user
   const registerMutation = useMutation({
     mutationFn: async ({ email, password, username }: { email: string; password: string; username: string }) => {
-      const { data: { session }, error } = await supabase.auth.signUp({
+      const response = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -69,8 +68,8 @@ export function useUser() {
         }
       });
 
-      if (error) throw error;
-      return session?.user;
+      if (response.error) throw response.error;
+      return response.data.user;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user'] });
