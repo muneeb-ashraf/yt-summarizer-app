@@ -6,12 +6,24 @@ import {
   LayoutDashboard,
   Settings,
   LogOut,
-  CreditCard
+  CreditCard,
+  Loader2
 } from "lucide-react";
+import { useState } from "react";
 
 export function NavSidebar() {
   const { logout } = useUser();
   const [location] = useLocation();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  const handleLogout = async () => {
+    try {
+      setIsLoggingOut(true);
+      await logout();
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
 
   return (
     <div className="w-64 border-r bg-card h-screen flex flex-col">
@@ -58,10 +70,15 @@ export function NavSidebar() {
         <Button
           variant="ghost"
           className="w-full justify-start text-red-500"
-          onClick={() => logout()}
+          onClick={handleLogout}
+          disabled={isLoggingOut}
         >
-          <LogOut className="mr-2 h-5 w-5" />
-          Logout
+          {isLoggingOut ? (
+            <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+          ) : (
+            <LogOut className="mr-2 h-5 w-5" />
+          )}
+          {isLoggingOut ? 'Logging out...' : 'Logout'}
         </Button>
       </div>
     </div>

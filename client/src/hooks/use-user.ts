@@ -94,21 +94,44 @@ export function useUser() {
   // Logout
   const logoutMutation = useMutation({
     mutationFn: async () => {
-      const { error } = await supabase.auth.signOut();
-      if (error) {
+      try {
+        // First check if we have a session
+        const { data: { session } } = await supabase.auth.getSession();
+
+        // Only attempt to sign out if we have a session
+        if (session) {
+          const { error } = await supabase.auth.signOut();
+          if (error) throw error;
+        }
+
+        // Clear the cache regardless of session state
+        queryClient.clear();
+        return null;
+      } catch (error) {
+        console.error('Logout error:', error);
+        // Even if there's an error, clear the cache
+        queryClient.clear();
         throw error;
       }
-      queryClient.setQueryData(['user'], null);
-      return null;
     },
     onSuccess: () => {
+      // Force reload to clear any remaining state
       window.location.href = '/';
     },
+    onError: (error: any) => {
+      toast({
+        title: "Error during logout",
+        description: error.message,
+        variant: "destructive",
+      });
+      // Force reload anyway to ensure clean state
+      window.location.href = '/';
+    }
   });
 
   // Listen to auth state changes
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (session?.user) {
         queryClient.invalidateQueries({ queryKey: ['user'] });
       } else {
