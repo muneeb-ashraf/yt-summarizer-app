@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { Summary } from '@db/schema';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '../lib/supabase';
 
 interface CreateSummaryParams {
   videoId: string;
@@ -11,6 +12,24 @@ interface CreateSummaryParams {
 export function useSummaries() {
   const { data, isLoading, error } = useQuery<Summary[]>({
     queryKey: ['/api/summaries'],
+    queryFn: async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error('Not authenticated');
+
+      const res = await fetch('/api/summaries', {
+        credentials: 'include',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`
+        }
+      });
+
+      if (!res.ok) {
+        const error = await res.text();
+        throw new Error(error);
+      }
+
+      return res.json();
+    }
   });
 
   return {
@@ -26,9 +45,15 @@ export function useCreateSummary() {
 
   const mutation = useMutation({
     mutationFn: async (params: CreateSummaryParams) => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error('Not authenticated');
+
       const res = await fetch('/api/summaries', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`
+        },
         body: JSON.stringify(params),
         credentials: 'include',
       });

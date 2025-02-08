@@ -3,6 +3,7 @@ import { db } from "@db";
 import { summaries } from "@db/schema";
 import { generateSummary } from "./ai";
 import z from "zod";
+import { supabase } from "./lib/supabase";
 
 interface YouTubeMetadata {
   title: string;
@@ -54,23 +55,7 @@ async function getYouTubeMetadata(videoId: string): Promise<YouTubeMetadata> {
     };
   } catch (error: any) {
     console.error('YouTube API error:', error);
-    // Fallback to extract title from video page if API fails
-    try {
-      const response = await fetch(`https://www.youtube.com/watch?v=${videoId}`);
-      const html = await response.text();
-      const titleMatch = html.match(/<title>(.*?)<\/title>/);
-      const title = titleMatch ? titleMatch[1].replace(' - YouTube', '') : `Video ${videoId}`;
-
-      return {
-        title,
-        duration: 0,
-        channelTitle: 'Unknown Channel',
-        description: 'Video description unavailable'
-      };
-    } catch (fallbackError) {
-      console.error('Fallback error:', fallbackError);
-      throw new Error('Failed to fetch video metadata');
-    }
+    throw new Error('Failed to fetch video metadata');
   }
 }
 
@@ -82,12 +67,29 @@ function parseDuration(duration: string): number {
   return (parseInt(hours) * 3600) + (parseInt(minutes) * 60) + parseInt(seconds);
 }
 
-export function setupYouTubeRoutes(app: Express) {
-  app.post("/api/summaries", async (req, res) => {
-    if (!req.isAuthenticated()) {
-      return res.status(401).send("Not authenticated");
-    }
+// Middleware to verify Supabase auth token
+async function verifyAuth(req: any, res: any, next: any) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader?.startsWith('Bearer ')) {
+    return res.status(401).send("No auth token");
+  }
 
+  const token = authHeader.split(' ')[1];
+  try {
+    const { data: { user }, error } = await supabase.auth.getUser(token);
+    if (error || !user) {
+      return res.status(401).send("Invalid auth token");
+    }
+    req.user = user;
+    next();
+  } catch (error) {
+    console.error("Auth error:", error);
+    res.status(401).send("Authentication failed");
+  }
+}
+
+export function setupYouTubeRoutes(app: Express) {
+  app.post("/api/summaries", verifyAuth, async (req, res) => {
     try {
       const result = createSummarySchema.safeParse(req.body);
       if (!result.success) {
@@ -95,7 +97,7 @@ export function setupYouTubeRoutes(app: Express) {
       }
 
       const { videoId, format, language } = result.data;
-      const user = req.user!;
+      const user = req.user;
 
       // Get video metadata
       const metadata = await getYouTubeMetadata(videoId);
@@ -130,14 +132,10 @@ export function setupYouTubeRoutes(app: Express) {
     }
   });
 
-  app.get("/api/summaries", async (req, res) => {
-    if (!req.isAuthenticated()) {
-      return res.status(401).send("Not authenticated");
-    }
-
+  app.get("/api/summaries", verifyAuth, async (req, res) => {
     try {
       const userSummaries = await db.query.summaries.findMany({
-        where: (summaries, { eq }) => eq(summaries.userId, req.user!.id),
+        where: (summaries, { eq }) => eq(summaries.userId, req.user.id),
         orderBy: (summaries, { desc }) => [desc(summaries.createdAt)]
       });
 
