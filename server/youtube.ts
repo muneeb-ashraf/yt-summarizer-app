@@ -69,21 +69,28 @@ function parseDuration(duration: string): number {
 
 // Middleware to verify Supabase auth token
 async function verifyAuth(req: any, res: any, next: any) {
-  const authHeader = req.headers.authorization;
-  if (!authHeader?.startsWith('Bearer ')) {
-    return res.status(401).send("No auth token");
-  }
-
-  const token = authHeader.split(' ')[1];
   try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader?.startsWith('Bearer ')) {
+      return res.status(401).send("No auth token");
+    }
+
+    const token = authHeader.split(' ')[1];
     const { data: { user }, error } = await supabase.auth.getUser(token);
-    if (error || !user) {
+
+    if (error) {
+      console.error("Auth error:", error);
       return res.status(401).send("Invalid auth token");
     }
+
+    if (!user) {
+      return res.status(401).send("User not found");
+    }
+
     req.user = user;
     next();
   } catch (error) {
-    console.error("Auth error:", error);
+    console.error("Auth verification error:", error);
     res.status(401).send("Authentication failed");
   }
 }
