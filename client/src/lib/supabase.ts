@@ -17,6 +17,17 @@ export const supabase = createClient(
       persistSession: true,
       detectSessionInUrl: true,
       flowType: 'pkce'
+    },
+    global: {
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      fetch: (url, options = {}) => {
+        return fetch(url, {
+          ...options,
+          credentials: 'include'
+        });
+      }
     }
   }
 );
