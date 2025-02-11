@@ -16,10 +16,13 @@ export const supabase = createClient<Database>(
     auth: {
       autoRefreshToken: true,
       persistSession: true,
-      detectSessionInUrl: true
+      detectSessionInUrl: true,
+      flowType: 'pkce'
     },
-    db: {
-      schema: 'public'
+    global: {
+      headers: {
+        'Content-Type': 'application/json'
+      }
     }
   }
 );
@@ -51,3 +54,13 @@ export type Tables = {
 
 export type User = Tables["users"];
 export type Summary = Tables["summaries"];
+
+// Helper to get current session
+export const getCurrentSession = async () => {
+  const { data: { session }, error } = await supabase.auth.getSession();
+  if (error) {
+    console.error('Error getting session:', error);
+    return null;
+  }
+  return session;
+};

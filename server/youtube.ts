@@ -54,7 +54,11 @@ export function setupYouTubeRoutes(app: Express) {
       }
 
       const { videoId, format, language } = result.data;
-      const user = req.user;
+
+      // Explicitly check for user
+      if (!req.user?.id) {
+        return res.status(401).send("User not authenticated");
+      }
 
       // Get video metadata
       const metadata = await getYouTubeMetadata(videoId);
@@ -63,7 +67,7 @@ export function setupYouTubeRoutes(app: Express) {
       const { data: userData } = await supabase
         .from('users')
         .select('subscription')
-        .eq('id', user.id)
+        .eq('id', req.user.id)
         .single();
 
       if (userData?.subscription === 'free' && metadata.duration > 900) {
@@ -73,11 +77,11 @@ export function setupYouTubeRoutes(app: Express) {
       // Generate summary using AI
       const summary = await generateSummary(videoId, format, language, metadata.description);
 
-      // Save to database using Supabase
+      // Insert with explicit user_id from authenticated user
       const { data: newSummary, error: insertError } = await supabase
         .from('summaries')
         .insert({
-          user_id: user.id,
+          user_id: req.user.id,
           video_id: videoId,
           video_title: metadata.title,
           video_duration: metadata.duration,
@@ -105,6 +109,10 @@ export function setupYouTubeRoutes(app: Express) {
 
   app.get("/api/summaries", verifyAuth, async (req, res) => {
     try {
+      if (!req.user?.id) {
+        return res.status(401).send("User not authenticated");
+      }
+
       const { data: summaries, error } = await supabase
         .from('summaries')
         .select('*')

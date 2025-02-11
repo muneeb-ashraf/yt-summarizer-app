@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { Summary } from '@db/schema';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '../lib/supabase';
+import { supabase, getCurrentSession } from '../lib/supabase';
 
 interface CreateSummaryParams {
   videoId: string;
@@ -14,7 +14,7 @@ export function useSummaries() {
     queryKey: ['/api/summaries'],
     queryFn: async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
+        const session = await getCurrentSession();
         if (!session) throw new Error('Not authenticated');
 
         const res = await fetch('/api/summaries', {
@@ -53,7 +53,7 @@ export function useCreateSummary() {
   const mutation = useMutation({
     mutationFn: async (params: CreateSummaryParams) => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
+        const session = await getCurrentSession();
         if (!session) throw new Error('Not authenticated');
 
         const res = await fetch('/api/summaries', {
