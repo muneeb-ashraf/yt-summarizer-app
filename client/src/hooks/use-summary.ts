@@ -13,23 +13,30 @@ export function useSummaries() {
   const { data, isLoading, error } = useQuery<Summary[]>({
     queryKey: ['/api/summaries'],
     queryFn: async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) throw new Error('Not authenticated');
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) throw new Error('Not authenticated');
 
-      const res = await fetch('/api/summaries', {
-        credentials: 'include',
-        headers: {
-          'Authorization': `Bearer ${session.access_token}`
+        const res = await fetch('/api/summaries', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${session.access_token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!res.ok) {
+          const errorText = await res.text();
+          throw new Error(errorText);
         }
-      });
 
-      if (!res.ok) {
-        const error = await res.text();
-        throw new Error(error);
+        return res.json();
+      } catch (error: any) {
+        console.error('Failed to fetch summaries:', error);
+        throw error;
       }
-
-      return res.json();
-    }
+    },
+    retry: false
   });
 
   return {
@@ -45,25 +52,29 @@ export function useCreateSummary() {
 
   const mutation = useMutation({
     mutationFn: async (params: CreateSummaryParams) => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) throw new Error('Not authenticated');
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) throw new Error('Not authenticated');
 
-      const res = await fetch('/api/summaries', {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`
-        },
-        body: JSON.stringify(params),
-        credentials: 'include',
-      });
+        const res = await fetch('/api/summaries', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${session.access_token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(params)
+        });
 
-      if (!res.ok) {
-        const error = await res.text();
-        throw new Error(error);
+        if (!res.ok) {
+          const errorText = await res.text();
+          throw new Error(errorText);
+        }
+
+        return res.json();
+      } catch (error: any) {
+        console.error('Failed to create summary:', error);
+        throw error;
       }
-
-      return res.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/summaries'] });
