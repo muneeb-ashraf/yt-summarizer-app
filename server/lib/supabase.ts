@@ -18,14 +18,6 @@ export const supabase = createClient(
       autoRefreshToken: true,
       persistSession: false,
       detectSessionInUrl: false
-    },
-    realtime: {
-      enabled: false
-    },
-    global: {
-      headers: {
-        'x-my-custom-header': 'ai-summarizer',
-      },
     }
   }
 );
