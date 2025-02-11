@@ -22,49 +22,6 @@ const createSummarySchema = z.object({
   })
 });
 
-async function getYouTubeMetadata(videoId: string): Promise<YouTubeMetadata> {
-  try {
-    const apiKey = process.env.YOUTUBE_API_KEY;
-    if (!apiKey) {
-      throw new Error('YouTube API key not configured');
-    }
-
-    const response = await fetch(
-      `https://www.googleapis.com/youtube/v3/videos?id=${videoId}&part=snippet,contentDetails&key=${apiKey}`
-    );
-
-    if (!response.ok) {
-      throw new Error(`YouTube API error: ${response.status}`);
-    }
-
-    const data = await response.json();
-    if (!data.items || data.items.length === 0) {
-      throw new Error('Video not found');
-    }
-
-    const video = data.items[0];
-    const duration = parseDuration(video.contentDetails.duration);
-
-    return {
-      title: video.snippet.title,
-      duration,
-      channelTitle: video.snippet.channelTitle,
-      description: video.snippet.description
-    };
-  } catch (error: any) {
-    console.error('YouTube API error:', error);
-    throw new Error('Failed to fetch video metadata');
-  }
-}
-
-function parseDuration(duration: string): number {
-  const match = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
-  if (!match) return 0;
-
-  const [_, hours = '0', minutes = '0', seconds = '0'] = match;
-  return (parseInt(hours) * 3600) + (parseInt(minutes) * 60) + parseInt(seconds);
-}
-
 // Middleware to verify Supabase auth token
 async function verifyAuth(req: any, res: any, next: any) {
   try {
@@ -127,7 +84,9 @@ export function setupYouTubeRoutes(app: Express) {
           summary,
           format,
           language,
-          metadata
+          metadata: {
+            channelTitle: metadata.channelTitle
+          }
         })
         .select()
         .single();
@@ -162,4 +121,47 @@ export function setupYouTubeRoutes(app: Express) {
       res.status(500).send(error.message);
     }
   });
+}
+
+async function getYouTubeMetadata(videoId: string): Promise<YouTubeMetadata> {
+  try {
+    const apiKey = process.env.YOUTUBE_API_KEY;
+    if (!apiKey) {
+      throw new Error('YouTube API key not configured');
+    }
+
+    const response = await fetch(
+      `https://www.googleapis.com/youtube/v3/videos?id=${videoId}&part=snippet,contentDetails&key=${apiKey}`
+    );
+
+    if (!response.ok) {
+      throw new Error(`YouTube API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    if (!data.items || data.items.length === 0) {
+      throw new Error('Video not found');
+    }
+
+    const video = data.items[0];
+    const duration = parseDuration(video.contentDetails.duration);
+
+    return {
+      title: video.snippet.title,
+      duration,
+      channelTitle: video.snippet.channelTitle,
+      description: video.snippet.description
+    };
+  } catch (error: any) {
+    console.error('YouTube API error:', error);
+    throw new Error('Failed to fetch video metadata');
+  }
+}
+
+function parseDuration(duration: string): number {
+  const match = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
+  if (!match) return 0;
+
+  const [_, hours = '0', minutes = '0', seconds = '0'] = match;
+  return (parseInt(hours) * 3600) + (parseInt(minutes) * 60) + parseInt(seconds);
 }

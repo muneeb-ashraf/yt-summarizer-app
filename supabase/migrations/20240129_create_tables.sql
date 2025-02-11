@@ -42,13 +42,14 @@ alter table public.summaries enable row level security;
 -- Drop existing policies if they exist
 drop policy if exists "Users can view their own summaries" on summaries;
 drop policy if exists "Users can insert their own summaries" on summaries;
+drop policy if exists "Users can create their own summaries" on summaries;
 
--- Recreate policies with correct user_id reference
+-- Create comprehensive policies for summaries
 create policy "Users can view their own summaries"
   on summaries for select
   using ( auth.uid() = user_id );
 
-create policy "Users can insert their own summaries"
+create policy "Users can create their own summaries"
   on summaries for insert
   with check ( auth.uid() = user_id );
 
