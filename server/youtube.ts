@@ -1,5 +1,5 @@
 import type { Express } from "express";
-import { supabase, getUser } from "./lib/supabase";
+import { supabase, getUser, getAuthenticatedClient } from "./lib/supabase";
 import { generateSummary } from "./ai";
 import z from "zod";
 
@@ -38,6 +38,7 @@ async function verifyAuth(req: any, res: any, next: any) {
     }
 
     req.user = user;
+    req.supabaseClient = getAuthenticatedClient(token);
     next();
   } catch (error: any) {
     console.error("Auth verification error:", error);
@@ -64,7 +65,7 @@ export function setupYouTubeRoutes(app: Express) {
       const metadata = await getYouTubeMetadata(videoId);
 
       // Check video duration for free users
-      const { data: userData } = await supabase
+      const { data: userData } = await req.supabaseClient
         .from('users')
         .select('subscription')
         .eq('id', req.user.id)
@@ -78,7 +79,7 @@ export function setupYouTubeRoutes(app: Express) {
       const summary = await generateSummary(videoId, format, language, metadata.description);
 
       // Insert with explicit user_id from authenticated user
-      const { data: newSummary, error: insertError } = await supabase
+      const { data: newSummary, error: insertError } = await req.supabaseClient
         .from('summaries')
         .insert({
           user_id: req.user.id,
@@ -113,7 +114,7 @@ export function setupYouTubeRoutes(app: Express) {
         return res.status(401).send("User not authenticated");
       }
 
-      const { data: summaries, error } = await supabase
+      const { data: summaries, error } = await req.supabaseClient
         .from('summaries')
         .select('*')
         .eq('user_id', req.user.id)

@@ -19,9 +19,6 @@ export const supabase = createClient<Database>(
       autoRefreshToken: true,
       persistSession: false,
       detectSessionInUrl: false
-    },
-    db: {
-      schema: 'public'
     }
   }
 );
@@ -36,4 +33,24 @@ export const getUser = async (token: string) => {
     console.error('Error getting user:', error);
     return null;
   }
+};
+
+// Helper to create an authenticated client
+export const getAuthenticatedClient = (token: string) => {
+  return createClient<Database>(
+    process.env.SUPABASE_URL!,
+    process.env.SUPABASE_ANON_KEY!,
+    {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
+        detectSessionInUrl: false
+      },
+      global: {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    }
+  );
 };

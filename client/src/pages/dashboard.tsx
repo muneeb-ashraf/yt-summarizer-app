@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { NavSidebar } from "../components/nav-sidebar";
+import { useState, useEffect } from "react";
+import Sidebar from "../components/sidebar";
 import { SummaryCreator } from "../components/summary-creator";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../components/ui/card";
 import { useUser } from "../hooks/use-user";
@@ -7,11 +7,16 @@ import { useSummaries } from "../hooks/use-summary";
 import { Loader2, Download, ExternalLink, Clock, Layout } from "lucide-react";
 import { Badge } from "../components/ui/badge";
 import { ScrollArea } from "../components/ui/scroll-area";
+import { Button } from "@/components/ui/button";
+import { Toaster } from "@/components/ui/toaster";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Dashboard() {
+  const { toast } = useToast();
   const { user } = useUser();
   const { summaries, isLoading } = useSummaries();
   const [selectedSummaryId, setSelectedSummaryId] = useState<number | null>(null);
+  const [videoTitles, setVideoTitles] = useState<{ [key: string]: string }>({});
 
   const selectedSummary = summaries?.find(s => s.id === selectedSummaryId);
   const summaryCount = summaries?.length || 0;
@@ -20,23 +25,61 @@ export default function Dashboard() {
     ? Math.max(5 - summaryCount, 0)
     : 'Unlimited';
 
-  return (
-    <div className="flex h-screen bg-background">
-      <NavSidebar />
+  useEffect(() => {
+    if (availableCredits === 0) {
+      toast({
+        title: "No Available Credits",
+        description: "You have used all your available credits in your plan.",
+        variant: "destructive",
+      });
+    }
+  }, [availableCredits]);
 
+  // Fetch YouTube video titles
+  useEffect(() => {
+    const fetchVideoTitles = async () => {
+      const videoIds = summaries?.map(s => s.videoId).filter(id => !videoTitles[id]);
+
+      if (videoIds?.length && process.env.VITE_YOUTUBE_API_KEY) {
+        try {
+          const response = await fetch(
+            `https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${videoIds.join(",")}&key=${process.env.VITE_YOUTUBE_API_KEY}`
+          );
+          const data = await response.json();
+
+          if (data.items) {
+            const newTitles = data.items.reduce((acc: any, item: any) => {
+              acc[item.id] = item.snippet.title;
+              return acc;
+            }, {});
+
+            setVideoTitles(prev => ({ ...prev, ...newTitles }));
+          }
+        } catch (error) {
+          console.error("Error fetching video titles:", error);
+        }
+      }
+    };
+
+    fetchVideoTitles();
+  }, [summaries]);
+
+  return (
+    <div className="flex min-h-screen bg-background">
+      <Sidebar />
       <main className="flex-1 overflow-auto">
-        <div className="container mx-auto px-4 py-8">
-          <div className="flex justify-between items-center mb-8">
-            <h1 className="text-3xl font-bold">Welcome, {user?.username}</h1>
+        <div className="container mx-auto p-4 md:p-8">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+            <h1 className="text-2xl md:text-3xl font-bold">Welcome, {user?.username}</h1>
           </div>
 
-          <div className="grid lg:grid-cols-3 gap-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-8">
             <Card>
               <CardHeader>
                 <CardTitle>Summaries Created</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-3xl font-bold">
+                <p className="text-2xl md:text-3xl font-bold">
                   {isLoading ? <Loader2 className="h-6 w-6 animate-spin" /> : summaryCount}
                 </p>
               </CardContent>
@@ -46,7 +89,7 @@ export default function Dashboard() {
                 <CardTitle>Subscription</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-3xl font-bold capitalize">{user?.subscription}</p>
+                <p className="text-2xl md:text-3xl font-bold capitalize">{user?.subscription}</p>
               </CardContent>
             </Card>
             <Card>
@@ -54,20 +97,18 @@ export default function Dashboard() {
                 <CardTitle>Available Credits</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-3xl font-bold">
-                  {availableCredits}
-                </p>
+                <p className="text-2xl md:text-3xl font-bold">{availableCredits}</p>
               </CardContent>
             </Card>
           </div>
 
-          <div className="grid lg:grid-cols-2 gap-8">
-            <div>
-              <h2 className="text-2xl font-bold mb-4">Create New Summary</h2>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="space-y-4">
+              <h2 className="text-xl md:text-2xl font-bold">Create New Summary</h2>
               <SummaryCreator />
             </div>
-            <div>
-              <h2 className="text-2xl font-bold mb-4">Recent Summaries</h2>
+            <div className="space-y-4">
+              <h2 className="text-xl md:text-2xl font-bold">Recent Summaries</h2>
               <Card className="h-[calc(100vh-20rem)]">
                 <ScrollArea className="h-full">
                   {isLoading ? (
@@ -92,7 +133,9 @@ export default function Dashboard() {
                         >
                           <CardContent className="p-4">
                             <div className="flex items-start justify-between mb-2">
-                              <h3 className="font-semibold line-clamp-2">{summary.videoTitle}</h3>
+                              <h3 className="font-semibold line-clamp-2">
+                                {videoTitles[summary.videoId] || "Loading..."}
+                              </h3>
                               <a
                                 href={`https://youtube.com/watch?v=${summary.videoId}`}
                                 target="_blank"
@@ -113,7 +156,7 @@ export default function Dashboard() {
                             </div>
                             <div className="flex items-center text-sm text-muted-foreground">
                               <Clock className="h-4 w-4 mr-1" />
-                              {new Date(summary.createdAt).toLocaleDateString()}
+                              {summary.createdAt ? new Date(summary.createdAt).toLocaleString() : "Unknown Date"}
                             </div>
                           </CardContent>
                         </Card>
@@ -129,9 +172,9 @@ export default function Dashboard() {
             <Card className="mt-8">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <div className="space-y-1">
-                  <CardTitle>{selectedSummary.videoTitle}</CardTitle>
+                  <CardTitle>{videoTitles[selectedSummary.videoId] || "Loading..."}</CardTitle>
                   <CardDescription>
-                    Generated on {new Date(selectedSummary.createdAt).toLocaleDateString()}
+                    Generated on {selectedSummary.createdAt ? new Date(selectedSummary.createdAt).toLocaleString() : "Unknown Date"}
                   </CardDescription>
                 </div>
                 <Button variant="outline" size="sm" onClick={() => {
@@ -150,24 +193,13 @@ export default function Dashboard() {
                 </Button>
               </CardHeader>
               <CardContent className="pt-6">
-                <div className="prose prose-sm md:prose-base lg:prose-lg max-w-none">
-                  {selectedSummary.format === 'bullets' ? (
-                    <div dangerouslySetInnerHTML={{ 
-                      __html: selectedSummary.summary
-                        .split('\n')
-                        .filter(line => line.trim())
-                        .map(line => `<p>${line}</p>`)
-                        .join('')
-                    }} />
-                  ) : (
-                    <div className="whitespace-pre-wrap">{selectedSummary.summary}</div>
-                  )}
-                </div>
+                <div className="whitespace-pre-wrap">{selectedSummary.summary}</div>
               </CardContent>
             </Card>
           )}
         </div>
       </main>
+      <Toaster />
     </div>
   );
 }
