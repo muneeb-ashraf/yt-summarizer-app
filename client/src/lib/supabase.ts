@@ -1,11 +1,11 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient } from "@supabase/supabase-js";
 
 if (!import.meta.env.VITE_SUPABASE_URL) {
-  throw new Error('Missing environment variable: VITE_SUPABASE_URL');
+  throw new Error("Missing environment variable: VITE_SUPABASE_URL");
 }
 
 if (!import.meta.env.VITE_SUPABASE_ANON_KEY) {
-  throw new Error('Missing environment variable: VITE_SUPABASE_ANON_KEY');
+  throw new Error("Missing environment variable: VITE_SUPABASE_ANON_KEY");
 }
 
 export const supabase = createClient(
@@ -15,9 +15,8 @@ export const supabase = createClient(
     auth: {
       autoRefreshToken: true,
       persistSession: true,
-      detectSessionInUrl: true
-    }
-  }
+    },
+  },
 );
 
 // Types based on your database schema
@@ -26,7 +25,7 @@ export type Tables = {
     id: string;
     email: string;
     username: string;
-    subscription: 'free' | 'pro' | 'enterprise';
+    subscription: "free" | "pro" | "enterprise";
     stripe_customer_id?: string;
     avatar_url?: string;
     created_at: string;
@@ -38,12 +37,12 @@ export type Tables = {
     video_title: string;
     video_duration: number;
     summary: string;
-    format: 'paragraph' | 'bullets' | 'timestamped';
+    format: "paragraph" | "bullets" | "timestamped";
     language: string;
     metadata: Record<string, any>;
     created_at: string;
   };
 };
 
-export type User = Tables['users'];
-export type Summary = Tables['summaries'];
+export type User = Tables["users"];
+export type Summary = Tables["summaries"];

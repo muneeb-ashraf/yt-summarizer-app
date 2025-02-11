@@ -1,9 +1,7 @@
 import type { Express } from "express";
-import { db } from "@db";
-import { summaries } from "@db/schema";
+import { supabase } from "./lib/supabase";
 import { generateSummary } from "./ai";
 import z from "zod";
-import { supabase } from "./lib/supabase";
 
 interface YouTubeMetadata {
   title: string;
@@ -76,32 +74,15 @@ async function verifyAuth(req: any, res: any, next: any) {
     }
 
     const token = authHeader.split(' ')[1];
+    const { data: { user }, error } = await supabase.auth.getUser(token);
 
-    // Make direct HTTP request to Supabase auth endpoint
-    const response = await fetch(`${process.env.SUPABASE_URL}/auth/v1/user`, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'apikey': process.env.SUPABASE_ANON_KEY || ''
-      }
-    });
-
-    if (!response.ok) {
+    if (error || !user) {
+      console.error("Auth verification error:", error);
       return res.status(401).send("Invalid auth token");
     }
 
-    const userData = await response.json();
-
-    if (!userData) {
-      return res.status(401).send("User not found");
-    }
-
     // Add user data to request
-    req.user = {
-      id: userData.id,
-      email: userData.email,
-      subscription: 'free' // Default to free subscription
-    };
-
+    req.user = user;
     next();
   } catch (error: any) {
     console.error("Auth verification error:", error);
@@ -124,27 +105,39 @@ export function setupYouTubeRoutes(app: Express) {
       const metadata = await getYouTubeMetadata(videoId);
 
       // Check video duration for free users
-      if (user.subscription === 'free' && metadata.duration > 900) {
+      const { data: userData } = await supabase
+        .from('users')
+        .select('subscription')
+        .eq('id', user.id)
+        .single();
+
+      if (userData?.subscription === 'free' && metadata.duration > 900) {
         return res.status(400).send("Free users can only summarize videos up to 15 minutes long");
       }
 
       // Generate summary using AI
       const summary = await generateSummary(videoId, format, language, metadata.description);
 
-      // Save to database
-      const [newSummary] = await db
-        .insert(summaries)
-        .values({
-          userId: user.id,
-          videoId,
-          videoTitle: metadata.title,
-          videoDuration: metadata.duration,
+      // Save to database using Supabase
+      const { data: newSummary, error } = await supabase
+        .from('summaries')
+        .insert({
+          user_id: user.id,
+          video_id: videoId,
+          video_title: metadata.title,
+          video_duration: metadata.duration,
           summary,
           format,
           language,
           metadata
         })
-        .returning();
+        .select()
+        .single();
+
+      if (error) {
+        console.error("Summary creation error:", error);
+        throw new Error("Failed to save summary");
+      }
 
       res.json(newSummary);
     } catch (error: any) {
@@ -155,12 +148,17 @@ export function setupYouTubeRoutes(app: Express) {
 
   app.get("/api/summaries", verifyAuth, async (req, res) => {
     try {
-      const userSummaries = await db.query.summaries.findMany({
-        where: (summaries, { eq }) => eq(summaries.userId, req.user.id),
-        orderBy: (summaries, { desc }) => [desc(summaries.createdAt)]
-      });
+      const { data: summaries, error } = await supabase
+        .from('summaries')
+        .select('*')
+        .eq('user_id', req.user.id)
+        .order('created_at', { ascending: false });
 
-      res.json(userSummaries);
+      if (error) {
+        throw error;
+      }
+
+      res.json(summaries);
     } catch (error: any) {
       console.error("Fetching summaries error:", error);
       res.status(500).send(error.message);
