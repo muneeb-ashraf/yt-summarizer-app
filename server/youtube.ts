@@ -72,26 +72,37 @@ async function verifyAuth(req: any, res: any, next: any) {
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader?.startsWith('Bearer ')) {
-      return res.status(401).send("No auth token");
+      console.log("Missing auth header");
+      return res.status(401).send("No auth token provided");
     }
 
     const token = authHeader.split(' ')[1];
+    console.log("Verifying token...");
+
     const { data: { user }, error } = await supabase.auth.getUser(token);
 
     if (error) {
-      console.error("Auth error:", error);
-      return res.status(401).send("Invalid auth token");
+      console.error("Supabase auth error:", error);
+      return res.status(401).send(`Authentication error: ${error.message}`);
     }
 
     if (!user) {
+      console.log("No user found for token");
       return res.status(401).send("User not found");
     }
 
-    req.user = user;
+    // Add user data to request
+    req.user = {
+      id: user.id,
+      email: user.email,
+      subscription: 'free' // Default to free subscription
+    };
+
+    console.log("User authenticated:", req.user.email);
     next();
-  } catch (error) {
+  } catch (error: any) {
     console.error("Auth verification error:", error);
-    res.status(401).send("Authentication failed");
+    res.status(401).send("Authentication failed: " + (error.message || "Unknown error"));
   }
 }
 
