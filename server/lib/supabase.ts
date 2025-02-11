@@ -19,12 +19,12 @@ export const supabase = createClient(
       persistSession: false,
       detectSessionInUrl: false
     },
-    db: {
-      schema: 'public'
+    realtime: {
+      enabled: false
     },
     global: {
       headers: {
-        'x-my-custom-header': 'my-app-name',
+        'x-my-custom-header': 'ai-summarizer',
       },
     }
   }

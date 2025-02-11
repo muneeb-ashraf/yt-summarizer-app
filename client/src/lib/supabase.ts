@@ -15,11 +15,13 @@ export const supabase = createClient(
     auth: {
       autoRefreshToken: true,
       persistSession: true,
-      detectSessionInUrl: true,
-      flowType: 'pkce'
+      detectSessionInUrl: true
     },
     realtime: {
       enabled: false
+    },
+    db: {
+      schema: 'public'
     }
   }
 );
