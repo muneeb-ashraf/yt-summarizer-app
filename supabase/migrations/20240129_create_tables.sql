@@ -42,7 +42,7 @@ alter table public.summaries enable row level security;
 -- Drop existing policies if they exist
 drop policy if exists "Users can view their own summaries" on summaries;
 drop policy if exists "Users can insert their own summaries" on summaries;
-drop policy if exists "Users can create their own summaries" on summaries;
+drop policy if exists "Users can delete their own summaries" on summaries;
 
 -- Create comprehensive policies for summaries
 create policy "Users can view their own summaries"
@@ -52,6 +52,10 @@ create policy "Users can view their own summaries"
 create policy "Users can create their own summaries"
   on summaries for insert
   with check ( auth.uid() = user_id );
+
+create policy "Users can delete their own summaries"
+  on summaries for delete
+  using ( auth.uid() = user_id );
 
 -- Create functions to handle user creation
 create or replace function public.handle_new_user()

@@ -1,4 +1,4 @@
-import type { Express } from "express";
+import type { Express, Request, Response, NextFunction } from "express";
 import { supabase, getUser, getAuthenticatedClient } from "./lib/supabase";
 import { generateSummary } from "./ai";
 import z from "zod";
@@ -8,6 +8,12 @@ interface YouTubeMetadata {
   duration: number;
   channelTitle: string;
   description: string;
+}
+
+// Extend the Express Request type
+interface AuthenticatedRequest extends Request {
+  user: any;
+  supabaseClient: any;
 }
 
 const createSummarySchema = z.object({
@@ -23,7 +29,11 @@ const createSummarySchema = z.object({
 });
 
 // Middleware to verify Supabase auth token
-async function verifyAuth(req: any, res: any, next: any) {
+async function verifyAuth(
+  req: AuthenticatedRequest, 
+  res: Response, 
+  next: NextFunction
+) {
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader?.startsWith('Bearer ')) {
@@ -37,6 +47,7 @@ async function verifyAuth(req: any, res: any, next: any) {
       return res.status(401).send("Invalid auth token");
     }
 
+    // Store both user and authenticated client in request
     req.user = user;
     req.supabaseClient = getAuthenticatedClient(token);
     next();
@@ -47,7 +58,7 @@ async function verifyAuth(req: any, res: any, next: any) {
 }
 
 export function setupYouTubeRoutes(app: Express) {
-  app.post("/api/summaries", verifyAuth, async (req, res) => {
+  app.post("/api/summaries", verifyAuth, async (req: AuthenticatedRequest, res: Response) => {
     try {
       const result = createSummarySchema.safeParse(req.body);
       if (!result.success) {
@@ -65,11 +76,16 @@ export function setupYouTubeRoutes(app: Express) {
       const metadata = await getYouTubeMetadata(videoId);
 
       // Check video duration for free users
-      const { data: userData } = await req.supabaseClient
+      const { data: userData, error: userError } = await req.supabaseClient
         .from('users')
         .select('subscription')
         .eq('id', req.user.id)
         .single();
+
+      if (userError) {
+        console.error("Error fetching user data:", userError);
+        return res.status(500).send("Error checking user subscription");
+      }
 
       if (userData?.subscription === 'free' && metadata.duration > 900) {
         return res.status(400).send("Free users can only summarize videos up to 15 minutes long");
@@ -98,6 +114,9 @@ export function setupYouTubeRoutes(app: Express) {
 
       if (insertError) {
         console.error("Summary creation error:", insertError);
+        if (insertError.code === '42501') {
+          return res.status(403).send("Permission denied: Cannot create summary");
+        }
         throw new Error("Failed to save summary");
       }
 
@@ -108,7 +127,7 @@ export function setupYouTubeRoutes(app: Express) {
     }
   });
 
-  app.get("/api/summaries", verifyAuth, async (req, res) => {
+  app.get("/api/summaries", verifyAuth, async (req: AuthenticatedRequest, res: Response) => {
     try {
       if (!req.user?.id) {
         return res.status(401).send("User not authenticated");
@@ -121,12 +140,54 @@ export function setupYouTubeRoutes(app: Express) {
         .order('created_at', { ascending: false });
 
       if (error) {
-        throw error;
+        console.error("Error fetching summaries:", error);
+        return res.status(500).send("Failed to fetch summaries");
       }
 
       res.json(summaries);
     } catch (error: any) {
       console.error("Fetching summaries error:", error);
+      res.status(500).send(error.message);
+    }
+  });
+
+  // Add delete endpoint
+  app.delete("/api/summaries/:id", verifyAuth, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (!req.user?.id) {
+        return res.status(401).send("User not authenticated");
+      }
+
+      const summaryId = req.params.id;
+
+      // First verify the summary belongs to the user
+      const { data: summary, error: fetchError } = await req.supabaseClient
+        .from('summaries')
+        .select('user_id')
+        .eq('id', summaryId)
+        .single();
+
+      if (fetchError) {
+        return res.status(404).send("Summary not found");
+      }
+
+      if (summary.user_id !== req.user.id) {
+        return res.status(403).send("Permission denied: Cannot delete this summary");
+      }
+
+      const { error: deleteError } = await req.supabaseClient
+        .from('summaries')
+        .delete()
+        .eq('id', summaryId)
+        .eq('user_id', req.user.id);
+
+      if (deleteError) {
+        throw deleteError;
+      }
+
+      res.status(200).send({ message: "Summary deleted successfully" });
+    } catch (error: any) {
+      console.error("Summary deletion error:", error);
       res.status(500).send(error.message);
     }
   });
