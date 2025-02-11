@@ -1,5 +1,5 @@
 import type { Express } from "express";
-import { supabase } from "./lib/supabase";
+import { supabase, getUser } from "./lib/supabase";
 import { generateSummary } from "./ai";
 import z from "zod";
 
@@ -74,14 +74,12 @@ async function verifyAuth(req: any, res: any, next: any) {
     }
 
     const token = authHeader.split(' ')[1];
-    const { data: { user }, error } = await supabase.auth.getUser(token);
+    const user = await getUser(token);
 
-    if (error || !user) {
-      console.error("Auth verification error:", error);
+    if (!user) {
       return res.status(401).send("Invalid auth token");
     }
 
-    // Add user data to request
     req.user = user;
     next();
   } catch (error: any) {
@@ -119,7 +117,7 @@ export function setupYouTubeRoutes(app: Express) {
       const summary = await generateSummary(videoId, format, language, metadata.description);
 
       // Save to database using Supabase
-      const { data: newSummary, error } = await supabase
+      const { data: newSummary, error: insertError } = await supabase
         .from('summaries')
         .insert({
           user_id: user.id,
@@ -134,8 +132,8 @@ export function setupYouTubeRoutes(app: Express) {
         .select()
         .single();
 
-      if (error) {
-        console.error("Summary creation error:", error);
+      if (insertError) {
+        console.error("Summary creation error:", insertError);
         throw new Error("Failed to save summary");
       }
 

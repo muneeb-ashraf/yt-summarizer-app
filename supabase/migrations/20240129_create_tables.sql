@@ -39,6 +39,11 @@ create table public.summaries (
 -- Set up RLS for summaries
 alter table public.summaries enable row level security;
 
+-- Drop existing policies if they exist
+drop policy if exists "Users can view their own summaries" on summaries;
+drop policy if exists "Users can insert their own summaries" on summaries;
+
+-- Recreate policies with correct user_id reference
 create policy "Users can view their own summaries"
   on summaries for select
   using ( auth.uid() = user_id );
@@ -48,7 +53,7 @@ create policy "Users can insert their own summaries"
   with check ( auth.uid() = user_id );
 
 -- Create functions to handle user creation
-create function public.handle_new_user()
+create or replace function public.handle_new_user()
 returns trigger as $$
 begin
   insert into public.users (id, email, username)
