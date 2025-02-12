@@ -11,15 +11,18 @@ import { ScrollArea } from "../components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Toaster } from "@/components/ui/toaster";
 import { useToast } from "@/hooks/use-toast";
+import { useLocation } from "wouter";
+import { useQueryClient } from "@tanstack/react-query";
 import type { Summary } from "@/lib/supabase";
 
 export default function Dashboard() {
   const { toast } = useToast();
-  const { user } = useUser();
-  const { summaries, isLoading } = useSummaries();
+  const { user, refetchUser } = useUser();
+  const { summaries, isLoading, refetch: refetchSummaries } = useSummaries();
   const { deleteSummary } = useDeleteSummary();
   const [selectedSummaryId, setSelectedSummaryId] = useState<string | null>(null);
-  const [videoTitles, setVideoTitles] = useState<{ [key: string]: string }>({});
+  const queryClient = useQueryClient();
+  const [, params] = useLocation();
 
   const selectedSummary = summaries?.find(s => s.id === selectedSummaryId);
   const summaryCount = summaries?.length || 0;
@@ -35,45 +38,49 @@ export default function Dashboard() {
 
   const availableCredits = getAvailableCredits();
 
+  // Handle Stripe success
   useEffect(() => {
-    if (availableCredits === 0) {
+    const searchParams = new URLSearchParams(window.location.search);
+    const sessionId = searchParams.get('session_id');
+
+    if (sessionId) {
+      // Clear the URL parameters
+      window.history.replaceState({}, '', '/dashboard');
+
+      // Refetch user data to get updated subscription
+      const updateSubscriptionStatus = async () => {
+        try {
+          await refetchUser();
+          queryClient.invalidateQueries({ queryKey: ['user'] });
+          await refetchSummaries();
+
+          toast({
+            title: "Subscription Updated",
+            description: "Your subscription has been successfully updated. Enjoy your new features!",
+          });
+        } catch (error) {
+          console.error('Error updating subscription status:', error);
+          toast({
+            title: "Update Error",
+            description: "There was an error updating your subscription status. Please refresh the page.",
+            variant: "destructive",
+          });
+        }
+      };
+
+      updateSubscriptionStatus();
+    }
+  }, []);
+
+  useEffect(() => {
+    if (availableCredits === 0 && user?.subscription === 'free') {
       toast({
         title: "No Available Credits",
         description: "You've used all your available credits. Please upgrade your plan to continue.",
         variant: "destructive",
       });
     }
-  }, [availableCredits]);
-
-  // Fetch YouTube video titles
-  useEffect(() => {
-    const fetchVideoTitles = async () => {
-      const videoIds = summaries?.map(s => s.video_id).filter(id => !videoTitles[id]);
-      const apiKey = import.meta.env.VITE_YOUTUBE_API_KEY;
-
-      if (videoIds?.length && apiKey) {
-        try {
-          const response = await fetch(
-            `https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${videoIds.join(",")}&key=${apiKey}`
-          );
-          const data = await response.json();
-
-          if (data.items) {
-            const newTitles = data.items.reduce((acc: any, item: any) => {
-              acc[item.id] = item.snippet.title;
-              return acc;
-            }, {});
-
-            setVideoTitles(prev => ({ ...prev, ...newTitles }));
-          }
-        } catch (error) {
-          console.error("Error fetching video titles:", error);
-        }
-      }
-    };
-
-    fetchVideoTitles();
-  }, [summaries]);
+  }, [availableCredits, user?.subscription]);
 
   const handleDeleteSummary = async (id: string) => {
     try {

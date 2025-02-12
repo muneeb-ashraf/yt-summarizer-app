@@ -12,7 +12,12 @@ export function useUser() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  const { data: user, error, isLoading } = useQuery<User | null, AuthError>({
+  const {
+    data: user,
+    error,
+    isLoading,
+    refetch: refetchUser
+  } = useQuery<User | null, AuthError>({
     queryKey: ['user'],
     queryFn: async () => {
       try {
@@ -37,6 +42,8 @@ export function useUser() {
         return null;
       }
     },
+    staleTime: 0, // Always refetch when requested
+    cacheTime: 0, // Don't cache the data
   });
 
   // Login with email/password
@@ -95,27 +102,20 @@ export function useUser() {
   const logoutMutation = useMutation({
     mutationFn: async () => {
       try {
-        // First check if we have a session
         const { data: { session } } = await supabase.auth.getSession();
-
-        // Only attempt to sign out if we have a session
         if (session) {
           const { error } = await supabase.auth.signOut();
           if (error) throw error;
         }
-
-        // Clear the cache regardless of session state
         queryClient.clear();
         return null;
       } catch (error) {
         console.error('Logout error:', error);
-        // Even if there's an error, clear the cache
         queryClient.clear();
         throw error;
       }
     },
     onSuccess: () => {
-      // Force reload to clear any remaining state
       window.location.href = '/';
     },
     onError: (error: any) => {
@@ -124,7 +124,6 @@ export function useUser() {
         description: error.message,
         variant: "destructive",
       });
-      // Force reload anyway to ensure clean state
       window.location.href = '/';
     }
   });
@@ -152,5 +151,6 @@ export function useUser() {
     socialLogin: socialLoginMutation.mutateAsync,
     logout: logoutMutation.mutateAsync,
     register: registerMutation.mutateAsync,
+    refetchUser,
   };
 }
