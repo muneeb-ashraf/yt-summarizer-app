@@ -97,3 +97,50 @@ export function useCreateSummary() {
     isLoading: mutation.isPending
   };
 }
+
+export function useDeleteSummary() {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  const mutation = useMutation({
+    mutationFn: async (summaryId: string) => {
+      try {
+        const session = await getCurrentSession();
+        if (!session) throw new Error('Not authenticated');
+
+        const res = await fetch(`/api/summaries/${summaryId}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${session.access_token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!res.ok) {
+          const errorText = await res.text();
+          throw new Error(errorText);
+        }
+
+        return res.json();
+      } catch (error: any) {
+        console.error('Failed to delete summary:', error);
+        throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/summaries'] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  return {
+    deleteSummary: mutation.mutate,
+    isLoading: mutation.isPending
+  };
+}

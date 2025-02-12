@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import Sidebar from "../components/sidebar";
 import { SummaryCreator } from "../components/summary-creator";
+import { SummaryModal } from "../components/summary-modal";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../components/ui/card";
 import { useUser } from "../hooks/use-user";
-import { useSummaries } from "../hooks/use-summary";
-import { Loader2, Download, ExternalLink, Clock, Layout } from "lucide-react";
+import { useSummaries, useDeleteSummary } from "../hooks/use-summary";
+import { Loader2, Download, ExternalLink, Clock, Layout, Trash2 } from "lucide-react";
 import { Badge } from "../components/ui/badge";
 import { ScrollArea } from "../components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
@@ -15,7 +16,8 @@ export default function Dashboard() {
   const { toast } = useToast();
   const { user } = useUser();
   const { summaries, isLoading } = useSummaries();
-  const [selectedSummaryId, setSelectedSummaryId] = useState<number | null>(null);
+  const { deleteSummary } = useDeleteSummary();
+  const [selectedSummaryId, setSelectedSummaryId] = useState<string | null>(null);
   const [videoTitles, setVideoTitles] = useState<{ [key: string]: string }>({});
 
   const selectedSummary = summaries?.find(s => s.id === selectedSummaryId);
@@ -38,7 +40,7 @@ export default function Dashboard() {
   // Fetch YouTube video titles
   useEffect(() => {
     const fetchVideoTitles = async () => {
-      const videoIds = summaries?.map(s => s.videoId).filter(id => !videoTitles[id]);
+      const videoIds = summaries?.map(s => s.video_id).filter(id => !videoTitles[id]);
 
       if (videoIds?.length && process.env.VITE_YOUTUBE_API_KEY) {
         try {
@@ -63,6 +65,15 @@ export default function Dashboard() {
 
     fetchVideoTitles();
   }, [summaries]);
+
+  const handleDeleteSummary = async (id: string) => {
+    try {
+      await deleteSummary(id);
+      setSelectedSummaryId(null);
+    } catch (error) {
+      console.error("Error deleting summary:", error);
+    }
+  };
 
   return (
     <div className="flex min-h-screen bg-background">
@@ -126,25 +137,40 @@ export default function Dashboard() {
                       {summaries?.map(summary => (
                         <Card
                           key={summary.id}
-                          className={`cursor-pointer transition-all hover:ring-2 hover:ring-primary/20 ${
-                            selectedSummaryId === summary.id ? 'ring-2 ring-primary' : ''
-                          }`}
-                          onClick={() => setSelectedSummaryId(summary.id)}
+                          className={`cursor-pointer transition-all hover:ring-2 hover:ring-primary/20`}
                         >
                           <CardContent className="p-4">
                             <div className="flex items-start justify-between mb-2">
-                              <h3 className="font-semibold line-clamp-2">
-                                {videoTitles[summary.videoId] || "Loading..."}
-                              </h3>
-                              <a
-                                href={`https://youtube.com/watch?v=${summary.videoId}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-muted-foreground hover:text-foreground ml-2 flex-shrink-0"
-                                onClick={(e) => e.stopPropagation()}
+                              <div 
+                                className="flex-1"
+                                onClick={() => setSelectedSummaryId(summary.id)}
                               >
-                                <ExternalLink className="h-4 w-4" />
-                              </a>
+                                <h3 className="font-semibold line-clamp-2">
+                                  {videoTitles[summary.video_id] || "Loading..."}
+                                </h3>
+                              </div>
+                              <div className="flex items-center gap-2 ml-2">
+                                <a
+                                  href={`https://youtube.com/watch?v=${summary.video_id}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-muted-foreground hover:text-foreground"
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  <ExternalLink className="h-4 w-4" />
+                                </a>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDeleteSummary(summary.id);
+                                  }}
+                                >
+                                  <Trash2 className="h-4 w-4 text-muted-foreground hover:text-destructive" />
+                                </Button>
+                              </div>
                             </div>
                             <div className="flex flex-wrap gap-2 mb-2">
                               <Badge variant="secondary" className="capitalize">
@@ -156,7 +182,7 @@ export default function Dashboard() {
                             </div>
                             <div className="flex items-center text-sm text-muted-foreground">
                               <Clock className="h-4 w-4 mr-1" />
-                              {summary.createdAt ? new Date(summary.createdAt).toLocaleString() : "Unknown Date"}
+                              {summary.created_at ? new Date(summary.created_at).toLocaleString() : "Unknown Date"}
                             </div>
                           </CardContent>
                         </Card>
@@ -168,35 +194,13 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {selectedSummary && (
-            <Card className="mt-8">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <div className="space-y-1">
-                  <CardTitle>{videoTitles[selectedSummary.videoId] || "Loading..."}</CardTitle>
-                  <CardDescription>
-                    Generated on {selectedSummary.createdAt ? new Date(selectedSummary.createdAt).toLocaleString() : "Unknown Date"}
-                  </CardDescription>
-                </div>
-                <Button variant="outline" size="sm" onClick={() => {
-                  const blob = new Blob([selectedSummary.summary], { type: 'text/plain' });
-                  const url = URL.createObjectURL(blob);
-                  const a = document.createElement('a');
-                  a.href = url;
-                  a.download = `summary-${selectedSummary.videoId}.txt`;
-                  document.body.appendChild(a);
-                  a.click();
-                  document.body.removeChild(a);
-                  URL.revokeObjectURL(url);
-                }}>
-                  <Download className="h-4 w-4 mr-2" />
-                  Download
-                </Button>
-              </CardHeader>
-              <CardContent className="pt-6">
-                <div className="whitespace-pre-wrap">{selectedSummary.summary}</div>
-              </CardContent>
-            </Card>
-          )}
+          <SummaryModal
+            summary={selectedSummary}
+            videoTitle={selectedSummary ? videoTitles[selectedSummary.video_id] || "Loading..." : ""}
+            isOpen={!!selectedSummaryId}
+            onClose={() => setSelectedSummaryId(null)}
+            onDelete={handleDeleteSummary}
+          />
         </div>
       </main>
       <Toaster />
