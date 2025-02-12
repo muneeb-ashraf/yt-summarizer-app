@@ -90,11 +90,10 @@ export function setupStripeRoutes(app: Express) {
   // Handle Stripe webhook
   app.post('/api/webhook', async (req, res) => {
     const sig = req.headers['stripe-signature'];
-    const payload = req.rawBody;
 
     try {
       const event = stripe.webhooks.constructEvent(
-        payload,
+        req.body,
         sig || '',
         process.env.STRIPE_WEBHOOK_SECRET || ''
       );
@@ -110,20 +109,30 @@ export function setupStripeRoutes(app: Express) {
           if (planId === SUBSCRIPTION_PRICES.pro) plan = 'pro';
           if (planId === SUBSCRIPTION_PRICES.enterprise) plan = 'enterprise';
 
-          await supabase
+          const { error: updateError } = await supabase
             .from('users')
             .update({ subscription: plan })
             .eq('id', userId);
+
+          if (updateError) {
+            console.error('Error updating subscription:', updateError);
+            return res.status(500).send('Error updating subscription');
+          }
           break;
 
         case 'customer.subscription.deleted':
           const deletedSubscription = event.data.object as Stripe.Subscription;
           const deletedUserId = deletedSubscription.metadata.supabase_user_id;
 
-          await supabase
+          const { error: deleteError } = await supabase
             .from('users')
             .update({ subscription: 'free' })
             .eq('id', deletedUserId);
+
+          if (deleteError) {
+            console.error('Error updating subscription:', deleteError);
+            return res.status(500).send('Error updating subscription');
+          }
           break;
       }
 

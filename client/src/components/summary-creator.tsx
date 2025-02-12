@@ -70,13 +70,6 @@ export function SummaryCreator() {
         });
         return false;
       }
-    } else if (user.subscription === 'expired') {
-      toast({
-        title: "Subscription Expired",
-        description: "Please renew your subscription to continue generating summaries.",
-        variant: "destructive",
-      });
-      return false;
     }
     return true;
   };
