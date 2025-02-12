@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import Sidebar from "../components/sidebar";
+import { NavSidebar } from "../components/nav-sidebar";
 import { SummaryCreator } from "../components/summary-creator";
 import { SummaryModal } from "../components/summary-modal";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
@@ -79,7 +79,7 @@ export default function Dashboard() {
 
   return (
     <div className="flex min-h-screen bg-background">
-      <Sidebar />
+      <NavSidebar />
       <main className="flex-1 overflow-auto">
         <div className="container mx-auto p-4 md:p-8">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">

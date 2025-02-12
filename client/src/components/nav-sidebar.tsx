@@ -7,7 +7,7 @@ import {
   Settings,
   LogOut,
   CreditCard,
-  Loader2
+  Loader2,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -21,7 +21,7 @@ export function NavSidebar() {
       setIsLoggingOut(true);
       await logout();
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error("Logout error:", error);
     }
   };
 
@@ -38,7 +38,7 @@ export function NavSidebar() {
         <div className="space-y-2">
           <Link href="/dashboard">
             <Button
-              variant={location === '/dashboard' ? 'secondary' : 'ghost'}
+              variant={location === "/dashboard" ? "secondary" : "ghost"}
               className="w-full justify-start"
             >
               <LayoutDashboard className="mr-2 h-5 w-5" />
@@ -47,7 +47,7 @@ export function NavSidebar() {
           </Link>
           <Link href="/subscription">
             <Button
-              variant={location === '/subscription' ? 'secondary' : 'ghost'}
+              variant={location === "/subscription" ? "secondary" : "ghost"}
               className="w-full justify-start"
             >
               <CreditCard className="mr-2 h-5 w-5" />
@@ -56,7 +56,7 @@ export function NavSidebar() {
           </Link>
           <Link href="/settings">
             <Button
-              variant={location === '/settings' ? 'secondary' : 'ghost'}
+              variant={location === "/settings" ? "secondary" : "ghost"}
               className="w-full justify-start"
             >
               <Settings className="mr-2 h-5 w-5" />
@@ -78,7 +78,7 @@ export function NavSidebar() {
           ) : (
             <LogOut className="mr-2 h-5 w-5" />
           )}
-          {isLoggingOut ? 'Logging out...' : 'Logout'}
+          {isLoggingOut ? "Logging out..." : "Logout"}
         </Button>
       </div>
     </div>
