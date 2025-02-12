@@ -24,15 +24,22 @@ export default function Dashboard() {
   const selectedSummary = summaries?.find(s => s.id === selectedSummaryId);
   const summaryCount = summaries?.length || 0;
 
-  const availableCredits = user?.subscription === 'free' 
-    ? Math.max(5 - summaryCount, 0)
-    : 'Unlimited';
+  // Calculate available credits based on subscription type
+  const getAvailableCredits = () => {
+    if (!user) return 0;
+    if (user.subscription === 'pro' || user.subscription === 'enterprise') {
+      return 'Unlimited';
+    }
+    return Math.max(5 - summaryCount, 0);
+  };
+
+  const availableCredits = getAvailableCredits();
 
   useEffect(() => {
     if (availableCredits === 0) {
       toast({
         title: "No Available Credits",
-        description: "You have used all your available credits in your plan.",
+        description: "You've used all your available credits. Please upgrade your plan to continue.",
         variant: "destructive",
       });
     }
@@ -102,7 +109,9 @@ export default function Dashboard() {
                 <CardTitle>Subscription</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-2xl md:text-3xl font-bold capitalize">{user?.subscription}</p>
+                <p className="text-2xl md:text-3xl font-bold capitalize">
+                  {user?.subscription || 'Free'}
+                </p>
               </CardContent>
             </Card>
             <Card>
@@ -148,7 +157,7 @@ export default function Dashboard() {
                                 onClick={() => setSelectedSummaryId(summary.id)}
                               >
                                 <h3 className="font-semibold line-clamp-2">
-                                  {videoTitles[summary.video_id] || summary.video_title}
+                                  {summary.video_title}
                                 </h3>
                               </div>
                               <div className="flex items-center gap-2 ml-2">
@@ -198,7 +207,7 @@ export default function Dashboard() {
 
           <SummaryModal
             summary={selectedSummary}
-            videoTitle={selectedSummary ? videoTitles[selectedSummary.video_id] || selectedSummary.video_title : ""}
+            videoTitle={selectedSummary?.video_title || ""}
             isOpen={!!selectedSummaryId}
             onClose={() => setSelectedSummaryId(null)}
             onDelete={handleDeleteSummary}

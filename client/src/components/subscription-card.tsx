@@ -12,6 +12,7 @@ interface SubscriptionCardProps {
   isLoading?: boolean;
   showSubscribeButton?: boolean;
   currentPlan?: string;
+  buttonText?: string;
 }
 
 export default function SubscriptionCard({
@@ -23,7 +24,8 @@ export default function SubscriptionCard({
   buttonDisabled = false,
   isLoading = false,
   showSubscribeButton = true,
-  currentPlan
+  currentPlan,
+  buttonText
 }: SubscriptionCardProps) {
   const isCurrentPlan = currentPlan === title.toLowerCase();
 
@@ -58,11 +60,7 @@ export default function SubscriptionCard({
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Processing...
               </>
-            ) : isCurrentPlan ? (
-              'Current Plan'
-            ) : (
-              'Subscribe'
-            )}
+            ) : buttonText || (isCurrentPlan ? 'Current Plan' : 'Subscribe')}
           </Button>
         )}
       </CardContent>

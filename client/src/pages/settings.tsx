@@ -134,7 +134,7 @@ export default function Settings() {
   };
 
   return (
-    <div className="flex h-screen bg-background">
+    <div className="flex flex-col lg:flex-row min-h-screen bg-background">
       <NavSidebar />
       <main className="flex-1 overflow-auto">
         <div className="container mx-auto px-4 py-8">
