@@ -11,8 +11,8 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
 });
 
 const SUBSCRIPTION_PRICES = {
-  pro: "price_mock_pro",
-  enterprise: "price_mock_enterprise"
+  pro: process.env.STRIPE_PRO_PRICE_ID,
+  enterprise: process.env.STRIPE_ENTERPRISE_PRICE_ID
 };
 
 export function setupStripeRoutes(app: Express) {
@@ -22,6 +22,10 @@ export function setupStripeRoutes(app: Express) {
 
       if (!userId || !plan) {
         return res.status(400).send("Missing userId or plan");
+      }
+
+      if (!SUBSCRIPTION_PRICES[plan as keyof typeof SUBSCRIPTION_PRICES]) {
+        return res.status(400).send("Invalid subscription plan");
       }
 
       // Get the user to update their stripe customer id if needed
