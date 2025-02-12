@@ -2,10 +2,10 @@ import { useState, useEffect } from "react";
 import Sidebar from "../components/sidebar";
 import { SummaryCreator } from "../components/summary-creator";
 import { SummaryModal } from "../components/summary-modal";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
 import { useUser } from "../hooks/use-user";
 import { useSummaries, useDeleteSummary } from "../hooks/use-summary";
-import { Loader2, Download, ExternalLink, Clock, Layout, Trash2 } from "lucide-react";
+import { Loader2, ExternalLink, Clock, Layout, Trash2 } from "lucide-react";
 import { Badge } from "../components/ui/badge";
 import { ScrollArea } from "../components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
@@ -41,11 +41,12 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchVideoTitles = async () => {
       const videoIds = summaries?.map(s => s.video_id).filter(id => !videoTitles[id]);
+      const apiKey = import.meta.env.VITE_YOUTUBE_API_KEY;
 
-      if (videoIds?.length && process.env.VITE_YOUTUBE_API_KEY) {
+      if (videoIds?.length && apiKey) {
         try {
           const response = await fetch(
-            `https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${videoIds.join(",")}&key=${process.env.VITE_YOUTUBE_API_KEY}`
+            `https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${videoIds.join(",")}&key=${apiKey}`
           );
           const data = await response.json();
 
@@ -146,7 +147,7 @@ export default function Dashboard() {
                                 onClick={() => setSelectedSummaryId(summary.id)}
                               >
                                 <h3 className="font-semibold line-clamp-2">
-                                  {videoTitles[summary.video_id] || "Loading..."}
+                                  {videoTitles[summary.video_id] || summary.video_title}
                                 </h3>
                               </div>
                               <div className="flex items-center gap-2 ml-2">
@@ -196,7 +197,7 @@ export default function Dashboard() {
 
           <SummaryModal
             summary={selectedSummary}
-            videoTitle={selectedSummary ? videoTitles[selectedSummary.video_id] || "Loading..." : ""}
+            videoTitle={selectedSummary ? videoTitles[selectedSummary.video_id] || selectedSummary.video_title : ""}
             isOpen={!!selectedSummaryId}
             onClose={() => setSelectedSummaryId(null)}
             onDelete={handleDeleteSummary}
