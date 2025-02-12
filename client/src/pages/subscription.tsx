@@ -1,11 +1,45 @@
 import { NavSidebar } from "../components/nav-sidebar";
 import { useUser } from "../hooks/use-user";
 import SubscriptionCard from "../components/subscription-card";
-import { Alert, AlertDescription, AlertTitle } from "../components/ui/alert";
-import { AlertCircle } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { useState } from "react";
+import { Loader2 } from "lucide-react";
 
 export default function Subscription() {
   const { user } = useUser();
+  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState<string | null>(null);
+
+  const handleSubscribe = async (plan: string) => {
+    try {
+      setIsLoading(plan);
+      const response = await fetch("/api/create-checkout-session", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          plan,
+          userId: user?.id,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to create checkout session");
+      }
+
+      const { url } = await response.json();
+      window.location.href = url;
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to initiate checkout. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(null);
+    }
+  };
 
   const plans = [
     {
@@ -16,7 +50,8 @@ export default function Subscription() {
         "15 minute video limit",
         "Basic summarization",
         "Single language"
-      ]
+      ],
+      action: null
     },
     {
       title: "Pro",
@@ -27,7 +62,8 @@ export default function Subscription() {
         "Multiple summary formats",
         "PDF/Word export"
       ],
-      highlighted: true
+      highlighted: true,
+      action: () => handleSubscribe('pro')
     },
     {
       title: "Enterprise",
@@ -37,31 +73,28 @@ export default function Subscription() {
         "Team accounts (5 users)",
         "Multiple languages",
         "Priority support"
-      ]
+      ],
+      action: () => handleSubscribe('enterprise')
     }
   ];
 
   return (
-    <div className="flex h-screen bg-background">
+    <div className="flex min-h-screen bg-background">
       <NavSidebar />
       <main className="flex-1 overflow-auto">
         <div className="container mx-auto px-4 py-8">
           <h1 className="text-3xl font-bold mb-8">Subscription Plans</h1>
-
-          <Alert className="mb-8">
-            <AlertCircle className="h-4 w-4" />
-            <AlertTitle>Subscription Management Coming Soon</AlertTitle>
-            <AlertDescription>
-              Subscription management is currently being set up. You'll be able to upgrade your plan soon!
-            </AlertDescription>
-          </Alert>
 
           <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
             {plans.map((plan, index) => (
               <SubscriptionCard
                 key={index}
                 {...plan}
+                buttonDisabled={isLoading !== null}
+                isLoading={isLoading === plan.title.toLowerCase()}
                 highlighted={plan.title.toLowerCase() === user?.subscription}
+                showSubscribeButton={plan.title.toLowerCase() !== 'free'}
+                currentPlan={user?.subscription}
               />
             ))}
           </div>

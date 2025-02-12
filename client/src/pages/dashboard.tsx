@@ -78,7 +78,7 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="flex min-h-screen bg-background">
+    <div className="flex flex-col lg:flex-row min-h-screen bg-background">
       <NavSidebar />
       <main className="flex-1 overflow-auto">
         <div className="container mx-auto p-4 md:p-8">

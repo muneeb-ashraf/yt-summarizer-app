@@ -4,7 +4,17 @@ import { setupVite, serveStatic, log } from "./vite";
 import cors from "cors";
 
 const app = express();
-app.use(express.json());
+
+// Raw body needed for Stripe webhook verification
+app.use((req, res, next) => {
+  if (req.originalUrl === '/api/webhook') {
+    next();
+  } else {
+    express.json()(req, res, next);
+  }
+});
+
+app.use(express.raw({ type: 'application/json' }));
 app.use(express.urlencoded({ extended: false }));
 
 // Configure CORS for production
@@ -14,7 +24,7 @@ app.use(cors({
     : 'http://localhost:5000',
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'stripe-signature'],
 }));
 
 app.use((req, res, next) => {
