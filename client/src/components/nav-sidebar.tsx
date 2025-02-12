@@ -45,18 +45,18 @@ export function NavSidebar() {
               Dashboard
             </Button>
           </Link>
-          <Link href="/dashboard/subscription">
+          <Link href="/subscription">
             <Button
-              variant={location === '/dashboard/subscription' ? 'secondary' : 'ghost'}
+              variant={location === '/subscription' ? 'secondary' : 'ghost'}
               className="w-full justify-start"
             >
               <CreditCard className="mr-2 h-5 w-5" />
               Subscription
             </Button>
           </Link>
-          <Link href="/dashboard/settings">
+          <Link href="/settings">
             <Button
-              variant={location === '/dashboard/settings' ? 'secondary' : 'ghost'}
+              variant={location === '/settings' ? 'secondary' : 'ghost'}
               className="w-full justify-start"
             >
               <Settings className="mr-2 h-5 w-5" />

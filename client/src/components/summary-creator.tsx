@@ -13,8 +13,11 @@ import { Card } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 import { useCreateSummary } from "@/hooks/use-summary";
 import { FormControl, FormField, FormItem, Form } from "@/components/ui/form";
+import { useToast } from "@/hooks/use-toast";
+import { useUser } from "@/hooks/use-user";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { supabase } from "@/lib/supabase";
 
 const formSchema = z.object({
   videoUrl: z.string().min(1, "Video URL is required")
@@ -26,6 +29,8 @@ const formSchema = z.object({
 type FormData = z.infer<typeof formSchema>;
 
 export function SummaryCreator() {
+  const { toast } = useToast();
+  const { user } = useUser();
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -38,7 +43,48 @@ export function SummaryCreator() {
   const { createSummary, isLoading } = useCreateSummary();
   const [videoId, setVideoId] = useState<string | null>(null);
 
-  const onSubmit = (data: FormData) => {
+  const checkCredits = async () => {
+    if (!user) {
+      toast({
+        title: "Error",
+        description: "Please sign in to generate summaries",
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    if (user.subscription === 'free') {
+      // For free plan, check remaining credits
+      const { data: summaries } = await supabase
+        .from('summaries')
+        .select('id')
+        .eq('user_id', user.id)
+        .gte('created_at', new Date(new Date().setDate(new Date().getDate() - 30)).toISOString());
+
+      const usedCredits = summaries?.length || 0;
+      if (usedCredits >= 5) {
+        toast({
+          title: "No Available Credits",
+          description: "You've used all your free credits this month. Please upgrade your plan to continue.",
+          variant: "destructive",
+        });
+        return false;
+      }
+    } else if (user.subscription === 'expired') {
+      toast({
+        title: "Subscription Expired",
+        description: "Please renew your subscription to continue generating summaries.",
+        variant: "destructive",
+      });
+      return false;
+    }
+    return true;
+  };
+
+  const onSubmit = async (data: FormData) => {
+    const hasCredits = await checkCredits();
+    if (!hasCredits) return;
+
     const videoIdMatch = data.videoUrl.match(/(?:youtube\.com\/watch\?v=|youtu.be\/)([^&\s]+)/);
     if (!videoIdMatch) return;
 

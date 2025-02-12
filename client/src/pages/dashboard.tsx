@@ -11,6 +11,7 @@ import { ScrollArea } from "../components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Toaster } from "@/components/ui/toaster";
 import { useToast } from "@/hooks/use-toast";
+import type { Summary } from "@/lib/supabase";
 
 export default function Dashboard() {
   const { toast } = useToast();
@@ -183,7 +184,7 @@ export default function Dashboard() {
                             </div>
                             <div className="flex items-center text-sm text-muted-foreground">
                               <Clock className="h-4 w-4 mr-1" />
-                              {summary.created_at ? new Date(summary.created_at).toLocaleString() : "Unknown Date"}
+                              {new Date(summary.created_at).toLocaleString()}
                             </div>
                           </CardContent>
                         </Card>
