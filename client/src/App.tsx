@@ -24,7 +24,7 @@ function ProtectedRoutes() {
   }
 
   if (!user) {
-    if (location.startsWith('/dashboard')) {
+    if (location !== '/' && location !== '/auth') {
       window.location.href = '/auth';
       return null;
     }
@@ -46,8 +46,8 @@ function ProtectedRoutes() {
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/dashboard" component={Dashboard} />
-      <Route path="/dashboard/settings" component={Settings} />
-      <Route path="/dashboard/subscription" component={Subscription} />
+      <Route path="/settings" component={Settings} />
+      <Route path="/subscription" component={Subscription} />
       <Route component={NotFound} />
     </Switch>
   );

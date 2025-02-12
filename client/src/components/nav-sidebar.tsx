@@ -20,18 +20,23 @@ export function NavSidebar() {
     try {
       setIsLoggingOut(true);
       await logout();
+      window.location.href = '/auth';
     } catch (error) {
       console.error("Logout error:", error);
+    } finally {
+      setIsLoggingOut(false);
     }
   };
 
   return (
     <div className="w-64 border-r bg-card h-screen flex flex-col">
       <div className="p-6 border-b">
-        <div className="flex items-center space-x-2">
-          <SiYoutube className="h-6 w-6 text-red-500" />
-          <span className="font-bold text-lg">AI Summarizer</span>
-        </div>
+        <Link href="/dashboard">
+          <div className="flex items-center space-x-2 cursor-pointer">
+            <SiYoutube className="h-6 w-6 text-red-500" />
+            <span className="font-bold text-lg">AI Summarizer</span>
+          </div>
+        </Link>
       </div>
 
       <nav className="flex-1 p-4">
@@ -69,7 +74,7 @@ export function NavSidebar() {
       <div className="p-4 border-t">
         <Button
           variant="ghost"
-          className="w-full justify-start text-red-500"
+          className="w-full justify-start text-red-500 hover:text-red-600 hover:bg-red-100"
           onClick={handleLogout}
           disabled={isLoggingOut}
         >
