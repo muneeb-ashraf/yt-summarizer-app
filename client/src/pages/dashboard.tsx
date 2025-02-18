@@ -30,7 +30,8 @@ export default function Dashboard() {
   // Calculate available credits based on subscription type
   const getAvailableCredits = () => {
     if (!user) return 0;
-    if (user.subscription === 'pro' || user.subscription === 'enterprise') {
+    const subscriptionType = user.subscription?.toLowerCase();
+    if (subscriptionType === 'pro' || subscriptionType === 'enterprise') {
       return 'Unlimited';
     }
     return Math.max(5 - summaryCount, 0);
@@ -62,7 +63,7 @@ export default function Dashboard() {
           console.error('Error updating subscription status:', error);
           toast({
             title: "Update Error",
-            description: "There was an error updating your subscription status. Please refresh the page.",
+            description: "There was an error updating your subscription status. Please try again later.",
             variant: "destructive",
           });
         }
@@ -159,7 +160,7 @@ export default function Dashboard() {
                         >
                           <CardContent className="p-4">
                             <div className="flex items-start justify-between mb-2">
-                              <div 
+                              <div
                                 className="flex-1"
                                 onClick={() => setSelectedSummaryId(summary.id)}
                               >

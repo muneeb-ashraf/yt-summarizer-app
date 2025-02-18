@@ -42,98 +42,16 @@ export function useUser() {
         return null;
       }
     },
-    staleTime: 0, // Always refetch when requested
-    cacheTime: 0, // Don't cache the data
-  });
-
-  // Login with email/password
-  const loginMutation = useMutation({
-    mutationFn: async ({ email, password }: { email: string; password: string }) => {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) throw error;
-      return data.user;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['user'] });
-    },
-  });
-
-  // Register new user
-  const registerMutation = useMutation({
-    mutationFn: async ({ email, password, username }: { email: string; password: string; username: string }) => {
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            username
-          }
-        }
-      });
-
-      if (error) throw error;
-      return data.user;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['user'] });
-    },
-  });
-
-  // Social login
-  const socialLoginMutation = useMutation({
-    mutationFn: async (provider: 'google' | 'github') => {
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider,
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
-        }
-      });
-
-      if (error) throw error;
-      return data;
-    }
-  });
-
-  // Logout
-  const logoutMutation = useMutation({
-    mutationFn: async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session) {
-          const { error } = await supabase.auth.signOut();
-          if (error) throw error;
-        }
-        queryClient.clear();
-        return null;
-      } catch (error) {
-        console.error('Logout error:', error);
-        queryClient.clear();
-        throw error;
-      }
-    },
-    onSuccess: () => {
-      window.location.href = '/';
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Error during logout",
-        description: error.message,
-        variant: "destructive",
-      });
-      window.location.href = '/';
-    }
+    staleTime: 0,
+    gcTime: 0,
   });
 
   // Listen to auth state changes
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session?.user) {
+      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
         queryClient.invalidateQueries({ queryKey: ['user'] });
-      } else {
+      } else if (event === 'SIGNED_OUT') {
         queryClient.setQueryData(['user'], null);
       }
     });
@@ -147,10 +65,6 @@ export function useUser() {
     user,
     error,
     isLoading,
-    login: loginMutation.mutateAsync,
-    socialLogin: socialLoginMutation.mutateAsync,
-    logout: logoutMutation.mutateAsync,
-    register: registerMutation.mutateAsync,
     refetchUser,
   };
 }

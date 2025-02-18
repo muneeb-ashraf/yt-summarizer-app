@@ -8,13 +8,20 @@ const app = express();
 // Raw body needed for Stripe webhook verification
 app.use((req, res, next) => {
   if (req.originalUrl === '/api/webhook') {
-    next();
+    let data = '';
+    req.setEncoding('utf8');
+    req.on('data', chunk => {
+      data += chunk;
+    });
+    req.on('end', () => {
+      req.body = data;
+      next();
+    });
   } else {
     express.json()(req, res, next);
   }
 });
 
-app.use(express.raw({ type: 'application/json' }));
 app.use(express.urlencoded({ extended: false }));
 
 // Configure CORS for production
@@ -63,9 +70,8 @@ app.use((req, res, next) => {
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
-
+    console.error('Server error:', err);
     res.status(status).json({ message });
-    throw err;
   });
 
   if (app.get("env") === "development") {

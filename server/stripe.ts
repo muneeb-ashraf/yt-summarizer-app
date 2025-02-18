@@ -1,9 +1,13 @@
 import type { Express } from "express";
 import Stripe from "stripe";
-import { supabase, getUser } from "./lib/supabase";
+import { supabase } from "./lib/supabase";
 
 if (!process.env.STRIPE_SECRET_KEY) {
   throw new Error("Missing STRIPE_SECRET_KEY environment variable");
+}
+
+if (!process.env.STRIPE_WEBHOOK_SECRET) {
+  throw new Error("Missing STRIPE_WEBHOOK_SECRET environment variable");
 }
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
@@ -31,7 +35,7 @@ export function setupStripeRoutes(app: Express) {
       // Get the user to update their stripe customer id if needed
       const { data: user } = await supabase
         .from('users')
-        .select('stripe_customer_id')
+        .select('stripe_customer_id, email')
         .eq('id', userId)
         .single();
 
@@ -39,14 +43,8 @@ export function setupStripeRoutes(app: Express) {
 
       // Create or get Stripe customer
       if (!customerId) {
-        const { data: userData } = await supabase
-          .from('users')
-          .select('email')
-          .eq('id', userId)
-          .single();
-
         const customer = await stripe.customers.create({
-          email: userData?.email,
+          email: user?.email,
           metadata: {
             supabase_user_id: userId
           }
@@ -91,16 +89,22 @@ export function setupStripeRoutes(app: Express) {
   app.post('/api/webhook', async (req, res) => {
     const sig = req.headers['stripe-signature'];
 
+    if (!sig) {
+      return res.status(400).send('Missing stripe-signature header');
+    }
+
     try {
       const event = stripe.webhooks.constructEvent(
         req.body,
-        sig || '',
-        process.env.STRIPE_WEBHOOK_SECRET || ''
+        sig,
+        process.env.STRIPE_WEBHOOK_SECRET!
       );
+
+      console.log('Webhook event received:', event.type);
 
       switch (event.type) {
         case 'customer.subscription.created':
-        case 'customer.subscription.updated':
+        case 'customer.subscription.updated': {
           const subscription = event.data.object as Stripe.Subscription;
           const userId = subscription.metadata.supabase_user_id;
           const planId = subscription.items.data[0].price.id;
@@ -108,6 +112,8 @@ export function setupStripeRoutes(app: Express) {
           let plan = 'free';
           if (planId === SUBSCRIPTION_PRICES.pro) plan = 'pro';
           if (planId === SUBSCRIPTION_PRICES.enterprise) plan = 'enterprise';
+
+          console.log(`Updating subscription for user ${userId} to ${plan}`);
 
           const { error: updateError } = await supabase
             .from('users')
@@ -118,22 +124,27 @@ export function setupStripeRoutes(app: Express) {
             console.error('Error updating subscription:', updateError);
             return res.status(500).send('Error updating subscription');
           }
-          break;
 
-        case 'customer.subscription.deleted':
-          const deletedSubscription = event.data.object as Stripe.Subscription;
-          const deletedUserId = deletedSubscription.metadata.supabase_user_id;
+          break;
+        }
+
+        case 'customer.subscription.deleted': {
+          const subscription = event.data.object as Stripe.Subscription;
+          const userId = subscription.metadata.supabase_user_id;
+
+          console.log(`Reverting subscription to free for user ${userId}`);
 
           const { error: deleteError } = await supabase
             .from('users')
             .update({ subscription: 'free' })
-            .eq('id', deletedUserId);
+            .eq('id', userId);
 
           if (deleteError) {
             console.error('Error updating subscription:', deleteError);
             return res.status(500).send('Error updating subscription');
           }
           break;
+        }
       }
 
       res.json({ received: true });

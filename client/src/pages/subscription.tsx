@@ -6,7 +6,7 @@ import { useState } from "react";
 import { Loader2 } from "lucide-react";
 
 export default function Subscription() {
-  const { user } = useUser();
+  const { user, refetchUser } = useUser();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState<string | null>(null);
 
@@ -81,7 +81,7 @@ export default function Subscription() {
   // Helper function to determine if a plan is upgradeable
   const isUpgradeable = (planTitle: string) => {
     const planOrder = { free: 0, pro: 1, enterprise: 2 };
-    const currentLevel = planOrder[user?.subscription as keyof typeof planOrder] || 0;
+    const currentLevel = planOrder[user?.subscription?.toLowerCase() as keyof typeof planOrder] || 0;
     const targetLevel = planOrder[planTitle.toLowerCase() as keyof typeof planOrder];
     return targetLevel > currentLevel;
   };
@@ -96,7 +96,7 @@ export default function Subscription() {
           <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
             {plans.map((plan, index) => {
               const planLower = plan.title.toLowerCase();
-              const isCurrentPlan = planLower === user?.subscription;
+              const isCurrentPlan = planLower === user?.subscription?.toLowerCase();
               const canUpgrade = isUpgradeable(plan.title);
 
               return (
