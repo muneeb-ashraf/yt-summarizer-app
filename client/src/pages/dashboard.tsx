@@ -21,6 +21,7 @@ export default function Dashboard() {
   const { summaries, isLoading, refetch: refetchSummaries } = useSummaries();
   const { deleteSummary } = useDeleteSummary();
   const [selectedSummaryId, setSelectedSummaryId] = useState<string | null>(null);
+  const [isUpdatingSubscription, setIsUpdatingSubscription] = useState(false);
   const queryClient = useQueryClient();
   const [, params] = useLocation();
 
@@ -47,11 +48,12 @@ export default function Dashboard() {
     if (sessionId) {
       // Clear the URL parameters
       window.history.replaceState({}, '', '/dashboard');
+      setIsUpdatingSubscription(true);
 
       const updateSubscriptionStatus = async () => {
         try {
           // Add longer delay to ensure webhook processing
-          await new Promise(resolve => setTimeout(resolve, 3000));
+          await new Promise(resolve => setTimeout(resolve, 5000));
 
           // Refresh user data and summaries
           await Promise.all([
@@ -59,10 +61,16 @@ export default function Dashboard() {
             refetchSummaries()
           ]);
 
-          toast({
-            title: "Subscription Updated",
-            description: "Your subscription has been successfully updated. Enjoy your new features!",
-          });
+          const currentUser = queryClient.getQueryData(['user']);
+
+          if (currentUser?.subscription === 'pro' || currentUser?.subscription === 'enterprise') {
+            toast({
+              title: "Subscription Updated",
+              description: "Your subscription has been successfully updated. Enjoy your new features!",
+            });
+          } else {
+            throw new Error('Subscription update not reflected yet');
+          }
         } catch (error) {
           console.error('Error updating subscription status:', error);
           toast({
@@ -70,12 +78,14 @@ export default function Dashboard() {
             description: "There was an error updating your subscription status. Please refresh the page.",
             variant: "destructive",
           });
+        } finally {
+          setIsUpdatingSubscription(false);
         }
       };
 
       updateSubscriptionStatus();
     }
-  }, [refetchUser, refetchSummaries, toast]);
+  }, [refetchUser, refetchSummaries, toast, queryClient]);
 
   useEffect(() => {
     if (availableCredits === 0 && user?.subscription === 'free') {
@@ -104,6 +114,13 @@ export default function Dashboard() {
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
             <h1 className="text-2xl md:text-3xl font-bold">Welcome, {user?.username}</h1>
           </div>
+
+          {isUpdatingSubscription && (
+            <div className="mb-4 p-4 bg-muted rounded-lg flex items-center justify-center">
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              <span>Updating subscription status...</span>
+            </div>
+          )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-8">
             <Card>

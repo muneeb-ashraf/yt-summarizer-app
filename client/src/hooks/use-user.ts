@@ -25,11 +25,16 @@ export function useUser() {
         if (sessionError) throw sessionError;
         if (!session?.user) return null;
 
+        // Force fresh data from server
         const { data: profile, error: profileError } = await supabase
           .from('users')
           .select('*')
           .eq('id', session.user.id)
-          .single();
+          .single()
+          .options({
+            head: false,
+            count: null
+          });
 
         if (profileError) {
           console.error('Profile fetch error:', profileError);
@@ -42,8 +47,8 @@ export function useUser() {
         return null;
       }
     },
-    staleTime: 1000, // Wait 1 second before refetching
-    gcTime: 0,
+    staleTime: 0, // Always fetch fresh data
+    refetchInterval: 2000, // Poll every 2 seconds while subscription update is pending
   });
 
   // Listen to auth state changes
@@ -51,7 +56,6 @@ export function useUser() {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       console.log('Auth state changed:', event);
       if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-        // Only invalidate the query, let the query system handle the refetch
         queryClient.invalidateQueries({ queryKey: ['user'] });
       } else if (event === 'SIGNED_OUT') {
         queryClient.setQueryData(['user'], null);
