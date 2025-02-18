@@ -30,11 +30,7 @@ export function useUser() {
           .from('users')
           .select('*')
           .eq('id', session.user.id)
-          .single()
-          .options({
-            head: false,
-            count: null
-          });
+          .single();
 
         if (profileError) {
           console.error('Profile fetch error:', profileError);
@@ -50,6 +46,37 @@ export function useUser() {
     staleTime: 0, // Always fetch fresh data
     refetchInterval: 2000, // Poll every 2 seconds while subscription update is pending
   });
+
+  const login = useCallback(async ({ email, password }: { email: string; password: string }) => {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+    if (error) throw error;
+    return data.user;
+  }, []);
+
+  const register = useCallback(async ({ email, password, username }: { email: string; password: string; username: string }) => {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          username,
+        },
+      },
+    });
+    if (error) throw error;
+    return data.user;
+  }, []);
+
+  const socialLogin = useCallback(async (provider: 'google' | 'github') => {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider,
+    });
+    if (error) throw error;
+    return data;
+  }, []);
 
   // Listen to auth state changes
   useEffect(() => {
@@ -72,5 +99,8 @@ export function useUser() {
     error,
     isLoading,
     refetchUser,
+    login,
+    register,
+    socialLogin
   };
 }
