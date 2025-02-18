@@ -118,10 +118,7 @@ export function setupStripeRoutes(app: Express) {
 
           const { error: updateError } = await supabase
             .from('users')
-            .update({ 
-              subscription: plan,
-              updated_at: new Date().toISOString()
-            })
+            .update({ subscription: plan })
             .eq('id', userId);
 
           if (updateError) {
@@ -141,10 +138,7 @@ export function setupStripeRoutes(app: Express) {
 
           const { error: deleteError } = await supabase
             .from('users')
-            .update({ 
-              subscription: 'free',
-              updated_at: new Date().toISOString()
-            })
+            .update({ subscription: 'free' })
             .eq('id', userId);
 
           if (deleteError) {
