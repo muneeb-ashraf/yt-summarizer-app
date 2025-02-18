@@ -48,13 +48,16 @@ export default function Dashboard() {
       // Clear the URL parameters
       window.history.replaceState({}, '', '/dashboard');
 
-      // Refetch user data to get updated subscription
       const updateSubscriptionStatus = async () => {
         try {
-          // Add delay to allow webhook processing
-          await new Promise(resolve => setTimeout(resolve, 2000));
-          await refetchUser();
-          await refetchSummaries();
+          // Add longer delay to ensure webhook processing
+          await new Promise(resolve => setTimeout(resolve, 3000));
+
+          // Refresh user data and summaries
+          await Promise.all([
+            refetchUser(),
+            refetchSummaries()
+          ]);
 
           toast({
             title: "Subscription Updated",
@@ -72,7 +75,7 @@ export default function Dashboard() {
 
       updateSubscriptionStatus();
     }
-  }, [refetchUser, refetchSummaries]);
+  }, [refetchUser, refetchSummaries, toast]);
 
   useEffect(() => {
     if (availableCredits === 0 && user?.subscription === 'free') {

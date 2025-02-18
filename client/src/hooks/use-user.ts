@@ -1,5 +1,5 @@
 import { useCallback, useEffect } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../lib/supabase';
 import type { User } from '../lib/supabase';
 import { useToast } from '../hooks/use-toast';
@@ -42,16 +42,16 @@ export function useUser() {
         return null;
       }
     },
-    staleTime: 0, // Always refetch when requested
-    gcTime: 0, // Don't cache the data
+    staleTime: 1000, // Wait 1 second before refetching
+    gcTime: 0,
   });
 
-  // Listen to auth state changes and subscription updates
+  // Listen to auth state changes
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('Auth state changed:', event);
       if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-        // Force refetch user data
-        await refetchUser();
+        // Only invalidate the query, let the query system handle the refetch
         queryClient.invalidateQueries({ queryKey: ['user'] });
       } else if (event === 'SIGNED_OUT') {
         queryClient.setQueryData(['user'], null);
@@ -61,7 +61,7 @@ export function useUser() {
     return () => {
       subscription.unsubscribe();
     };
-  }, [queryClient, refetchUser]);
+  }, [queryClient]);
 
   return {
     user,
