@@ -90,6 +90,7 @@ export function setupStripeRoutes(app: Express) {
     const sig = req.headers['stripe-signature'];
 
     if (!sig) {
+      console.error('Missing stripe-signature header');
       return res.status(400).send('Missing stripe-signature header');
     }
 
@@ -100,7 +101,7 @@ export function setupStripeRoutes(app: Express) {
         process.env.STRIPE_WEBHOOK_SECRET!
       );
 
-      console.log('Webhook event received:', event.type);
+      console.log('Webhook event received:', event.type, 'Event ID:', event.id);
 
       switch (event.type) {
         case 'customer.subscription.created':
@@ -113,18 +114,22 @@ export function setupStripeRoutes(app: Express) {
           if (planId === SUBSCRIPTION_PRICES.pro) plan = 'pro';
           if (planId === SUBSCRIPTION_PRICES.enterprise) plan = 'enterprise';
 
-          console.log(`Updating subscription for user ${userId} to ${plan}`);
+          console.log(`Updating subscription for user ${userId} to ${plan}`, 'Plan ID:', planId);
 
           const { error: updateError } = await supabase
             .from('users')
-            .update({ subscription: plan })
+            .update({ 
+              subscription: plan,
+              updated_at: new Date().toISOString()
+            })
             .eq('id', userId);
 
           if (updateError) {
             console.error('Error updating subscription:', updateError);
-            return res.status(500).send('Error updating subscription');
+            return res.status(500).json({ error: 'Error updating subscription' });
           }
 
+          console.log(`Successfully updated subscription for user ${userId} to ${plan}`);
           break;
         }
 
@@ -136,18 +141,23 @@ export function setupStripeRoutes(app: Express) {
 
           const { error: deleteError } = await supabase
             .from('users')
-            .update({ subscription: 'free' })
+            .update({ 
+              subscription: 'free',
+              updated_at: new Date().toISOString()
+            })
             .eq('id', userId);
 
           if (deleteError) {
             console.error('Error updating subscription:', deleteError);
-            return res.status(500).send('Error updating subscription');
+            return res.status(500).json({ error: 'Error updating subscription' });
           }
+
+          console.log(`Successfully reverted subscription for user ${userId} to free`);
           break;
         }
       }
 
-      res.json({ received: true });
+      res.json({ received: true, type: event.type });
     } catch (err: any) {
       console.error('Webhook error:', err.message);
       return res.status(400).send(`Webhook Error: ${err.message}`);

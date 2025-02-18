@@ -51,8 +51,9 @@ export default function Dashboard() {
       // Refetch user data to get updated subscription
       const updateSubscriptionStatus = async () => {
         try {
+          // Add delay to allow webhook processing
+          await new Promise(resolve => setTimeout(resolve, 2000));
           await refetchUser();
-          queryClient.invalidateQueries({ queryKey: ['user'] });
           await refetchSummaries();
 
           toast({
@@ -63,7 +64,7 @@ export default function Dashboard() {
           console.error('Error updating subscription status:', error);
           toast({
             title: "Update Error",
-            description: "There was an error updating your subscription status. Please try again later.",
+            description: "There was an error updating your subscription status. Please refresh the page.",
             variant: "destructive",
           });
         }
@@ -71,7 +72,7 @@ export default function Dashboard() {
 
       updateSubscriptionStatus();
     }
-  }, []);
+  }, [refetchUser, refetchSummaries]);
 
   useEffect(() => {
     if (availableCredits === 0 && user?.subscription === 'free') {

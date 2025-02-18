@@ -42,14 +42,16 @@ export function useUser() {
         return null;
       }
     },
-    staleTime: 0,
-    gcTime: 0,
+    staleTime: 0, // Always refetch when requested
+    gcTime: 0, // Don't cache the data
   });
 
-  // Listen to auth state changes
+  // Listen to auth state changes and subscription updates
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+        // Force refetch user data
+        await refetchUser();
         queryClient.invalidateQueries({ queryKey: ['user'] });
       } else if (event === 'SIGNED_OUT') {
         queryClient.setQueryData(['user'], null);
@@ -59,7 +61,7 @@ export function useUser() {
     return () => {
       subscription.unsubscribe();
     };
-  }, [queryClient]);
+  }, [queryClient, refetchUser]);
 
   return {
     user,
