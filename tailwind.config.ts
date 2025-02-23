@@ -1,6 +1,9 @@
 import type { Config } from "tailwindcss";
 
 export default {
+  safelist: [
+    { pattern: /.*/ }, // Allow all Tailwind classes, even if they don’t exist
+  ],
   darkMode: ["class"],
   content: ["./client/index.html", "./client/src/**/*.{js,jsx,ts,tsx}"],
   theme: {
