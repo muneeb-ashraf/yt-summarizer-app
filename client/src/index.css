@@ -9,3 +9,9 @@
     @apply font-sans antialiased bg-background text-foreground;
   }
 }
+
+@layer utilities {
+  .bg-background {
+    background-color: hsl(var(--background));
+  }
+}
