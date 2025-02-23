@@ -12,10 +12,10 @@
 
 @layer utilities {
 
-  .text-forgrouond {
+  .text-foreground {
     color: hsl(var(--foreground));
   }
-  
+
   .bg-background {
     background-color: hsl(var(--background));
   }
