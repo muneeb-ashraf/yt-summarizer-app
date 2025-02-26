@@ -1,0 +1,43 @@
+[18:49:52.589] Running build in Washington, D.C., USA (East) – iad1
+[18:49:52.707] Cloning github.com/muneeb-ashraf/yt-summarizer-app (Branch: main, Commit: 4f6588a)
+[18:49:53.016] Cloning completed: 313.000ms
+[18:49:55.012] Restored build cache from previous deployment (CGMhQugKSr6bM69UD5veKNHLuxGd)
+[18:49:55.088] Running "vercel build"
+[18:49:55.473] Vercel CLI 41.1.4
+[18:49:56.363] Installing dependencies...
+[18:49:58.923] npm warn deprecated @supabase/auth-helpers-react@0.5.0: This package is now deprecated - please use the @supabase/ssr package instead.
+[18:49:59.483] 
+[18:49:59.484] added 13 packages in 3s
+[18:49:59.484] 
+[18:49:59.484] 68 packages are looking for funding
+[18:49:59.485]   run `npm fund` for details
+[18:50:01.230] 
+[18:50:01.231] up to date, audited 557 packages in 2s
+[18:50:01.231] 
+[18:50:01.231] 68 packages are looking for funding
+[18:50:01.231]   run `npm fund` for details
+[18:50:01.253] 
+[18:50:01.254] 6 moderate severity vulnerabilities
+[18:50:01.254] 
+[18:50:01.255] To address issues that do not require attention, run:
+[18:50:01.255]   npm audit fix
+[18:50:01.255] 
+[18:50:01.255] To address all issues (including breaking changes), run:
+[18:50:01.255]   npm audit fix --force
+[18:50:01.256] 
+[18:50:01.256] Run `npm audit` for details.
+[18:50:01.520] file:///vercel/path0/node_modules/vite/dist/node/cli.js:444
+[18:50:01.523]           throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+[18:50:01.524]                 ^
+[18:50:01.524] 
+[18:50:01.524] CACError: Unknown option `--root`
+[18:50:01.525]     at Command.checkUnknownOptions (file:///vercel/path0/node_modules/vite/dist/node/cli.js:444:17)
+[18:50:01.525]     at CAC.runMatchedCommand (file:///vercel/path0/node_modules/vite/dist/node/cli.js:642:13)
+[18:50:01.525]     at CAC.parse (file:///vercel/path0/node_modules/vite/dist/node/cli.js:581:12)
+[18:50:01.525]     at file:///vercel/path0/node_modules/vite/dist/node/cli.js:914:5
+[18:50:01.525]     at ModuleJob.run (node:internal/modules/esm/module_job:271:25)
+[18:50:01.525]     at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:578:26)
+[18:50:01.525] 
+[18:50:01.525] Node.js v22.14.0
+[18:50:01.534] Error: Command "npm install && NODE_ENV=production vite build --root client --outDir ../dist/public && cp -r client/src/components/ui dist/public/components/" exited with 1
+[18:50:01.838] 
