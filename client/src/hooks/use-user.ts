@@ -78,10 +78,33 @@ export function useUser() {
     return data;
   }, []);
 
+  const logout = useCallback(async () => {
+    try {
+      console.log('Starting logout process...');
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.error('Supabase signOut error:', error);
+        throw error;
+      }
+      console.log('Successfully signed out from Supabase');
+
+      // Clear all queries from the cache
+      queryClient.clear();
+      queryClient.setQueryData(['user'], null);
+      console.log('Cleared query cache and user data');
+
+      // Force a refetch of the user query to ensure the UI updates
+      queryClient.invalidateQueries({ queryKey: ['user'] });
+    } catch (error: any) {
+      console.error('Logout error:', error);
+      throw error;
+    }
+  }, [queryClient]);
+
   // Listen to auth state changes
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log('Auth state changed:', event);
+      console.log('Auth state changed:', event, 'Session:', session ? 'exists' : 'null');
       if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
         queryClient.invalidateQueries({ queryKey: ['user'] });
       } else if (event === 'SIGNED_OUT') {
@@ -101,6 +124,7 @@ export function useUser() {
     refetchUser,
     login,
     register,
-    socialLogin
+    socialLogin,
+    logout
   };
 }

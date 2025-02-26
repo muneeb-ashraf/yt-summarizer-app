@@ -1,6 +1,6 @@
 import { Link, useLocation } from "wouter";
-import { Button } from "../components/ui/button";
-import { useUser } from "../hooks/use-user";
+import { Button } from "@/components/ui/button";
+import { useUser } from "@/hooks/use-user";
 import { SiYoutube } from "react-icons/si";
 import {
   LayoutDashboard,
@@ -12,22 +12,36 @@ import {
   X
 } from "lucide-react";
 import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
 
 export function NavSidebar() {
   const { logout } = useUser();
   const [location, setLocation] = useLocation();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const { toast } = useToast();
 
   const handleLogout = async () => {
     try {
+      console.log('Starting logout process in NavSidebar...');
       setIsLoggingOut(true);
       await logout();
+      console.log('Logout successful, redirecting to /auth');
       setLocation('/auth');
-    } catch (error) {
-      console.error("Logout error:", error);
+      toast({
+        title: "Success",
+        description: "You have been logged out successfully.",
+      });
+    } catch (error: any) {
+      console.error("Logout error in NavSidebar:", error);
+      toast({
+        title: "Error",
+        description: "Failed to log out. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setIsLoggingOut(false);
+      setIsSidebarOpen(false);
     }
   };
 

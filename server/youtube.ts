@@ -30,13 +30,14 @@ const createSummarySchema = z.object({
 
 // Middleware to verify Supabase auth token
 async function verifyAuth(
-  req: AuthenticatedRequest, 
+  req: Request, 
   res: Response, 
   next: NextFunction
 ) {
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader?.startsWith('Bearer ')) {
+      console.error("No auth token provided");
       return res.status(401).send("No auth token provided");
     }
 
@@ -44,12 +45,13 @@ async function verifyAuth(
     const user = await getUser(token);
 
     if (!user) {
+      console.error("Invalid auth token");
       return res.status(401).send("Invalid auth token");
     }
 
     // Store both user and authenticated client in request
-    req.user = user;
-    req.supabaseClient = getAuthenticatedClient(token);
+    (req as AuthenticatedRequest).user = user;
+    (req as AuthenticatedRequest).supabaseClient = getAuthenticatedClient(token);
     next();
   } catch (error: any) {
     console.error("Auth verification error:", error);
@@ -58,17 +60,21 @@ async function verifyAuth(
 }
 
 export function setupYouTubeRoutes(app: Express) {
-  app.post("/api/summaries", verifyAuth, async (req: AuthenticatedRequest, res: Response) => {
+  app.post("/api/summaries", verifyAuth as any, async (req: AuthenticatedRequest, res: Response) => {
     try {
+      console.log("Creating summary with params:", req.body);
       const result = createSummarySchema.safeParse(req.body);
       if (!result.success) {
-        return res.status(400).send(result.error.issues.map(i => i.message).join(", "));
+        const errorMessage = result.error.issues.map(i => i.message).join(", ");
+        console.error("Validation error:", errorMessage);
+        return res.status(400).send(errorMessage);
       }
 
       const { videoId, format, language } = result.data;
 
       // Explicitly check for user
       if (!req.user?.id) {
+        console.error("User not authenticated");
         return res.status(401).send("User not authenticated");
       }
 
@@ -92,6 +98,7 @@ export function setupYouTubeRoutes(app: Express) {
       }
 
       // Generate summary using AI
+      console.log("Generating summary for video:", videoId);
       const summary = await generateSummary(videoId, format, language, metadata.description);
 
       // Insert with explicit user_id from authenticated user
@@ -120,14 +127,15 @@ export function setupYouTubeRoutes(app: Express) {
         throw new Error("Failed to save summary");
       }
 
+      console.log("Successfully created summary:", newSummary.id);
       res.json(newSummary);
     } catch (error: any) {
       console.error("Summary creation error:", error);
-      res.status(500).send(error.message);
+      res.status(500).send(error.message || "Failed to create summary");
     }
   });
 
-  app.get("/api/summaries", verifyAuth, async (req: AuthenticatedRequest, res: Response) => {
+  app.get("/api/summaries", verifyAuth as any, async (req: AuthenticatedRequest, res: Response) => {
     try {
       if (!req.user?.id) {
         return res.status(401).send("User not authenticated");
@@ -152,7 +160,7 @@ export function setupYouTubeRoutes(app: Express) {
   });
 
   // Add delete endpoint
-  app.delete("/api/summaries/:id", verifyAuth, async (req: AuthenticatedRequest, res: Response) => {
+  app.delete("/api/summaries/:id", verifyAuth as any, async (req: AuthenticatedRequest, res: Response) => {
     try {
       if (!req.user?.id) {
         return res.status(401).send("User not authenticated");

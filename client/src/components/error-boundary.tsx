@@ -44,6 +44,20 @@ export class ErrorBoundary extends Component<Props, State> {
                   {this.state.error?.stack}
                 </pre>
               )}
+              <div className="mt-4">
+                <a 
+                  href="/auth" 
+                  className="text-sm text-primary hover:underline"
+                  onClick={() => {
+                    // Clear any cached data that might be causing the error
+                    window.localStorage.clear();
+                    // Force reload to clear any stale state
+                    window.location.href = '/auth';
+                  }}
+                >
+                  Return to login page
+                </a>
+              </div>
             </CardContent>
           </Card>
         </div>
