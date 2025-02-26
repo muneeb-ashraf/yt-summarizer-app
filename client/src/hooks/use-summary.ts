@@ -67,8 +67,8 @@ export function useCreateSummary() {
         });
 
         if (!res.ok) {
-          const errorText = await res.text();
-          throw new Error(errorText);
+          const errorData = await res.json();
+          throw new Error(errorData.error || 'Failed to create summary');
         }
 
         const data = await res.json();
@@ -86,6 +86,7 @@ export function useCreateSummary() {
       });
     },
     onError: (error: Error) => {
+      console.error('Summary creation error:', error);
       toast({
         title: "Error",
         description: error.message,
@@ -119,8 +120,8 @@ export function useDeleteSummary() {
         });
 
         if (!res.ok) {
-          const errorText = await res.text();
-          throw new Error(errorText);
+          const errorData = await res.json();
+          throw new Error(errorData.error || 'Failed to delete summary');
         }
 
         return res.json();

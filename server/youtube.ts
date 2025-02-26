@@ -38,7 +38,7 @@ async function verifyAuth(
     const authHeader = req.headers.authorization;
     if (!authHeader?.startsWith('Bearer ')) {
       console.error("No auth token provided");
-      return res.status(401).send("No auth token provided");
+      return res.status(401).json({ error: "No auth token provided" });
     }
 
     const token = authHeader.split(' ')[1];
@@ -46,7 +46,7 @@ async function verifyAuth(
 
     if (!user) {
       console.error("Invalid auth token");
-      return res.status(401).send("Invalid auth token");
+      return res.status(401).json({ error: "Invalid auth token" });
     }
 
     // Store both user and authenticated client in request
@@ -55,7 +55,7 @@ async function verifyAuth(
     next();
   } catch (error: any) {
     console.error("Auth verification error:", error);
-    res.status(401).send("Authentication failed: " + (error.message || "Unknown error"));
+    res.status(401).json({ error: `Authentication failed: ${error.message || "Unknown error"}` });
   }
 }
 
@@ -67,7 +67,7 @@ export function setupYouTubeRoutes(app: Express) {
       if (!result.success) {
         const errorMessage = result.error.issues.map(i => i.message).join(", ");
         console.error("Validation error:", errorMessage);
-        return res.status(400).send(errorMessage);
+        return res.status(400).json({ error: errorMessage });
       }
 
       const { videoId, format, language } = result.data;
@@ -75,7 +75,7 @@ export function setupYouTubeRoutes(app: Express) {
       // Explicitly check for user
       if (!req.user?.id) {
         console.error("User not authenticated");
-        return res.status(401).send("User not authenticated");
+        return res.status(401).json({ error: "User not authenticated" });
       }
 
       // Get video metadata
@@ -90,16 +90,20 @@ export function setupYouTubeRoutes(app: Express) {
 
       if (userError) {
         console.error("Error fetching user data:", userError);
-        return res.status(500).send("Error checking user subscription");
+        return res.status(500).json({ error: "Error checking user subscription" });
       }
 
       if (userData?.subscription === 'free' && metadata.duration > 900) {
-        return res.status(400).send("Free users can only summarize videos up to 15 minutes long");
+        return res.status(400).json({ error: "Free users can only summarize videos up to 15 minutes long" });
       }
 
       // Generate summary using AI
       console.log("Generating summary for video:", videoId);
       const summary = await generateSummary(videoId, format, language, metadata.description);
+
+      if (!summary) {
+        throw new Error("Failed to generate summary from AI");
+      }
 
       // Insert with explicit user_id from authenticated user
       const { data: newSummary, error: insertError } = await req.supabaseClient
@@ -122,16 +126,19 @@ export function setupYouTubeRoutes(app: Express) {
       if (insertError) {
         console.error("Summary creation error:", insertError);
         if (insertError.code === '42501') {
-          return res.status(403).send("Permission denied: Cannot create summary");
+          return res.status(403).json({ error: "Permission denied: Cannot create summary" });
         }
-        throw new Error("Failed to save summary");
+        throw new Error(`Failed to save summary: ${insertError.message}`);
       }
 
       console.log("Successfully created summary:", newSummary.id);
       res.json(newSummary);
     } catch (error: any) {
       console.error("Summary creation error:", error);
-      res.status(500).send(error.message || "Failed to create summary");
+      res.status(500).json({ 
+        error: error.message || "Failed to create summary",
+        details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      });
     }
   });
 
@@ -232,7 +239,7 @@ async function getYouTubeMetadata(videoId: string): Promise<YouTubeMetadata> {
     };
   } catch (error: any) {
     console.error('YouTube API error:', error);
-    throw new Error('Failed to fetch video metadata');
+    throw new Error(`Failed to fetch video metadata: ${error.message}`);
   }
 }
 
