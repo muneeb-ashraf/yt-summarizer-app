@@ -2,10 +2,14 @@ import type { Config } from "tailwindcss";
 
 export default {
   safelist: [
-    { pattern: /.*/ }, // Allow all Tailwind classes, even if they don’t exist
+    { pattern: /.*/ }, // Allow all Tailwind classes, even if they don't exist
   ],
   darkMode: ["class"],
-  content: ["./client/index.html", "./client/src/**/*.{js,jsx,ts,tsx}"],
+  content: [
+    "./client/index.html",
+    "./client/src/**/*.{js,jsx,ts,tsx}",
+    "./dist/public/components/**/*.{js,jsx,ts,tsx}" // Include built components
+  ],
   theme: {
     extend: {
       borderRadius: {
@@ -67,20 +71,12 @@ export default {
       },
       keyframes: {
         "accordion-down": {
-          from: {
-            height: "0",
-          },
-          to: {
-            height: "var(--radix-accordion-content-height)",
-          },
+          from: { height: "0" },
+          to: { height: "var(--radix-accordion-content-height)" },
         },
         "accordion-up": {
-          from: {
-            height: "var(--radix-accordion-content-height)",
-          },
-          to: {
-            height: "0",
-          },
+          from: { height: "var(--radix-accordion-content-height)" },
+          to: { height: "0" },
         },
       },
       animation: {

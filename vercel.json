@@ -1,5 +1,5 @@
 {
-  "buildCommand": "npm install && NODE_ENV=production vite build --root client --outDir ../dist/public",
+  "buildCommand": "npm install && NODE_ENV=production vite build --root client --outDir ../dist/public && cp -r client/src/components/ui dist/public/components/",
   "outputDirectory": "dist/public",
   "framework": "vite",
   "rewrites": [
