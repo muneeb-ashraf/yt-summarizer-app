@@ -1,19 +1,27 @@
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./lib/queryClient";
-import { Toaster } from "./components/ui/toaster";
-import NotFound from "./pages/not-found";
-import AuthPage from "./pages/auth-page";
-import Dashboard from "./pages/dashboard";
-import Settings from "./pages/settings";
-import Subscription from "./pages/subscription";
-import Home from "./pages/home";
-import { useUser } from "./hooks/use-user";
+import { Toaster } from "@/components/ui/toaster";
+import NotFound from "@/pages/not-found";
+import AuthPage from "@/pages/auth-page";
+import Dashboard from "@/pages/dashboard";
+import Settings from "@/pages/settings";
+import Subscription from "@/pages/subscription";
+import Home from "@/pages/home";
+import { useUser } from "@/hooks/use-user";
 import { Loader2 } from "lucide-react";
 import { Switch, Route, useLocation } from "wouter";
+import { useEffect } from "react";
+import { ErrorBoundary } from "@/components/error-boundary";
 
 function ProtectedRoutes() {
   const { user, isLoading } = useUser();
   const [location] = useLocation();
+
+  // Add error logging
+  useEffect(() => {
+    console.log("Current location:", location);
+    console.log("User state:", { isLoading, hasUser: !!user });
+  }, [location, user, isLoading]);
 
   if (isLoading) {
     return (
@@ -54,11 +62,22 @@ function ProtectedRoutes() {
 }
 
 function App() {
+  // Add error boundary logging
+  useEffect(() => {
+    const handleError = (event: ErrorEvent) => {
+      console.error("Global error caught:", event.error);
+    };
+    window.addEventListener('error', handleError);
+    return () => window.removeEventListener('error', handleError);
+  }, []);
+
   return (
-    <QueryClientProvider client={queryClient}>
-      <ProtectedRoutes />
-      <Toaster />
-    </QueryClientProvider>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <ProtectedRoutes />
+        <Toaster />
+      </QueryClientProvider>
+    </ErrorBoundary>
   );
 }
 
