@@ -10,7 +10,7 @@ interface CreateSummaryParams {
 }
 
 export function useSummaries() {
-  const { data, isLoading, error } = useQuery<Summary[]>({
+  const { data, isLoading, error, refetch } = useQuery<Summary[]>({
     queryKey: ['/api/summaries'],
     queryFn: async () => {
       try {
@@ -42,7 +42,8 @@ export function useSummaries() {
   return {
     summaries: data || [],
     isLoading,
-    error
+    error,
+    refetch
   };
 }
 
@@ -70,10 +71,11 @@ export function useCreateSummary() {
           throw new Error(errorText);
         }
 
-        return res.json();
+        const data = await res.json();
+        return data;
       } catch (error: any) {
         console.error('Failed to create summary:', error);
-        throw error;
+        throw new Error(error.message || 'Failed to create summary');
       }
     },
     onSuccess: () => {
@@ -93,7 +95,7 @@ export function useCreateSummary() {
   });
 
   return {
-    createSummary: mutation.mutate,
+    createSummary: mutation.mutateAsync,
     isLoading: mutation.isPending
   };
 }
@@ -140,7 +142,7 @@ export function useDeleteSummary() {
   });
 
   return {
-    deleteSummary: mutation.mutate,
+    deleteSummary: mutation.mutateAsync,
     isLoading: mutation.isPending
   };
 }

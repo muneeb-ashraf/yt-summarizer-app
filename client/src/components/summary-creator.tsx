@@ -1,23 +1,23 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { Button } from "../components/ui/button";
-import { Input } from "../components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../components/ui/select";
-import { Card } from "../components/ui/card";
+} from "@/components/ui/select";
+import { Card } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
-import { useCreateSummary } from "../hooks/use-summary";
-import { FormControl, FormField, FormItem, Form } from "../components/ui/form";
-import { useToast } from "../hooks/use-toast";
-import { useUser } from "../hooks/use-user";
+import { useCreateSummary } from "@/hooks/use-summary";
+import { FormControl, FormField, FormItem, Form } from "@/components/ui/form";
+import { useToast } from "@/hooks/use-toast";
+import { useUser } from "@/hooks/use-user";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { supabase } from "../lib/supabase";
+import { supabase } from "@/lib/supabase";
 
 const formSchema = z.object({
   videoUrl: z.string().min(1, "Video URL is required")
@@ -54,18 +54,32 @@ export function SummaryCreator() {
     }
 
     if (user.subscription === 'free') {
-      // For free plan, check remaining credits
-      const { data: summaries } = await supabase
-        .from('summaries')
-        .select('id')
-        .eq('user_id', user.id)
-        .gte('created_at', new Date(new Date().setDate(new Date().getDate() - 30)).toISOString());
+      try {
+        const { data: summaries, error } = await supabase
+          .from('summaries')
+          .select('id')
+          .eq('user_id', user.id)
+          .gte('created_at', new Date(new Date().setDate(new Date().getDate() - 30)).toISOString());
 
-      const usedCredits = summaries?.length || 0;
-      if (usedCredits >= 5) {
+        if (error) {
+          console.error("Supabase error:", error);
+          throw new Error("Failed to check credits");
+        }
+
+        const usedCredits = summaries?.length || 0;
+        if (usedCredits >= 5) {
+          toast({
+            title: "No Available Credits",
+            description: "You've used all your free credits this month. Please upgrade your plan to continue.",
+            variant: "destructive",
+          });
+          return false;
+        }
+      } catch (error: any) {
+        console.error("Error checking credits:", error);
         toast({
-          title: "No Available Credits",
-          description: "You've used all your free credits this month. Please upgrade your plan to continue.",
+          title: "Error",
+          description: "Failed to check available credits. Please try again.",
           variant: "destructive",
         });
         return false;
@@ -75,20 +89,41 @@ export function SummaryCreator() {
   };
 
   const onSubmit = async (data: FormData) => {
-    const hasCredits = await checkCredits();
-    if (!hasCredits) return;
+    try {
+      const hasCredits = await checkCredits();
+      if (!hasCredits) return;
 
-    const videoIdMatch = data.videoUrl.match(/(?:youtube\.com\/watch\?v=|youtu.be\/)([^&\s]+)/);
-    if (!videoIdMatch) return;
+      const videoIdMatch = data.videoUrl.match(/(?:youtube\.com\/watch\?v=|youtu.be\/)([^&\s]+)/);
+      if (!videoIdMatch) {
+        toast({
+          title: "Error",
+          description: "Invalid YouTube URL format",
+          variant: "destructive",
+        });
+        return;
+      }
 
-    const extractedVideoId = videoIdMatch[1];
-    setVideoId(extractedVideoId);
+      const extractedVideoId = videoIdMatch[1];
+      setVideoId(extractedVideoId);
 
-    createSummary({
-      videoId: extractedVideoId,
-      format: data.format,
-      language: data.language
-    });
+      const result = await createSummary({
+        videoId: extractedVideoId,
+        format: data.format,
+        language: data.language
+      });
+
+      if (!result) {
+        throw new Error("Failed to create summary");
+      }
+
+    } catch (error: any) {
+      console.error("Summary creation error:", error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to create summary. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -104,6 +139,7 @@ export function SummaryCreator() {
                   <Input
                     placeholder="Paste YouTube video URL"
                     {...field}
+                    disabled={isLoading}
                   />
                 </FormControl>
               </FormItem>
@@ -119,6 +155,7 @@ export function SummaryCreator() {
                   <Select
                     value={field.value}
                     onValueChange={field.onChange}
+                    disabled={isLoading}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Summary format" />
@@ -141,6 +178,7 @@ export function SummaryCreator() {
                   <Select
                     value={field.value}
                     onValueChange={field.onChange}
+                    disabled={isLoading}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Language" />

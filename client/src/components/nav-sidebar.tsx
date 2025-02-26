@@ -15,7 +15,7 @@ import { useState } from "react";
 
 export function NavSidebar() {
   const { logout } = useUser();
-  const [location] = useLocation();
+  const [location, setLocation] = useLocation();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
@@ -23,7 +23,7 @@ export function NavSidebar() {
     try {
       setIsLoggingOut(true);
       await logout();
-      window.location.href = '/auth';
+      setLocation('/auth');
     } catch (error) {
       console.error("Logout error:", error);
     } finally {

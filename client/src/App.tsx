@@ -21,6 +21,12 @@ function ProtectedRoutes() {
   useEffect(() => {
     console.log("Current location:", location);
     console.log("User state:", { isLoading, hasUser: !!user });
+    // Log environment variable availability (without exposing values)
+    console.log("Environment variables check:", {
+      hasSupabaseUrl: !!import.meta.env.VITE_SUPABASE_URL,
+      hasSupabaseKey: !!import.meta.env.VITE_SUPABASE_ANON_KEY,
+      hasApiUrl: !!import.meta.env.VITE_API_URL
+    });
   }, [location, user, isLoading]);
 
   if (isLoading) {

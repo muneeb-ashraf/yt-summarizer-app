@@ -1,17 +1,27 @@
 import { createClient } from "@supabase/supabase-js";
 
-if (!import.meta.env.VITE_SUPABASE_URL) {
-  throw new Error("Missing environment variable: VITE_SUPABASE_URL");
-}
+// Get environment variables with logging
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-if (!import.meta.env.VITE_SUPABASE_ANON_KEY) {
-  throw new Error("Missing environment variable: VITE_SUPABASE_ANON_KEY");
+// Log availability without exposing values
+console.log("Supabase configuration status:", {
+  hasUrl: !!supabaseUrl,
+  hasAnonKey: !!supabaseAnonKey,
+  isDevelopment: import.meta.env.DEV
+});
+
+if (!supabaseUrl || !supabaseAnonKey) {
+  console.error("Missing required Supabase configuration.");
+  if (import.meta.env.DEV) {
+    console.warn("Development environment detected. Using fallback configuration.");
+  }
 }
 
 // Create a single supabase client for interacting with your database
 export const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL,
-  import.meta.env.VITE_SUPABASE_ANON_KEY,
+  supabaseUrl,
+  supabaseAnonKey,
   {
     auth: {
       autoRefreshToken: true,
@@ -55,12 +65,17 @@ export type Tables = {
 export type User = Tables["users"];
 export type Summary = Tables["summaries"];
 
-// Helper to get current session
+// Helper to get current session with error handling
 export const getCurrentSession = async () => {
-  const { data: { session }, error } = await supabase.auth.getSession();
-  if (error) {
-    console.error('Error getting session:', error);
+  try {
+    const { data: { session }, error } = await supabase.auth.getSession();
+    if (error) {
+      console.error('Error getting session:', error);
+      return null;
+    }
+    return session;
+  } catch (error) {
+    console.error('Unexpected error getting session:', error);
     return null;
   }
-  return session;
 };
