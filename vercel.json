@@ -1,8 +1,12 @@
 {
-  "buildCommand": "cd client && vite build",
+  "buildCommand": "npm install && NODE_ENV=production vite build --root client --outDir ../dist/public",
   "outputDirectory": "dist/public",
   "framework": "vite",
   "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/$1"
+    },
     {
       "source": "/(.*)",
       "destination": "/index.html"
@@ -13,6 +17,7 @@
     "VITE_SUPABASE_ANON_KEY": "your-supabase-anon-key",
     "VITE_API_URL": "https://<your-replit-app-name>.repl.co",
     "GEMINI_API_KEY": "your-gemini-api-key",
-    "YOUTUBE_API_KEY": "your-youtube-api-key"
+    "YOUTUBE_API_KEY": "your-youtube-api-key",
+    "NODE_ENV": "production"
   }
 }

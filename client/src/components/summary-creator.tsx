@@ -1,23 +1,23 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Card } from "@/components/ui/card";
+} from "../components/ui/select";
+import { Card } from "../components/ui/card";
 import { Loader2 } from "lucide-react";
-import { useCreateSummary } from "@/hooks/use-summary";
-import { FormControl, FormField, FormItem, Form } from "@/components/ui/form";
-import { useToast } from "@/hooks/use-toast";
-import { useUser } from "@/hooks/use-user";
+import { useCreateSummary } from "../hooks/use-summary";
+import { FormControl, FormField, FormItem, Form } from "../components/ui/form";
+import { useToast } from "../hooks/use-toast";
+import { useUser } from "../hooks/use-user";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { supabase } from "@/lib/supabase";
+import { supabase } from "../lib/supabase";
 
 const formSchema = z.object({
   videoUrl: z.string().min(1, "Video URL is required")
