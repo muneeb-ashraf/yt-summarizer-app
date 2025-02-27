@@ -3,9 +3,10 @@ import react from "@vitejs/plugin-react";
 import themePlugin from "@replit/vite-plugin-shadcn-theme-json";
 import path from "path";
 import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal";
+import tsconfigPaths from 'vite-tsconfig-paths';
 
 export default defineConfig({
-  plugins: [react(), runtimeErrorOverlay(), themePlugin()],
+  plugins: [react(), runtimeErrorOverlay(), themePlugin(), tsconfigPaths()],
   resolve: {
     alias: {
       "@db": path.resolve(__dirname, "db"),
