@@ -6,7 +6,12 @@ import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal";
 import tsconfigPaths from 'vite-tsconfig-paths';
 
 export default defineConfig({
-  plugins: [react(), runtimeErrorOverlay(), themePlugin(), tsconfigPaths()],
+  plugins: [
+    react(),
+    runtimeErrorOverlay(),
+    themePlugin({ path: './theme.json' }),
+    tsconfigPaths()
+  ],
   resolve: {
     alias: {
       "@db": path.resolve(__dirname, "db"),

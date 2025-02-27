@@ -1,0 +1,56 @@
+[01:33:18.932] Running build in Washington, D.C., USA (East) – iad1
+[01:33:19.687] Cloning github.com/muneeb-ashraf/yt-summarizer-app (Branch: main, Commit: 7741e3f)
+[01:33:20.058] Cloning completed: 368.000ms
+[01:33:22.700] Restored build cache from previous deployment (DVVxRrTZ5k4jh3iEDySAjdDgfvzm)
+[01:33:22.770] Running "vercel build"
+[01:33:23.117] Vercel CLI 41.2.2
+[01:33:23.661] Installing dependencies...
+[01:33:25.271] 
+[01:33:25.272] up to date in 1s
+[01:33:25.272] 
+[01:33:25.272] 68 packages are looking for funding
+[01:33:25.272]   run `npm fund` for details
+[01:33:27.016] 
+[01:33:27.017] up to date, audited 560 packages in 2s
+[01:33:27.017] 
+[01:33:27.017] 68 packages are looking for funding
+[01:33:27.017]   run `npm fund` for details
+[01:33:27.042] 
+[01:33:27.042] 6 moderate severity vulnerabilities
+[01:33:27.042] 
+[01:33:27.042] To address issues that do not require attention, run:
+[01:33:27.042]   npm audit fix
+[01:33:27.043] 
+[01:33:27.043] To address all issues (including breaking changes), run:
+[01:33:27.043]   npm audit fix --force
+[01:33:27.043] 
+[01:33:27.043] Run `npm audit` for details.
+[01:33:27.962] 
+[01:33:27.962] up to date, audited 251 packages in 855ms
+[01:33:27.963] 
+[01:33:27.963] 42 packages are looking for funding
+[01:33:27.963]   run `npm fund` for details
+[01:33:27.971] 
+[01:33:27.975] 2 moderate severity vulnerabilities
+[01:33:27.976] 
+[01:33:27.976] To address all issues (including breaking changes), run:
+[01:33:27.976]   npm audit fix --force
+[01:33:27.976] 
+[01:33:27.976] Run `npm audit` for details.
+[01:33:28.374] [36mvite v5.4.10 [32mbuilding for production...[36m[39m
+[01:33:28.401] [32m✓[39m 0 modules transformed.
+[01:33:28.407] [31mx[39m Build failed in 9ms
+[01:33:28.407] [31merror during build:
+[01:33:28.407] [31m[vite-plugin-theme] [plugin vite-plugin-theme] Failed to read theme file: ENOENT: no such file or directory, open './theme.json'[31m
+[01:33:28.407]     at getRollupError (file:///vercel/path0/node_modules/rollup/dist/es/shared/parseAst.js:396:41)
+[01:33:28.408]     at error (file:///vercel/path0/node_modules/rollup/dist/es/shared/parseAst.js:392:42)
+[01:33:28.408]     at Object.error (file:///vercel/path0/node_modules/rollup/dist/es/shared/node-entry.js:20604:20)
+[01:33:28.408]     at Object.buildStart (file:///vercel/path0/node_modules/@replit/vite-plugin-shadcn-theme-json/dist/index.mjs:303:14)
+[01:33:28.408]     at async Promise.all (index 5)
+[01:33:28.408]     at async PluginDriver.hookParallel (file:///vercel/path0/node_modules/rollup/dist/es/shared/node-entry.js:20717:9)
+[01:33:28.408]     at async file:///vercel/path0/node_modules/rollup/dist/es/shared/node-entry.js:21664:13
+[01:33:28.408]     at async catchUnfinishedHookActions (file:///vercel/path0/node_modules/rollup/dist/es/shared/node-entry.js:21135:16)
+[01:33:28.408]     at async rollupInternal (file:///vercel/path0/node_modules/rollup/dist/es/shared/node-entry.js:21661:5)
+[01:33:28.409]     at async build (file:///vercel/path0/node_modules/vite/dist/node/chunks/dep-BWSbWtLw.js:65443:14)[39m
+[01:33:28.415] Error: Command "npm install && cd client && npm install && vite build --config ../vite.vercel.config.ts" exited with 1
+[01:33:28.699] 
