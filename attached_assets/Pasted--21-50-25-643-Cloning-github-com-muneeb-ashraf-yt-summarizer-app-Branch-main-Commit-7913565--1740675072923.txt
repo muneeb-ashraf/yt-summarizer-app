@@ -1,0 +1,47 @@
+[21:50:25.643] Cloning github.com/muneeb-ashraf/yt-summarizer-app (Branch: main, Commit: 7913565)
+[21:50:26.005] Cloning completed: 359.000ms
+[21:50:26.900] Restored build cache from previous deployment (9V3xhSZ4ebrAdfReQd2GHRBkeZyg)
+[21:50:27.007] Running build in Washington, D.C., USA (East) – iad1
+[21:50:27.549] Running "vercel build"
+[21:50:27.918] Vercel CLI 41.2.2
+[21:50:28.496] Installing dependencies...
+[21:50:29.788] 
+[21:50:29.789] up to date in 1s
+[21:50:29.789] 
+[21:50:29.789] 68 packages are looking for funding
+[21:50:29.790]   run `npm fund` for details
+[21:50:52.117] npm warn deprecated @supabase/auth-helpers-react@0.4.2: This package is now deprecated - please use the @supabase/ssr package instead.
+[21:50:54.686] 
+[21:50:54.686] added 250 packages, and audited 251 packages in 25s
+[21:50:54.687] 
+[21:50:54.687] 42 packages are looking for funding
+[21:50:54.687]   run `npm fund` for details
+[21:50:54.695] 
+[21:50:54.695] 2 moderate severity vulnerabilities
+[21:50:54.695] 
+[21:50:54.696] To address all issues (including breaking changes), run:
+[21:50:54.696]   npm audit fix --force
+[21:50:54.696] 
+[21:50:54.696] Run `npm audit` for details.
+[21:50:54.947] [36mvite v5.4.10 [32mbuilding for production...[36m[39m
+[21:50:55.305] transforming...
+[21:50:55.460] 
+[21:50:55.461] [1m[33mwarn[39m[22m - The `content` option in your Tailwind CSS configuration is missing or empty.
+[21:50:55.462] [1m[33mwarn[39m[22m - Configure your content sources or your generated CSS will be missing styles.
+[21:50:55.462] [1m[33mwarn[39m[22m - https://tailwindcss.com/docs/content-configuration
+[21:50:55.931] [32m✓[39m 24 modules transformed.
+[21:50:55.937] [31mx[39m Build failed in 954ms
+[21:50:55.937] [31merror during build:
+[21:50:55.937] [31m[vite]: Rollup failed to resolve import "@/components/nav-sidebar" from "/vercel/path0/client/src/pages/subscription.tsx".
+[21:50:55.938] This is most likely unintended because it can break your application at runtime.
+[21:50:55.938] If you do want to externalize this module explicitly add it to
+[21:50:55.938] `build.rollupOptions.external`[31m
+[21:50:55.938]     at viteWarn (file:///vercel/path0/node_modules/vite/dist/node/chunks/dep-BWSbWtLw.js:65589:17)
+[21:50:55.938]     at onRollupWarning (file:///vercel/path0/node_modules/vite/dist/node/chunks/dep-BWSbWtLw.js:65621:5)
+[21:50:55.938]     at onwarn (file:///vercel/path0/node_modules/vite/dist/node/chunks/dep-BWSbWtLw.js:65284:7)
+[21:50:55.939]     at file:///vercel/path0/node_modules/rollup/dist/es/shared/node-entry.js:19452:13
+[21:50:55.939]     at Object.logger [as onLog] (file:///vercel/path0/node_modules/rollup/dist/es/shared/node-entry.js:21178:9)
+[21:50:55.939]     at ModuleLoader.handleInvalidResolvedId (file:///vercel/path0/node_modules/rollup/dist/es/shared/node-entry.js:20067:26)
+[21:50:55.939]     at file:///vercel/path0/node_modules/rollup/dist/es/shared/node-entry.js:20025:26[39m
+[21:50:55.951] Error: Command "cd client && npm install && NODE_ENV=production vite build && mkdir -p ../dist/public && cp -r dist/* ../dist/public/ && cp -r src/components ../dist/public/components && cp -r src/lib ../dist/public/lib" exited with 1
+[21:50:56.323] 
