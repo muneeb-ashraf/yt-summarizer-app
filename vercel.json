@@ -1,11 +1,11 @@
 {
-  "buildCommand": "cd client && npm install && NODE_ENV=production vite build && mkdir -p ../dist/public && cp -r dist/* ../dist/public/",
+  "buildCommand": "cd client && npm install && NODE_ENV=production vite build && mkdir -p ../dist/public && cp -r dist/* ../dist/public/ && cp -r src/components ../dist/public/components && cp -r src/lib ../dist/public/lib",
   "outputDirectory": "dist/public",
   "framework": "vite",
   "rewrites": [
     {
-      "source": "/api/summaries",
-      "destination": "/api/summaries.js"
+      "source": "/api/:path*",
+      "destination": "/api/:path*"
     },
     {
       "source": "/(.*)",
