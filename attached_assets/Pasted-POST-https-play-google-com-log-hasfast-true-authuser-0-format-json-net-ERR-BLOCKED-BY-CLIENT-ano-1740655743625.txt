@@ -1,0 +1,94 @@
+POST https://play.google.com/log?hasfast=true&authuser=0&format=json net::ERR_BLOCKED_BY_CLIENT
+(anonymous) @ base.js:679
+PXH @ base.js:680
+SBq @ base.js:679
+g.q.flush @ base.js:7922
+zA.flush @ base.js:7931
+flush @ base.js:822
+g.q.rh @ base.js:7973
+Kz @ base.js:716
+g.q.dispatchEvent @ base.js:7947
+g.q.f$y @ base.js:7968
+base.js:679 
+            
+            
+           POST https://play.google.com/log?hasfast=true&authuser=0&format=json net::ERR_BLOCKED_BY_CLIENT
+(anonymous) @ base.js:679
+PXH @ base.js:680
+SBq @ base.js:679
+g.q.flush @ base.js:7922
+zA.flush @ base.js:7931
+flush @ base.js:822
+g.q.rh @ base.js:7973
+Kz @ base.js:716
+g.q.dispatchEvent @ base.js:7947
+g.q.f$y @ base.js:7968
+index-CyZMatrH.js:193 
+            
+            
+           POST https://yt-summarizer-app.vercel.app/api/summaries 405 (Method Not Allowed)
+mutationFn @ index-CyZMatrH.js:193
+await in mutationFn
+fn @ index-CyZMatrH.js:40
+x @ index-CyZMatrH.js:40
+start @ index-CyZMatrH.js:40
+execute @ index-CyZMatrH.js:40
+await in execute
+mutate @ index-CyZMatrH.js:40
+l @ index-CyZMatrH.js:193
+await in l
+(anonymous) @ index-CyZMatrH.js:140
+await in (anonymous)
+Hk @ index-CyZMatrH.js:37
+Zk @ index-CyZMatrH.js:37
+qk @ index-CyZMatrH.js:37
+gg @ index-CyZMatrH.js:37
+Fw @ index-CyZMatrH.js:37
+(anonymous) @ index-CyZMatrH.js:37
+Ap @ index-CyZMatrH.js:40
+lw @ index-CyZMatrH.js:37
+Ed @ index-CyZMatrH.js:37
+op @ index-CyZMatrH.js:37
+uE @ index-CyZMatrH.js:37
+index-CyZMatrH.js:193 Failed to create summary: Error
+    at Object.mutationFn (index-CyZMatrH.js:193:24543)
+mutationFn @ index-CyZMatrH.js:193
+await in mutationFn
+fn @ index-CyZMatrH.js:40
+x @ index-CyZMatrH.js:40
+start @ index-CyZMatrH.js:40
+execute @ index-CyZMatrH.js:40
+await in execute
+mutate @ index-CyZMatrH.js:40
+l @ index-CyZMatrH.js:193
+await in l
+(anonymous) @ index-CyZMatrH.js:140
+await in (anonymous)
+Hk @ index-CyZMatrH.js:37
+Zk @ index-CyZMatrH.js:37
+qk @ index-CyZMatrH.js:37
+gg @ index-CyZMatrH.js:37
+Fw @ index-CyZMatrH.js:37
+(anonymous) @ index-CyZMatrH.js:37
+Ap @ index-CyZMatrH.js:40
+lw @ index-CyZMatrH.js:37
+Ed @ index-CyZMatrH.js:37
+op @ index-CyZMatrH.js:37
+uE @ index-CyZMatrH.js:37
+index-CyZMatrH.js:193 Summary creation error: Error: Failed to create summary
+    at Object.mutationFn (index-CyZMatrH.js:193:24638)
+l @ index-CyZMatrH.js:193
+await in l
+(anonymous) @ index-CyZMatrH.js:140
+await in (anonymous)
+Hk @ index-CyZMatrH.js:37
+Zk @ index-CyZMatrH.js:37
+qk @ index-CyZMatrH.js:37
+gg @ index-CyZMatrH.js:37
+Fw @ index-CyZMatrH.js:37
+(anonymous) @ index-CyZMatrH.js:37
+Ap @ index-CyZMatrH.js:40
+lw @ index-CyZMatrH.js:37
+Ed @ index-CyZMatrH.js:37
+op @ index-CyZMatrH.js:37
+uE @ index-CyZMatrH.js:37
