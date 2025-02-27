@@ -1,0 +1,42 @@
+[21:31:11.282] Cloning github.com/muneeb-ashraf/yt-summarizer-app (Branch: main, Commit: 7b1bb44)
+[21:31:11.595] Cloning completed: 312.000ms
+[21:31:12.729] Restored build cache from previous deployment (9V3xhSZ4ebrAdfReQd2GHRBkeZyg)
+[21:31:12.835] Running build in Washington, D.C., USA (East) – iad1
+[21:31:13.339] Running "vercel build"
+[21:31:13.700] Vercel CLI 41.2.2
+[21:31:14.278] Installing dependencies...
+[21:31:15.621] 
+[21:31:15.621] up to date in 1s
+[21:31:15.621] 
+[21:31:15.622] 68 packages are looking for funding
+[21:31:15.622]   run `npm fund` for details
+[21:31:34.421] npm warn deprecated @supabase/auth-helpers-react@0.4.2: This package is now deprecated - please use the @supabase/ssr package instead.
+[21:31:36.871] 
+[21:31:36.871] added 250 packages, and audited 251 packages in 21s
+[21:31:36.872] 
+[21:31:36.872] 42 packages are looking for funding
+[21:31:36.872]   run `npm fund` for details
+[21:31:36.880] 
+[21:31:36.880] 2 moderate severity vulnerabilities
+[21:31:36.881] 
+[21:31:36.881] To address all issues (including breaking changes), run:
+[21:31:36.881]   npm audit fix --force
+[21:31:36.881] 
+[21:31:36.882] Run `npm audit` for details.
+[21:31:37.139] [36mvite v5.4.10 [32mbuilding for production...[36m[39m
+[21:31:37.500] transforming...
+[21:31:37.659] 
+[21:31:37.659] [1m[33mwarn[39m[22m - The `content` option in your Tailwind CSS configuration is missing or empty.
+[21:31:37.659] [1m[33mwarn[39m[22m - Configure your content sources or your generated CSS will be missing styles.
+[21:31:37.659] [1m[33mwarn[39m[22m - https://tailwindcss.com/docs/content-configuration
+[21:31:37.974] [32m✓[39m 14 modules transformed.
+[21:31:37.977] [31mx[39m Build failed in 808ms
+[21:31:37.977] [31merror during build:
+[21:31:37.978] [31mCould not resolve "../components/ui/toaster" from "src/App.tsx"[31m
+[21:31:37.978] file: [36m/vercel/path0/client/src/App.tsx[31m
+[21:31:37.978]     at getRollupError (file:///vercel/path0/node_modules/rollup/dist/es/shared/parseAst.js:396:41)
+[21:31:37.978]     at error (file:///vercel/path0/node_modules/rollup/dist/es/shared/parseAst.js:392:42)
+[21:31:37.978]     at ModuleLoader.handleInvalidResolvedId (file:///vercel/path0/node_modules/rollup/dist/es/shared/node-entry.js:20065:24)
+[21:31:37.978]     at file:///vercel/path0/node_modules/rollup/dist/es/shared/node-entry.js:20025:26[39m
+[21:31:37.989] Error: Command "cd client && npm install && NODE_ENV=production vite build && mkdir -p ../dist/public && cp -r dist/* ../dist/public/ && cp -r src/components ../dist/public/components && cp -r src/lib ../dist/public/lib" exited with 1
+[21:31:38.441] 
