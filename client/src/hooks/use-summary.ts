@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import type { Summary } from '../../db/schema';
+import type { Summary } from '../lib/supabase';
 import { useToast } from './use-toast';
 import { getCurrentSession } from '../lib/supabase';
 

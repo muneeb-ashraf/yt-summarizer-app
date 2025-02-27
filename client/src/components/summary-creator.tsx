@@ -1,18 +1,18 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { Button } from "../components/ui/button";
-import { Input } from "../components/ui/input";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../components/ui/select";
-import { Card } from "../components/ui/card";
+} from "./ui/select";
+import { Card } from "./ui/card";
 import { Loader2 } from "lucide-react";
 import { useCreateSummary } from "../hooks/use-summary";
-import { FormControl, FormField, FormItem, Form } from "../components/ui/form";
+import { FormControl, FormField, FormItem, Form } from "./ui/form";
 import { useToast } from "../hooks/use-toast";
 import { useUser } from "../hooks/use-user";
 import { z } from "zod";
