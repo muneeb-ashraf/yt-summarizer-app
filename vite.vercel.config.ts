@@ -7,7 +7,13 @@ import tsconfigPaths from 'vite-tsconfig-paths';
 
 export default defineConfig({
   plugins: [
-    react(),
+    react({
+      babel: {
+        plugins: [
+          ["babel-plugin-react-remove-properties", { properties: ["^data-radix-.*$"] }]
+        ]
+      }
+    }),
     runtimeErrorOverlay(),
     themePlugin({ path: './theme.json' }),
     tsconfigPaths()
@@ -22,8 +28,47 @@ export default defineConfig({
   build: {
     outDir: path.resolve(__dirname, "dist/public"),
     emptyOutDir: true,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor': [
+            'react',
+            'react-dom',
+            'wouter',
+            '@tanstack/react-query',
+            '@radix-ui/react-toast',
+            '@radix-ui/react-dialog',
+            '@radix-ui/react-label'
+          ],
+          'ui': [
+            '@/components/ui',
+          ]
+        }
+      }
+    },
+    chunkSizeWarningLimit: 800,
+    minify: 'esbuild',
+    cssMinify: true,
+    sourcemap: false
   },
   esbuild: {
-    logOverride: { "unsupported-color-function": "silent" },
+    logOverride: { 
+      "unsupported-color-function": "silent",
+      "module-level-directive": "silent" 
+    },
+    legalComments: 'none',
+    target: ['es2020'],
+    treeShaking: true
   },
+  optimizeDeps: {
+    include: [
+      'react',
+      'react-dom',
+      'wouter',
+      '@tanstack/react-query',
+      '@radix-ui/react-toast',
+      '@radix-ui/react-dialog',
+      '@radix-ui/react-label'
+    ]
+  }
 });
