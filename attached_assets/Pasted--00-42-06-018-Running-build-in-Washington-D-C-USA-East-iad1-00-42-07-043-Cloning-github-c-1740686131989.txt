@@ -1,0 +1,55 @@
+[00:42:06.018] Running build in Washington, D.C., USA (East) – iad1
+[00:42:07.043] Cloning github.com/muneeb-ashraf/yt-summarizer-app (Branch: main, Commit: 2d9840c)
+[00:42:07.757] Cloning completed: 710.000ms
+[00:42:09.965] Restored build cache from previous deployment (AiPg9Tqtk92YAqMyXfZiB3YTrPwp)
+[00:42:10.043] Running "vercel build"
+[00:42:10.410] Vercel CLI 41.2.2
+[00:42:11.001] Installing dependencies...
+[00:42:12.705] 
+[00:42:12.705] up to date in 1s
+[00:42:12.706] 
+[00:42:12.706] 68 packages are looking for funding
+[00:42:12.706]   run `npm fund` for details
+[00:42:36.969] npm warn deprecated @supabase/auth-helpers-react@0.4.2: This package is now deprecated - please use the @supabase/ssr package instead.
+[00:42:39.500] 
+[00:42:39.500] added 250 packages, and audited 251 packages in 27s
+[00:42:39.501] 
+[00:42:39.501] 42 packages are looking for funding
+[00:42:39.501]   run `npm fund` for details
+[00:42:39.509] 
+[00:42:39.510] 2 moderate severity vulnerabilities
+[00:42:39.510] 
+[00:42:39.510] To address all issues (including breaking changes), run:
+[00:42:39.511]   npm audit fix --force
+[00:42:39.511] 
+[00:42:39.511] Run `npm audit` for details.
+[00:42:39.749] [36mvite v5.4.10 [32mbuilding for production...[36m[39m
+[00:42:39.800] transforming...
+[00:42:40.200] 
+[00:42:40.201] [1m[33mwarn[39m[22m - The `content` option in your Tailwind CSS configuration is missing or empty.
+[00:42:40.202] [1m[33mwarn[39m[22m - Configure your content sources or your generated CSS will be missing styles.
+[00:42:40.202] [1m[33mwarn[39m[22m - https://tailwindcss.com/docs/content-configuration
+[00:42:40.648] node_modules/@tanstack/react-query/build/modern/useQueries.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@tanstack/react-query/build/modern/useQueries.js" was ignored.
+[00:42:40.651] node_modules/@tanstack/react-query/build/modern/useQuery.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@tanstack/react-query/build/modern/useQuery.js" was ignored.
+[00:42:40.653] node_modules/@tanstack/react-query/build/modern/QueryClientProvider.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@tanstack/react-query/build/modern/QueryClientProvider.js" was ignored.
+[00:42:40.661] node_modules/@tanstack/react-query/build/modern/HydrationBoundary.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@tanstack/react-query/build/modern/HydrationBoundary.js" was ignored.
+[00:42:40.661] node_modules/@tanstack/react-query/build/modern/QueryErrorResetBoundary.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@tanstack/react-query/build/modern/QueryErrorResetBoundary.js" was ignored.
+[00:42:40.663] node_modules/@tanstack/react-query/build/modern/useIsFetching.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@tanstack/react-query/build/modern/useIsFetching.js" was ignored.
+[00:42:40.664] node_modules/@tanstack/react-query/build/modern/useMutationState.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@tanstack/react-query/build/modern/useMutationState.js" was ignored.
+[00:42:40.664] node_modules/@tanstack/react-query/build/modern/useMutation.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@tanstack/react-query/build/modern/useMutation.js" was ignored.
+[00:42:40.666] node_modules/@tanstack/react-query/build/modern/useInfiniteQuery.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@tanstack/react-query/build/modern/useInfiniteQuery.js" was ignored.
+[00:42:40.666] node_modules/@tanstack/react-query/build/modern/isRestoring.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@tanstack/react-query/build/modern/isRestoring.js" was ignored.
+[00:42:40.668] node_modules/@tanstack/react-query/build/modern/useSuspenseQuery.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@tanstack/react-query/build/modern/useSuspenseQuery.js" was ignored.
+[00:42:40.668] node_modules/@tanstack/react-query/build/modern/useSuspenseQueries.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@tanstack/react-query/build/modern/useSuspenseQueries.js" was ignored.
+[00:42:40.670] node_modules/@tanstack/react-query/build/modern/useSuspenseInfiniteQuery.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@tanstack/react-query/build/modern/useSuspenseInfiniteQuery.js" was ignored.
+[00:42:40.690] [32m✓[39m 63 modules transformed.
+[00:42:40.693] [31mx[39m Build failed in 919ms
+[00:42:40.693] [31merror during build:
+[00:42:40.694] [31mCould not resolve "../../components/ui/card" from "src/pages/not-found.tsx"[31m
+[00:42:40.694] file: [36m/vercel/path0/client/src/pages/not-found.tsx[31m
+[00:42:40.694]     at getRollupError (file:///vercel/path0/node_modules/rollup/dist/es/shared/parseAst.js:396:41)
+[00:42:40.694]     at error (file:///vercel/path0/node_modules/rollup/dist/es/shared/parseAst.js:392:42)
+[00:42:40.694]     at ModuleLoader.handleInvalidResolvedId (file:///vercel/path0/node_modules/rollup/dist/es/shared/node-entry.js:20065:24)
+[00:42:40.695]     at file:///vercel/path0/node_modules/rollup/dist/es/shared/node-entry.js:20025:26[39m
+[00:42:40.707] Error: Command "cd client && npm install && NODE_ENV=production vite build && mkdir -p ../dist/public && cp -r dist/* ../dist/public/ && cp -r src/components ../dist/public/components && cp -r src/lib ../dist/public/lib" exited with 1
+[00:42:41.782] 
