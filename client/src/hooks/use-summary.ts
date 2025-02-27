@@ -29,7 +29,7 @@ export function useSummaries() {
         });
 
         if (!res.ok) {
-          const errorData = await res.json();
+          const errorData = await res.json().catch(() => ({}));
           console.error('Error fetching summaries:', errorData);
           throw new Error(errorData.error || 'Failed to fetch summaries');
         }
@@ -78,7 +78,14 @@ export function useCreateSummary() {
           body: JSON.stringify(params)
         });
 
-        const data = await res.json();
+        // Always try to parse the response as JSON, but handle parse failures gracefully
+        let data;
+        try {
+          data = await res.json();
+        } catch (e) {
+          console.error('Failed to parse response:', e);
+          throw new Error('Invalid server response');
+        }
 
         if (!res.ok) {
           console.error('Summary creation failed:', data);
@@ -104,7 +111,9 @@ export function useCreateSummary() {
       let errorMessage = error.message;
 
       // Handle specific error cases
-      if (errorMessage.includes('API key')) {
+      if (errorMessage.includes('Invalid server response')) {
+        errorMessage = 'Server error. Please try again.';
+      } else if (errorMessage.includes('API key')) {
         errorMessage = 'Server configuration error. Please try again later.';
       } else if (errorMessage.includes('Not authenticated')) {
         errorMessage = 'Please sign in to create summaries.';
