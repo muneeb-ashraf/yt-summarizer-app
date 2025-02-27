@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { Summary } from '@db/schema';
 import { useToast } from '@/hooks/use-toast';
 import { getCurrentSession } from '../lib/supabase';
@@ -11,7 +11,7 @@ interface CreateSummaryParams {
 
 export function useSummaries() {
   const { toast } = useToast();
-  const { data, isLoading, error, refetch } = useQuery<Summary[]>({
+  const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['/api/summaries'],
     queryFn: async () => {
       try {
@@ -59,6 +59,7 @@ export function useSummaries() {
 
 export function useCreateSummary() {
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const mutation = useMutation({
     mutationFn: async (params: CreateSummaryParams) => {
@@ -92,6 +93,7 @@ export function useCreateSummary() {
       }
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/summaries'] });
       toast({
         title: "Success",
         description: "Summary created successfully",
