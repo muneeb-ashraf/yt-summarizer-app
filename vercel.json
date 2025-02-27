@@ -1,5 +1,5 @@
 {
-  "buildCommand": "npm install && NODE_ENV=production vite build --config vite.vercel.config.ts && cp -r client/src/components/ui dist/public/components/",
+  "buildCommand": "cd client && npm install && NODE_ENV=production vite build && mkdir -p ../dist/public && cp -r dist/* ../dist/public/",
   "outputDirectory": "dist/public",
   "framework": "vite",
   "rewrites": [
