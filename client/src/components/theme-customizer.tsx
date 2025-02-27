@@ -1,3 +1,4 @@
+import * as React from "react";
 import { useState } from "react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -28,18 +29,18 @@ export function ThemeCustomizer() {
   const [selectedMood, setSelectedMood] = useState<string>("");
   const queryClient = useQueryClient();
 
-  const { mutate: updateTheme, isLoading } = useMutation({
+  const { mutate: updateTheme, isPending } = useMutation({
     mutationFn: async (mood: string) => {
       const response = await fetch("/api/theme/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ mood }),
       });
-      
+
       if (!response.ok) {
         throw new Error("Failed to generate theme");
       }
-      
+
       return response.json();
     },
     onSuccess: () => {
@@ -117,9 +118,9 @@ export function ThemeCustomizer() {
         <Button
           className="w-full"
           onClick={handleUpdateTheme}
-          disabled={isLoading || (!selectedMood && !customMood)}
+          disabled={isPending || (!selectedMood && !customMood)}
         >
-          {isLoading ? (
+          {isPending ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               Generating Theme...
