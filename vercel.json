@@ -1,6 +1,6 @@
 {
-  "buildCommand": "npm run build",
-  "outputDirectory": "dist/public",
+  "buildCommand": "npm install && cd client && npm install && vite build --config ../vite.vercel.config.ts",
+  "outputDirectory": "client/dist",
   "framework": "vite",
   "rewrites": [
     {
