@@ -3,7 +3,7 @@ import { Link, useLocation } from "wouter";
 import { Button } from "./ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet";
 import { ScrollArea } from "./ui/scroll-area";
-import { cn } from "@/lib/utils";
+import { cn } from "../lib/utils";
 import { Menu, Video, Settings, CreditCard } from "lucide-react";
 
 const navigation = [
