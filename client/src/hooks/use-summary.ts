@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import type { Summary } from '@db/schema';
-import { useToast } from '@/hooks/use-toast';
+import type { Summary } from '../../db/schema';
+import { useToast } from './use-toast';
 import { getCurrentSession } from '../lib/supabase';
 
 interface CreateSummaryParams {

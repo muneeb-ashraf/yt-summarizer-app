@@ -1,6 +1,6 @@
 import { Link, useLocation } from "wouter";
-import { Button } from "@/components/ui/button";
-import { useUser } from "@/hooks/use-user";
+import { Button } from "./ui/button";
+import { useUser } from "../hooks/use-user";
 import { SiYoutube } from "react-icons/si";
 import {
   LayoutDashboard,
@@ -12,7 +12,7 @@ import {
   X
 } from "lucide-react";
 import { useState } from "react";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "../hooks/use-toast";
 
 export function NavSidebar() {
   const { logout } = useUser();

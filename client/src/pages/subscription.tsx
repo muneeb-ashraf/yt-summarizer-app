@@ -1,7 +1,7 @@
-import { NavSidebar } from "@/components/nav-sidebar";
-import { useUser } from "@/hooks/use-user";
-import SubscriptionCard from "@/components/subscription-card";
-import { useToast } from "@/hooks/use-toast";
+import { NavSidebar } from "../components/nav-sidebar";
+import { useUser } from "../hooks/use-user";
+import SubscriptionCard from "../components/subscription-card";
+import { useToast } from "../hooks/use-toast";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
 
