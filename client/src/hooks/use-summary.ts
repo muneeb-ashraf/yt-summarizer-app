@@ -9,11 +9,6 @@ interface CreateSummaryParams {
   language: string;
 }
 
-// Use the current host as the API URL in production
-const API_URL = process.env.NODE_ENV === 'production'
-  ? window.location.origin
-  : '';
-
 export function useSummaries() {
   const { toast } = useToast();
   const { data, isLoading, error, refetch } = useQuery<Summary[]>({
@@ -25,7 +20,7 @@ export function useSummaries() {
 
         console.log('Fetching summaries with session:', !!session);
 
-        const res = await fetch(`${API_URL}/api/summaries`, {
+        const res = await fetch('/api/summaries', {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${session.access_token}`,
@@ -51,8 +46,7 @@ export function useSummaries() {
         });
         throw error;
       }
-    },
-    retry: false
+    }
   });
 
   return {
@@ -75,7 +69,7 @@ export function useCreateSummary() {
 
         console.log('Creating summary with params:', params);
 
-        const res = await fetch(`${API_URL}/api/summaries`, {
+        const res = await fetch('/api/summaries', {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${session.access_token}`,
@@ -137,7 +131,7 @@ export function useDeleteSummary() {
 
         console.log('Deleting summary:', summaryId);
 
-        const res = await fetch(`${API_URL}/api/summaries/${summaryId}`, {
+        const res = await fetch(`/api/summaries/${summaryId}`, {
           method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${session.access_token}`,
