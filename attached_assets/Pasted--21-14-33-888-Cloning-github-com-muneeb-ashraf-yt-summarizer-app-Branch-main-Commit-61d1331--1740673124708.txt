@@ -1,0 +1,46 @@
+[21:14:33.888] Cloning github.com/muneeb-ashraf/yt-summarizer-app (Branch: main, Commit: 61d1331)
+[21:14:34.252] Cloning completed: 364.000ms
+[21:14:35.101] Restored build cache from previous deployment (9V3xhSZ4ebrAdfReQd2GHRBkeZyg)
+[21:14:35.205] Running build in Washington, D.C., USA (East) – iad1
+[21:14:35.732] Running "vercel build"
+[21:14:36.092] Vercel CLI 41.2.2
+[21:14:36.850] Installing dependencies...
+[21:14:39.065] 
+[21:14:39.065] up to date in 2s
+[21:14:39.065] 
+[21:14:39.065] 68 packages are looking for funding
+[21:14:39.065]   run `npm fund` for details
+[21:14:58.087] 
+[21:14:58.087] added 234 packages, and audited 235 packages in 19s
+[21:14:58.088] 
+[21:14:58.088] 42 packages are looking for funding
+[21:14:58.088]   run `npm fund` for details
+[21:14:58.097] 
+[21:14:58.097] 2 moderate severity vulnerabilities
+[21:14:58.097] 
+[21:14:58.098] To address all issues (including breaking changes), run:
+[21:14:58.098]   npm audit fix --force
+[21:14:58.098] 
+[21:14:58.098] Run `npm audit` for details.
+[21:14:58.584] [36mvite v5.4.10 [32mbuilding for production...[36m[39m
+[21:14:58.947] transforming...
+[21:14:59.110] 
+[21:14:59.111] [1m[33mwarn[39m[22m - The `content` option in your Tailwind CSS configuration is missing or empty.
+[21:14:59.111] [1m[33mwarn[39m[22m - Configure your content sources or your generated CSS will be missing styles.
+[21:14:59.112] [1m[33mwarn[39m[22m - https://tailwindcss.com/docs/content-configuration
+[21:14:59.282] [32m✓[39m 7 modules transformed.
+[21:14:59.288] [31mx[39m Build failed in 675ms
+[21:14:59.289] [31merror during build:
+[21:14:59.289] [31m[vite]: Rollup failed to resolve import "@/components/ui/toaster" from "/vercel/path0/client/src/App.tsx".
+[21:14:59.289] This is most likely unintended because it can break your application at runtime.
+[21:14:59.289] If you do want to externalize this module explicitly add it to
+[21:14:59.289] `build.rollupOptions.external`[31m
+[21:14:59.290]     at viteWarn (file:///vercel/path0/node_modules/vite/dist/node/chunks/dep-BWSbWtLw.js:65589:17)
+[21:14:59.290]     at onRollupWarning (file:///vercel/path0/node_modules/vite/dist/node/chunks/dep-BWSbWtLw.js:65621:5)
+[21:14:59.290]     at onwarn (file:///vercel/path0/node_modules/vite/dist/node/chunks/dep-BWSbWtLw.js:65284:7)
+[21:14:59.290]     at file:///vercel/path0/node_modules/rollup/dist/es/shared/node-entry.js:19452:13
+[21:14:59.290]     at Object.logger [as onLog] (file:///vercel/path0/node_modules/rollup/dist/es/shared/node-entry.js:21178:9)
+[21:14:59.291]     at ModuleLoader.handleInvalidResolvedId (file:///vercel/path0/node_modules/rollup/dist/es/shared/node-entry.js:20067:26)
+[21:14:59.291]     at file:///vercel/path0/node_modules/rollup/dist/es/shared/node-entry.js:20025:26[39m
+[21:14:59.301] Error: Command "cd client && npm install && NODE_ENV=production vite build && mkdir -p ../dist/public && cp -r dist/* ../dist/public/" exited with 1
+[21:14:59.756] 
