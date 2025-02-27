@@ -4,6 +4,7 @@ import cors from "cors";
 import { generateSummary } from "./ai";
 import { supabase, getUser } from "./lib/supabase";
 import z from "zod";
+import themeRouter from "./api/theme";
 
 const summarySchema = z.object({
   videoId: z.string().min(1, "Video ID is required"),
@@ -14,11 +15,14 @@ const summarySchema = z.object({
 export function registerRoutes(app: Express): Server {
   // Configure CORS
   app.use(cors({
-    origin: true, // This will mirror the request origin
+    origin: true,
     credentials: true,
     methods: ['POST', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
   }));
+
+  // Register theme customization routes
+  app.use('/api/theme', themeRouter);
 
   // Single endpoint for summary creation
   app.post("/api/summaries", async (req, res) => {

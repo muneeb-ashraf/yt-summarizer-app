@@ -19,7 +19,7 @@ import { z } from "zod";
 import { Loader2 } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "../lib/supabase";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
+import { ThemeCustomizer } from "../components/theme-customizer";
 
 const profileSchema = z.object({
   username: z.string().min(3, "Username must be at least 3 characters"),
@@ -141,6 +141,15 @@ export default function Settings() {
           <h1 className="text-3xl font-bold mb-8">Settings</h1>
 
           <div className="space-y-8">
+            <Card>
+              <CardHeader>
+                <CardTitle>Theme Customization</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ThemeCustomizer />
+              </CardContent>
+            </Card>
+
             <Card>
               <CardHeader>
                 <CardTitle>Profile Settings</CardTitle>
