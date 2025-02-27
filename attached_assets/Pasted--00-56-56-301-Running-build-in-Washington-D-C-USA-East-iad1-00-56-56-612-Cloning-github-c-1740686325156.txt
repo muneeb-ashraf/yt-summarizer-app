@@ -1,0 +1,60 @@
+[00:56:56.301] Running build in Washington, D.C., USA (East) – iad1
+[00:56:56.612] Cloning github.com/muneeb-ashraf/yt-summarizer-app (Branch: main, Commit: ab66ff4)
+[00:56:56.939] Cloning completed: 324.000ms
+[00:56:59.509] Restored build cache from previous deployment (AiPg9Tqtk92YAqMyXfZiB3YTrPwp)
+[00:56:59.591] Running "vercel build"
+[00:57:00.057] Vercel CLI 41.2.2
+[00:57:04.255] Installing dependencies...
+[00:57:06.285] 
+[00:57:06.285] up to date in 2s
+[00:57:06.286] 
+[00:57:06.286] 68 packages are looking for funding
+[00:57:06.286]   run `npm fund` for details
+[00:57:29.287] npm warn deprecated @supabase/auth-helpers-react@0.4.2: This package is now deprecated - please use the @supabase/ssr package instead.
+[00:57:31.857] 
+[00:57:31.858] added 250 packages, and audited 251 packages in 25s
+[00:57:31.859] 
+[00:57:31.859] 42 packages are looking for funding
+[00:57:31.859]   run `npm fund` for details
+[00:57:31.869] 
+[00:57:31.870] 2 moderate severity vulnerabilities
+[00:57:31.870] 
+[00:57:31.870] To address all issues (including breaking changes), run:
+[00:57:31.871]   npm audit fix --force
+[00:57:31.871] 
+[00:57:31.871] Run `npm audit` for details.
+[00:57:32.419] [36mvite v5.4.10 [32mbuilding for production...[36m[39m
+[00:57:32.470] transforming...
+[00:57:32.839] 
+[00:57:32.841] [1m[33mwarn[39m[22m - The `content` option in your Tailwind CSS configuration is missing or empty.
+[00:57:32.841] [1m[33mwarn[39m[22m - Configure your content sources or your generated CSS will be missing styles.
+[00:57:32.841] [1m[33mwarn[39m[22m - https://tailwindcss.com/docs/content-configuration
+[00:57:33.308] node_modules/@tanstack/react-query/build/modern/useQueries.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@tanstack/react-query/build/modern/useQueries.js" was ignored.
+[00:57:33.311] node_modules/@tanstack/react-query/build/modern/useQuery.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@tanstack/react-query/build/modern/useQuery.js" was ignored.
+[00:57:33.313] node_modules/@tanstack/react-query/build/modern/QueryClientProvider.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@tanstack/react-query/build/modern/QueryClientProvider.js" was ignored.
+[00:57:33.317] node_modules/@tanstack/react-query/build/modern/HydrationBoundary.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@tanstack/react-query/build/modern/HydrationBoundary.js" was ignored.
+[00:57:33.317] node_modules/@tanstack/react-query/build/modern/QueryErrorResetBoundary.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@tanstack/react-query/build/modern/QueryErrorResetBoundary.js" was ignored.
+[00:57:33.317] node_modules/@tanstack/react-query/build/modern/useIsFetching.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@tanstack/react-query/build/modern/useIsFetching.js" was ignored.
+[00:57:33.318] node_modules/@tanstack/react-query/build/modern/useMutationState.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@tanstack/react-query/build/modern/useMutationState.js" was ignored.
+[00:57:33.320] node_modules/@tanstack/react-query/build/modern/useMutation.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@tanstack/react-query/build/modern/useMutation.js" was ignored.
+[00:57:33.320] node_modules/@tanstack/react-query/build/modern/useInfiniteQuery.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@tanstack/react-query/build/modern/useInfiniteQuery.js" was ignored.
+[00:57:33.321] node_modules/@tanstack/react-query/build/modern/isRestoring.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@tanstack/react-query/build/modern/isRestoring.js" was ignored.
+[00:57:33.324] node_modules/@tanstack/react-query/build/modern/useSuspenseQuery.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@tanstack/react-query/build/modern/useSuspenseQuery.js" was ignored.
+[00:57:33.324] node_modules/@tanstack/react-query/build/modern/useSuspenseInfiniteQuery.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@tanstack/react-query/build/modern/useSuspenseInfiniteQuery.js" was ignored.
+[00:57:33.324] node_modules/@tanstack/react-query/build/modern/useSuspenseQueries.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@tanstack/react-query/build/modern/useSuspenseQueries.js" was ignored.
+[00:57:34.616] [32m✓[39m 1613 modules transformed.
+[00:57:34.623] [31mx[39m Build failed in 2.18s
+[00:57:34.624] [31merror during build:
+[00:57:34.624] [31m[vite]: Rollup failed to resolve import "@/lib/utils" from "/vercel/path0/client/src/components/ui/badge.tsx".
+[00:57:34.624] This is most likely unintended because it can break your application at runtime.
+[00:57:34.624] If you do want to externalize this module explicitly add it to
+[00:57:34.624] `build.rollupOptions.external`[31m
+[00:57:34.624]     at viteWarn (file:///vercel/path0/node_modules/vite/dist/node/chunks/dep-BWSbWtLw.js:65589:17)
+[00:57:34.624]     at onRollupWarning (file:///vercel/path0/node_modules/vite/dist/node/chunks/dep-BWSbWtLw.js:65621:5)
+[00:57:34.624]     at onwarn (file:///vercel/path0/node_modules/vite/dist/node/chunks/dep-BWSbWtLw.js:65284:7)
+[00:57:34.624]     at file:///vercel/path0/node_modules/rollup/dist/es/shared/node-entry.js:19452:13
+[00:57:34.624]     at Object.logger [as onLog] (file:///vercel/path0/node_modules/rollup/dist/es/shared/node-entry.js:21178:9)
+[00:57:34.624]     at ModuleLoader.handleInvalidResolvedId (file:///vercel/path0/node_modules/rollup/dist/es/shared/node-entry.js:20067:26)
+[00:57:34.624]     at file:///vercel/path0/node_modules/rollup/dist/es/shared/node-entry.js:20025:26[39m
+[00:57:34.642] Error: Command "cd client && npm install && NODE_ENV=production vite build && mkdir -p ../dist/public && cp -r dist/* ../dist/public/ && cp -r src/components ../dist/public/components && cp -r src/lib ../dist/public/lib" exited with 1
+[00:57:34.957] 
