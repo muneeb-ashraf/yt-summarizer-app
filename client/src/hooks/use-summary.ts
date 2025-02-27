@@ -9,7 +9,13 @@ interface CreateSummaryParams {
   language: string;
 }
 
+// Use the current host as the API URL in production
+const API_URL = process.env.NODE_ENV === 'production'
+  ? window.location.origin
+  : '';
+
 export function useSummaries() {
+  const { toast } = useToast();
   const { data, isLoading, error, refetch } = useQuery<Summary[]>({
     queryKey: ['/api/summaries'],
     queryFn: async () => {
@@ -17,7 +23,9 @@ export function useSummaries() {
         const session = await getCurrentSession();
         if (!session) throw new Error('Not authenticated');
 
-        const res = await fetch('/api/summaries', {
+        console.log('Fetching summaries with session:', !!session);
+
+        const res = await fetch(`${API_URL}/api/summaries`, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${session.access_token}`,
@@ -26,13 +34,21 @@ export function useSummaries() {
         });
 
         if (!res.ok) {
-          const errorText = await res.text();
-          throw new Error(errorText);
+          const errorData = await res.json();
+          console.error('Error fetching summaries:', errorData);
+          throw new Error(errorData.error || 'Failed to fetch summaries');
         }
 
-        return res.json();
+        const data = await res.json();
+        console.log('Successfully fetched summaries:', data.length);
+        return data;
       } catch (error: any) {
         console.error('Failed to fetch summaries:', error);
+        toast({
+          title: "Error",
+          description: error.message,
+          variant: "destructive",
+        });
         throw error;
       }
     },
@@ -57,7 +73,9 @@ export function useCreateSummary() {
         const session = await getCurrentSession();
         if (!session) throw new Error('Not authenticated');
 
-        const res = await fetch('/api/summaries', {
+        console.log('Creating summary with params:', params);
+
+        const res = await fetch(`${API_URL}/api/summaries`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${session.access_token}`,
@@ -68,14 +86,16 @@ export function useCreateSummary() {
 
         if (!res.ok) {
           const errorData = await res.json();
+          console.error('Summary creation failed:', errorData);
           throw new Error(errorData.error || 'Failed to create summary');
         }
 
         const data = await res.json();
+        console.log('Summary created successfully:', data);
         return data;
       } catch (error: any) {
         console.error('Failed to create summary:', error);
-        throw new Error(error.message || 'Failed to create summary');
+        throw error;
       }
     },
     onSuccess: () => {
@@ -87,9 +107,13 @@ export function useCreateSummary() {
     },
     onError: (error: Error) => {
       console.error('Summary creation error:', error);
+      let errorMessage = error.message;
+      if (errorMessage.includes('API key')) {
+        errorMessage = 'Server configuration error. Please try again later.';
+      }
       toast({
         title: "Error",
-        description: error.message,
+        description: errorMessage,
         variant: "destructive",
       });
     },
@@ -111,7 +135,9 @@ export function useDeleteSummary() {
         const session = await getCurrentSession();
         if (!session) throw new Error('Not authenticated');
 
-        const res = await fetch(`/api/summaries/${summaryId}`, {
+        console.log('Deleting summary:', summaryId);
+
+        const res = await fetch(`${API_URL}/api/summaries/${summaryId}`, {
           method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${session.access_token}`,
@@ -121,6 +147,7 @@ export function useDeleteSummary() {
 
         if (!res.ok) {
           const errorData = await res.json();
+          console.error('Summary deletion failed:', errorData);
           throw new Error(errorData.error || 'Failed to delete summary');
         }
 
@@ -132,6 +159,10 @@ export function useDeleteSummary() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/summaries'] });
+      toast({
+        title: "Success",
+        description: "Summary deleted successfully",
+      });
     },
     onError: (error: Error) => {
       toast({

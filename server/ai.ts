@@ -11,6 +11,7 @@ function initializeAI() {
   }
 
   if (!genAI) {
+    console.log('Initializing Gemini AI with API key');
     genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
   }
 
@@ -18,15 +19,19 @@ function initializeAI() {
 }
 
 async function chunkText(text: string) {
+  console.log('Chunking text of length:', text.length);
   const splitter = new RecursiveCharacterTextSplitter({
     chunkSize: 2000,
     chunkOverlap: 200,
   });
 
-  return await splitter.splitText(text);
+  const chunks = await splitter.splitText(text);
+  console.log('Split text into', chunks.length, 'chunks');
+  return chunks;
 }
 
 function formatPrompt(format: string, language: string): string {
+  console.log('Formatting prompt for:', format, language);
   const languageMap = {
     en: "English",
     es: "Spanish",
@@ -69,31 +74,48 @@ export async function generateSummary(
   description: string
 ): Promise<string> {
   try {
+    console.log('Starting summary generation for video:', videoId);
+
     if (!process.env.GEMINI_API_KEY) {
+      console.error("Missing GEMINI_API_KEY");
       throw new Error("GEMINI_API_KEY is required for summary generation");
     }
 
     const ai = initializeAI();
+    console.log('AI service initialized');
+
     const model = ai.getGenerativeModel({ model: "gemini-pro" });
+    console.log('Got generative model instance');
 
     // Split the text into manageable chunks
     const chunks = await chunkText(description);
+    console.log('Text split into chunks, processing...');
 
     // Process each chunk and combine the results
     const prompt = formatPrompt(format, language);
     let combinedSummary = "";
 
-    for (const chunk of chunks) {
-      const result = await model.generateContent([
-        prompt,
-        `Content to summarize:\n${chunk}`
-      ]);
-      const response = await result.response;
-      combinedSummary += response.text() + "\n\n";
+    for (let i = 0; i < chunks.length; i++) {
+      console.log(`Processing chunk ${i + 1}/${chunks.length}`);
+      const chunk = chunks[i];
+      try {
+        const result = await model.generateContent([
+          prompt,
+          `Content to summarize:\n${chunk}`
+        ]);
+        const response = await result.response;
+        const text = response.text();
+        console.log(`Successfully generated summary for chunk ${i + 1}`);
+        combinedSummary += text + "\n\n";
+      } catch (error: any) {
+        console.error(`Error processing chunk ${i + 1}:`, error);
+        throw new Error(`Failed to process chunk ${i + 1}: ${error.message}`);
+      }
     }
 
     // Format the final summary based on the requested format
     if (format === 'bullets') {
+      console.log('Formatting bullet points');
       // Ensure bullet points are properly formatted
       return combinedSummary
         .split('\n')
@@ -102,6 +124,7 @@ export async function generateSummary(
         .join('\n');
     }
 
+    console.log('Summary generation completed successfully');
     return combinedSummary.trim();
   } catch (error: any) {
     console.error("AI generation error:", error);
