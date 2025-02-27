@@ -20,8 +20,8 @@ import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { Clock, Download, Trash2 } from "lucide-react";
 import { useState } from "react";
-import { useToast } from "@/hooks/use-toast";
-import { Summary } from "@/lib/supabase";
+import { useToast } from "../hooks/use-toast";
+import { Summary } from "../lib/supabase";
 
 interface SummaryModalProps {
   summary: Summary | null;
