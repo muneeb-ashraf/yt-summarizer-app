@@ -1,19 +1,19 @@
 import { useState, useEffect } from "react";
-import { NavSidebar } from "@/components/nav-sidebar";
-import { SummaryCreator } from "@/components/summary-creator";
-import { SummaryModal } from "@/components/summary-modal";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useUser } from "@/hooks/use-user";
-import { useSummaries, useDeleteSummary } from "@/hooks/use-summary";
+import { NavSidebar } from "../components/nav-sidebar";
+import { SummaryCreator } from "../components/summary-creator";
+import { SummaryModal } from "../components/summary-modal";
+import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
+import { useUser } from "../hooks/use-user";
+import { useSummaries, useDeleteSummary } from "../hooks/use-summary";
 import { Loader2, ExternalLink, Clock, Layout, Trash2 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Button } from "@/components/ui/button";
-import { Toaster } from "@/components/ui/toaster";
-import { useToast } from "@/hooks/use-toast";
+import { Badge } from "../components/ui/badge";
+import { ScrollArea } from "../components/ui/scroll-area";
+import { Button } from "../components/ui/button";
+import { Toaster } from "../components/ui/toaster";
+import { useToast } from "../hooks/use-toast";
 import { useLocation } from "wouter";
 import { useQueryClient } from "@tanstack/react-query";
-import type { Summary } from "@/lib/supabase";
+import type { Summary } from "../lib/supabase";
 
 export default function Dashboard() {
   const { toast } = useToast();
