@@ -2,7 +2,7 @@ import { useCallback, useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../lib/supabase';
 import type { User } from '../lib/supabase';
-import { useToast } from '../hooks/use-toast';
+import { useToast } from './use-toast';
 
 export type AuthError = {
   message: string;
