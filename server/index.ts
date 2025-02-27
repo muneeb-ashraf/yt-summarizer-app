@@ -1,87 +1,72 @@
-import express, { type Request, Response, NextFunction } from "express";
+import express from "express";
 import { registerRoutes } from "./routes";
-import { setupVite, serveStatic, log } from "./vite";
 import cors from "cors";
+import path from "path";
+import { createServer } from "http";
 
 const app = express();
 
-// Raw body needed for Stripe webhook verification
-app.use((req, res, next) => {
-  if (req.originalUrl === '/api/webhook') {
-    let data = '';
-    req.setEncoding('utf8');
-    req.on('data', chunk => {
-      data += chunk;
-    });
-    req.on('end', () => {
-      req.body = data;
-      next();
-    });
-  } else {
-    express.json()(req, res, next);
-  }
-});
+// Configure body parsing
+app.use(express.json());
 
-app.use(express.urlencoded({ extended: false }));
-
-// Configure CORS for production
+// Configure CORS and CSP headers
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' 
-    ? ['https://your-vercel-app.vercel.app', 'http://localhost:5000']
-    : 'http://localhost:5000',
+  origin: true,
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'stripe-signature'],
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
+// Configure CSP
 app.use((req, res, next) => {
-  const start = Date.now();
-  const path = req.path;
-  let capturedJsonResponse: Record<string, any> | undefined = undefined;
-
-  const originalResJson = res.json;
-  res.json = function (bodyJson, ...args) {
-    capturedJsonResponse = bodyJson;
-    return originalResJson.apply(res, [bodyJson, ...args]);
-  };
-
-  res.on("finish", () => {
-    const duration = Date.now() - start;
-    if (path.startsWith("/api")) {
-      let logLine = `${req.method} ${path} ${res.statusCode} in ${duration}ms`;
-      if (capturedJsonResponse) {
-        logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
-      }
-
-      if (logLine.length > 80) {
-        logLine = logLine.slice(0, 79) + "…";
-      }
-
-      log(logLine);
-    }
-  });
-
+  res.setHeader(
+    'Content-Security-Policy',
+    "default-src 'self'; " +
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
+    "style-src 'self' 'unsafe-inline'; " +
+    "img-src 'self' data: https:; " +
+    "frame-src 'self' https://www.youtube.com; " +
+    "connect-src 'self' https://*.supabase.co"
+  );
   next();
 });
 
-(async () => {
-  const server = registerRoutes(app);
-
-  app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
-    const status = err.status || err.statusCode || 500;
-    const message = err.message || "Internal Server Error";
-    console.error('Server error:', err);
-    res.status(status).json({ message });
+// Set up API routes
+app.use('/api', (req, res, next) => {
+  console.log(`${req.method} ${req.path}`, {
+    headers: {
+      ...req.headers,
+      authorization: req.headers.authorization ? '[REDACTED]' : undefined
+    },
+    body: req.method === 'POST' ? req.body : undefined
   });
+  next();
+});
 
-  if (app.get("env") === "development") {
-    await setupVite(app, server);
-  } else {
-    serveStatic(app);
+const httpServer = createServer(app);
+registerRoutes(app);
+
+// Serve static files
+const publicPath = path.join(process.cwd(), 'dist', 'public');
+app.use(express.static(publicPath));
+
+// Handle client-side routing
+app.get('*', (req, res) => {
+  if (!req.path.startsWith('/api')) {
+    res.sendFile(path.join(publicPath, 'index.html'));
   }
+});
 
-  const PORT = 5000;
-  server.listen(PORT, "0.0.0.0", () => {
-    log(`serving on port ${PORT}`);
+// Error handling middleware
+app.use((err: any, _req: any, res: any, _next: any) => {
+  console.error('Server error:', err);
+  res.status(500).json({
+    error: err.message || "Internal server error",
+    details: process.env.NODE_ENV === 'development' ? err.stack : undefined
   });
-})();
+});
+
+const PORT = process.env.PORT || 5000;
+httpServer.listen(PORT, "0.0.0.0", () => {
+  console.log(`Server running on port ${PORT}`);
+});

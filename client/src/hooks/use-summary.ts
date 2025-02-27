@@ -1,7 +1,7 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { Summary } from '@db/schema';
 import { useToast } from '@/hooks/use-toast';
-import { supabase, getCurrentSession } from '../lib/supabase';
+import { getCurrentSession } from '../lib/supabase';
 
 interface CreateSummaryParams {
   videoId: string;
@@ -58,7 +58,6 @@ export function useSummaries() {
 }
 
 export function useCreateSummary() {
-  const queryClient = useQueryClient();
   const { toast } = useToast();
 
   const mutation = useMutation({
@@ -78,22 +77,21 @@ export function useCreateSummary() {
           body: JSON.stringify(params)
         });
 
+        const data = await res.json();
+
         if (!res.ok) {
-          const errorData = await res.json();
-          console.error('Summary creation failed:', errorData);
-          throw new Error(errorData.error || 'Failed to create summary');
+          console.error('Summary creation failed:', data);
+          throw new Error(data.error || 'Failed to create summary');
         }
 
-        const data = await res.json();
         console.log('Summary created successfully:', data);
-        return data;
+        return data as Summary;
       } catch (error: any) {
         console.error('Failed to create summary:', error);
         throw error;
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/summaries'] });
       toast({
         title: "Success",
         description: "Summary created successfully",
@@ -102,9 +100,14 @@ export function useCreateSummary() {
     onError: (error: Error) => {
       console.error('Summary creation error:', error);
       let errorMessage = error.message;
+
+      // Handle specific error cases
       if (errorMessage.includes('API key')) {
         errorMessage = 'Server configuration error. Please try again later.';
+      } else if (errorMessage.includes('Not authenticated')) {
+        errorMessage = 'Please sign in to create summaries.';
       }
+
       toast({
         title: "Error",
         description: errorMessage,
