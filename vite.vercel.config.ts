@@ -10,7 +10,7 @@ export default defineConfig({
     react({
       babel: {
         plugins: [
-          ["babel-plugin-react-remove-properties", { properties: ["^data-radix-.*$"] }]
+          ["babel-plugin-react-remove-properties", { properties: ["^data-radix-.*$", "^use client$"] }]
         ]
       }
     }),
@@ -68,7 +68,26 @@ export default defineConfig({
       '@tanstack/react-query',
       '@radix-ui/react-toast',
       '@radix-ui/react-dialog',
-      '@radix-ui/react-label'
-    ]
+      '@radix-ui/react-label',
+      '@radix-ui/react-portal',
+      '@radix-ui/react-popper',
+      '@radix-ui/react-focus-scope',
+      '@radix-ui/react-focus-guards',
+      '@radix-ui/react-select',
+      '@radix-ui/react-tabs',
+      '@radix-ui/react-context-menu',
+      '@radix-ui/react-dropdown-menu',
+      '@radix-ui/react-hover-card',
+      '@radix-ui/react-menubar',
+      '@radix-ui/react-navigation-menu',
+      '@radix-ui/react-popover',
+      '@radix-ui/react-progress',
+      '@radix-ui/react-radio-group',
+      '@radix-ui/react-scroll-area',
+      '@radix-ui/react-separator',
+      '@radix-ui/react-slider',
+      '@radix-ui/react-switch'
+    ],
+    exclude: ['@replit/vite-plugin-shadcn-theme-json']
   }
 });
