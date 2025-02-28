@@ -20,8 +20,45 @@ export default defineConfig({
   build: {
     outDir: path.resolve(__dirname, "dist/public"),
     emptyOutDir: true,
+    chunkSizeWarningLimit: 800,
     rollupOptions: {
-      input: path.resolve(__dirname, 'client/index.html')
-    }
+      input: path.resolve(__dirname, 'client/index.html'),
+      output: {
+        manualChunks: (id) => {
+          if (id.includes('node_modules')) {
+            if (id.includes('react')) {
+              return 'vendor-react';
+            }
+            if (id.includes('@radix-ui')) {
+              return 'vendor-radix';
+            }
+            if (id.includes('@tanstack')) {
+              return 'vendor-tanstack';
+            }
+            return 'vendor';
+          }
+          if (id.includes('src/components')) {
+            return 'components';
+          }
+          if (id.includes('src/pages')) {
+            return 'pages';
+          }
+        }
+      }
+    },
+    minify: 'esbuild',
+    sourcemap: false
+  },
+  optimizeDeps: {
+    include: [
+      'react',
+      'react-dom',
+      '@tanstack/react-query',
+      'wouter',
+      '@radix-ui/react-toast',
+      '@radix-ui/react-dialog',
+      '@radix-ui/react-label',
+      '@radix-ui/react-tabs'
+    ]
   }
 });

@@ -1,0 +1,64 @@
+[01:13:42.557] Running build in Washington, D.C., USA (East) – iad1
+[01:13:42.687] Cloning github.com/muneeb-ashraf/yt-summarizer-app (Branch: main, Commit: a6ab93e)
+[01:13:42.987] Cloning completed: 300.000ms
+[01:13:45.906] Restored build cache from previous deployment (Fn8vhUqm9K4ggdyT1mrB8Z6vL3FB)
+[01:13:45.985] Running "vercel build"
+[01:13:46.352] Vercel CLI 41.2.2
+[01:13:47.000] Installing dependencies...
+[01:13:49.221] 
+[01:13:49.223] up to date in 2s
+[01:13:49.223] 
+[01:13:49.223] 68 packages are looking for funding
+[01:13:49.224]   run `npm fund` for details
+[01:13:51.017] 
+[01:13:51.018] up to date, audited 561 packages in 2s
+[01:13:51.019] 
+[01:13:51.019] 68 packages are looking for funding
+[01:13:51.019]   run `npm fund` for details
+[01:13:51.041] 
+[01:13:51.041] 6 moderate severity vulnerabilities
+[01:13:51.042] 
+[01:13:51.042] To address issues that do not require attention, run:
+[01:13:51.042]   npm audit fix
+[01:13:51.043] 
+[01:13:51.043] To address all issues (including breaking changes), run:
+[01:13:51.043]   npm audit fix --force
+[01:13:51.043] 
+[01:13:51.043] Run `npm audit` for details.
+[01:13:52.010] 
+[01:13:52.011] up to date, audited 252 packages in 899ms
+[01:13:52.011] 
+[01:13:52.011] 42 packages are looking for funding
+[01:13:52.013]   run `npm fund` for details
+[01:13:52.027] 
+[01:13:52.027] 2 moderate severity vulnerabilities
+[01:13:52.029] 
+[01:13:52.029] To address all issues (including breaking changes), run:
+[01:13:52.029]   npm audit fix --force
+[01:13:52.030] 
+[01:13:52.030] Run `npm audit` for details.
+[01:13:52.514] [36mvite v5.4.10 [32mbuilding for production...[36m[39m
+[01:13:52.575] transforming...
+[01:13:52.888] 
+[01:13:52.889] [1m[33mwarn[39m[22m - The `content` option in your Tailwind CSS configuration is missing or empty.
+[01:13:52.889] [1m[33mwarn[39m[22m - Configure your content sources or your generated CSS will be missing styles.
+[01:13:52.889] [1m[33mwarn[39m[22m - https://tailwindcss.com/docs/content-configuration
+[01:13:58.184] [32m✓[39m 1876 modules transformed.
+[01:13:58.441] rendering chunks...
+[01:13:58.695] computing gzip size...
+[01:13:58.715] [2m../dist/public/[22m[32mindex.html                  [39m[1m[2m  1.93 kB[22m[1m[22m[2m │ gzip:   0.78 kB[22m
+[01:13:58.716] [2m../dist/public/[22m[2massets/[22m[35mindex-B8kLYQ6p.css   [39m[1m[2m  5.03 kB[22m[1m[22m[2m │ gzip:   1.45 kB[22m
+[01:13:58.726] [2m../dist/public/[22m[2massets/[22m[36mbrowser-Br2ZkRHI.js  [39m[1m[2m  0.30 kB[22m[1m[22m[2m │ gzip:   0.25 kB[22m
+[01:13:58.726] [2m../dist/public/[22m[2massets/[22m[36mindex-BUv9s17G.js    [39m[1m[33m612.86 kB[39m[22m[2m │ gzip: 184.90 kB[22m
+[01:13:58.727] [32m✓ built in 6.17s[39m
+[01:13:58.727] [33m
+[01:13:58.728] (!) Some chunks are larger than 500 kB after minification. Consider:
+[01:13:58.728] - Using dynamic import() to code-split the application
+[01:13:58.728] - Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+[01:13:58.729] - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.[39m
+[01:13:58.837] Build Completed in /vercel/output [12s]
+[01:13:58.942] Deploying outputs...
+[01:14:00.066] 
+[01:14:00.399] Deployment completed
+[01:14:16.918] Uploading build cache [83.23 MB]...
+[01:14:18.235] Build cache uploaded: 1.317s

@@ -6,10 +6,11 @@ export default {
     "./client/src/**/*.{ts,tsx}",
     "./client/src/components/**/*.{ts,tsx}",
     "./client/src/pages/**/*.{ts,tsx}",
-    "./client/src/App.tsx",
-    "./client/src/main.tsx",
     "./client/index.html"
   ],
+  future: {
+    hoverOnlyWhenSupported: true,
+  },
   theme: {
     container: {
       center: true,
