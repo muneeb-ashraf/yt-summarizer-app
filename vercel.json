@@ -16,6 +16,7 @@
     "VITE_SUPABASE_URL": "${VITE_SUPABASE_URL}",
     "VITE_SUPABASE_ANON_KEY": "${VITE_SUPABASE_ANON_KEY}",
     "VITE_API_URL": "https://${VERCEL_URL}",
-    "NODE_ENV": "production"
+    "NODE_ENV": "production",
+    "NODE_OPTIONS": "--experimental-json-modules"
   }
 }

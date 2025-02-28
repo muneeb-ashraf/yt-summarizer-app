@@ -8,7 +8,13 @@ import autoprefixer from 'autoprefixer';
 
 export default defineConfig({
   plugins: [
-    react(),
+    react({
+      jsxRuntime: 'automatic',
+      jsxImportSource: 'react',
+      babel: {
+        plugins: []
+      }
+    }),
     tsconfigPaths(),
     themePlugin()
   ],
@@ -36,20 +42,20 @@ export default defineConfig({
     rollupOptions: {
       input: path.resolve(__dirname, 'client/index.html'),
       output: {
-        manualChunks: (id) => {
-          if (id.includes('node_modules')) {
-            if (id.includes('react')) {
-              return 'vendor-react';
-            }
-            if (id.includes('@radix-ui')) {
-              return 'vendor-radix';
-            }
-            if (id.includes('@tanstack')) {
-              return 'vendor-tanstack';
-            }
-            return 'vendor';
-          }
-          
+        manualChunks: {
+          'vendor': [
+            'react',
+            'react-dom',
+            'react/jsx-runtime',
+            '@tanstack/react-query',
+            'wouter'
+          ],
+          'ui': [
+            '@radix-ui/react-toast',
+            '@radix-ui/react-dialog',
+            '@radix-ui/react-label',
+            '@radix-ui/react-tabs'
+          ]
         }
       }
     },
@@ -60,12 +66,10 @@ export default defineConfig({
     include: [
       'react',
       'react-dom',
+      'react/jsx-runtime',
       '@tanstack/react-query',
-      'wouter',
-      '@radix-ui/react-toast',
-      '@radix-ui/react-dialog',
-      '@radix-ui/react-label',
-      '@radix-ui/react-tabs'
-    ]
+      'wouter'
+    ],
+    exclude: []
   }
 });
