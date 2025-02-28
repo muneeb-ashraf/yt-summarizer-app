@@ -1,0 +1,57 @@
+[01:46:03.146] Running build in Washington, D.C., USA (East) – iad1
+[01:46:03.437] Cloning github.com/muneeb-ashraf/yt-summarizer-app (Branch: main, Commit: 3e1cfb7)
+[01:46:03.766] Cloning completed: 325.000ms
+[01:46:07.044] Restored build cache from previous deployment (3NGUcvEyjWqJ7kmZnt6KFs3Sg6J9)
+[01:46:07.125] Running "vercel build"
+[01:46:07.531] Vercel CLI 41.2.2
+[01:46:08.494] Installing dependencies...
+[01:46:10.746] 
+[01:46:10.747] up to date in 2s
+[01:46:10.748] 
+[01:46:10.748] 68 packages are looking for funding
+[01:46:10.748]   run `npm fund` for details
+[01:46:12.325] 
+[01:46:12.326] up to date, audited 561 packages in 1s
+[01:46:12.327] 
+[01:46:12.328] 68 packages are looking for funding
+[01:46:12.328]   run `npm fund` for details
+[01:46:12.350] 
+[01:46:12.351] 6 moderate severity vulnerabilities
+[01:46:12.351] 
+[01:46:12.351] To address issues that do not require attention, run:
+[01:46:12.351]   npm audit fix
+[01:46:12.352] 
+[01:46:12.352] To address all issues (including breaking changes), run:
+[01:46:12.352]   npm audit fix --force
+[01:46:12.352] 
+[01:46:12.352] Run `npm audit` for details.
+[01:46:13.382] 
+[01:46:13.391] up to date, audited 252 packages in 959ms
+[01:46:13.395] 
+[01:46:13.395] 42 packages are looking for funding
+[01:46:13.395]   run `npm fund` for details
+[01:46:13.397] 
+[01:46:13.403] 2 moderate severity vulnerabilities
+[01:46:13.404] 
+[01:46:13.404] To address all issues (including breaking changes), run:
+[01:46:13.404]   npm audit fix --force
+[01:46:13.404] 
+[01:46:13.405] Run `npm audit` for details.
+[01:46:14.448] [36mvite v5.4.10 [32mbuilding for production...[36m[39m
+[01:46:14.456] node:internal/process/promises:394
+[01:46:14.456]     triggerUncaughtException(err, true /* fromPromise */);
+[01:46:14.456]     ^
+[01:46:14.457] 
+[01:46:14.457] [Failed to load PostCSS config: Failed to load PostCSS config (searchPath: /vercel/path0/client): [ReferenceError] module is not defined in ES module scope
+[01:46:14.457] This file is being treated as an ES module because it has a '.js' file extension and '/vercel/path0/client/package.json' contains "type": "module". To treat it as a CommonJS script, rename it to use the '.cjs' file extension.
+[01:46:14.457] ReferenceError: module is not defined in ES module scope
+[01:46:14.457] This file is being treated as an ES module because it has a '.js' file extension and '/vercel/path0/client/package.json' contains "type": "module". To treat it as a CommonJS script, rename it to use the '.cjs' file extension.
+[01:46:14.458]     at file:///vercel/path0/client/postcss.config.js:1:1
+[01:46:14.458]     at ModuleJob.run (node:internal/modules/esm/module_job:271:25)
+[01:46:14.458]     at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:578:26)
+[01:46:14.458]     at async importDefault (file:///vercel/path0/node_modules/vite/dist/node/chunks/dep-BWSbWtLw.js:33758:18)
+[01:46:14.458]     at async Object.search (file:///vercel/path0/node_modules/vite/dist/node/chunks/dep-BWSbWtLw.js:25914:23)]
+[01:46:14.461] 
+[01:46:14.461] Node.js v22.14.0
+[01:46:14.466] Error: Command "npm install && npm install --prefix client && cp theme.json client/ && NODE_ENV=production cd client && vite build --config ../vite.vercel.config.ts --mode production" exited with 1
+[01:46:14.988] 

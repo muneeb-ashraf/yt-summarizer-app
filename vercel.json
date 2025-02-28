@@ -1,5 +1,5 @@
 {
-  "buildCommand": "npm install && npm install --prefix client && cp theme.json client/ && NODE_ENV=production cd client && vite build --config ../vite.vercel.config.ts --mode production",
+  "buildCommand": "npm install && npm install --prefix client && cp theme.json client/ && cd client && NODE_ENV=production TAILWIND_CONFIG_PATH=../tailwind.config.ts vite build --config ../vite.vercel.config.ts",
   "outputDirectory": "dist/public",
   "framework": "vite",
   "rewrites": [
