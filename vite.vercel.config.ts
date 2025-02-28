@@ -3,6 +3,8 @@ import react from "@vitejs/plugin-react";
 import path from "path";
 import tsconfigPaths from 'vite-tsconfig-paths';
 import themePlugin from "@replit/vite-plugin-shadcn-theme-json";
+import tailwindcss from 'tailwindcss';
+import autoprefixer from 'autoprefixer';
 
 export default defineConfig({
   plugins: [
@@ -16,6 +18,16 @@ export default defineConfig({
     alias: {
       "@": path.resolve(__dirname, "client/src"),
     },
+  },
+  css: {
+    postcss: {
+      plugins: [
+        tailwindcss({
+          config: path.resolve(__dirname, 'tailwind.config.ts')
+        }),
+        autoprefixer()
+      ]
+    }
   },
   build: {
     outDir: path.resolve(__dirname, "dist/public"),
@@ -37,12 +49,7 @@ export default defineConfig({
             }
             return 'vendor';
           }
-          if (id.includes('src/components')) {
-            return 'components';
-          }
-          if (id.includes('src/pages')) {
-            return 'pages';
-          }
+          
         }
       }
     },
