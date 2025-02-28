@@ -1,0 +1,92 @@
+[23:21:47.367] Running build in Washington, D.C., USA (East) – iad1
+[23:21:48.627] Cloning github.com/muneeb-ashraf/yt-summarizer-app (Branch: main, Commit: b03564d)
+[23:21:48.997] Cloning completed: 369.000ms
+[23:21:52.512] Restored build cache from previous deployment (5ECBmyqv5kMRbrLcGL478uuab4tH)
+[23:21:52.602] Running "vercel build"
+[23:21:53.016] Vercel CLI 41.2.2
+[23:21:53.653] Installing dependencies...
+[23:21:55.313] 
+[23:21:55.313] up to date in 1s
+[23:21:55.314] 
+[23:21:55.314] 68 packages are looking for funding
+[23:21:55.314]   run `npm fund` for details
+[23:21:56.720] 
+[23:21:56.721] up to date, audited 251 packages in 1s
+[23:21:56.721] 
+[23:21:56.721] 42 packages are looking for funding
+[23:21:56.722]   run `npm fund` for details
+[23:21:56.730] 
+[23:21:56.730] 2 moderate severity vulnerabilities
+[23:21:56.730] 
+[23:21:56.731] To address all issues (including breaking changes), run:
+[23:21:56.731]   npm audit fix --force
+[23:21:56.731] 
+[23:21:56.732] Run `npm audit` for details.
+[23:21:57.204] [36mvite v5.4.10 [32mbuilding for production...[36m[39m
+[23:21:57.269] transforming...
+[23:21:57.840] [32m✓[39m 2 modules transformed.
+[23:21:57.843] [31mx[39m Build failed in 615ms
+[23:21:57.843] [31merror during build:
+[23:21:57.843] [31m[vite:react-babel] Cannot find package 'babel-plugin-react-remove-properties' imported from /vercel/path0/client/babel-virtual-resolve-base.js[31m
+[23:21:57.843] file: [36m/vercel/path0/client/src/main.tsx[31m
+[23:21:57.844]     at __node_internal_ (/vercel/path0/node_modules/@babel/core/lib/vendor/import-meta-resolve.js:225:9)
+[23:21:57.844]     at new NodeError (/vercel/path0/node_modules/@babel/core/lib/vendor/import-meta-resolve.js:195:5)
+[23:21:57.844]     at packageResolve (/vercel/path0/node_modules/@babel/core/lib/vendor/import-meta-resolve.js:899:9)
+[23:21:57.844]     at moduleResolve (/vercel/path0/node_modules/@babel/core/lib/vendor/import-meta-resolve.js:939:18)
+[23:21:57.844]     at defaultResolve (/vercel/path0/node_modules/@babel/core/lib/vendor/import-meta-resolve.js:1017:15)
+[23:21:57.844]     at resolve (/vercel/path0/node_modules/@babel/core/lib/vendor/import-meta-resolve.js:1030:12)
+[23:21:57.844]     at tryImportMetaResolve (/vercel/path0/node_modules/@babel/core/lib/config/files/plugins.js:148:45)
+[23:21:57.845]     at resolveStandardizedNameForImport (/vercel/path0/node_modules/@babel/core/lib/config/files/plugins.js:173:19)
+[23:21:57.845]     at resolveStandardizedName (/vercel/path0/node_modules/@babel/core/lib/config/files/plugins.js:185:22)
+[23:21:57.845]     at loadPlugin (/vercel/path0/node_modules/@babel/core/lib/config/files/plugins.js:55:7)
+[23:21:57.845]     at loadPlugin.next (<anonymous>)
+[23:21:57.845]     at createDescriptor (/vercel/path0/node_modules/@babel/core/lib/config/config-descriptors.js:140:16)
+[23:21:57.845]     at createDescriptor.next (<anonymous>)
+[23:21:57.845]     at step (/vercel/path0/node_modules/gensync/index.js:261:32)
+[23:21:57.845]     at evaluateAsync (/vercel/path0/node_modules/gensync/index.js:291:5)
+[23:21:57.845]     at /vercel/path0/node_modules/gensync/index.js:44:11
+[23:21:57.845]     at Array.forEach (<anonymous>)
+[23:21:57.845]     at Function.async (/vercel/path0/node_modules/gensync/index.js:43:15)
+[23:21:57.846]     at Function.all (/vercel/path0/node_modules/gensync/index.js:216:13)
+[23:21:57.846]     at Generator.next (<anonymous>)
+[23:21:57.846]     at createDescriptors (/vercel/path0/node_modules/@babel/core/lib/config/config-descriptors.js:102:41)
+[23:21:57.846]     at createDescriptors.next (<anonymous>)
+[23:21:57.846]     at createPluginDescriptors (/vercel/path0/node_modules/@babel/core/lib/config/config-descriptors.js:99:17)
+[23:21:57.846]     at createPluginDescriptors.next (<anonymous>)
+[23:21:57.846]     at /vercel/path0/node_modules/@babel/core/lib/config/config-descriptors.js:65:32
+[23:21:57.846]     at Generator.next (<anonymous>)
+[23:21:57.846]     at Function.<anonymous> (/vercel/path0/node_modules/@babel/core/lib/gensync-utils/async.js:21:3)
+[23:21:57.846]     at Generator.next (<anonymous>)
+[23:21:57.847]     at step (/vercel/path0/node_modules/gensync/index.js:269:25)
+[23:21:57.847]     at evaluateAsync (/vercel/path0/node_modules/gensync/index.js:291:5)
+[23:21:57.847]     at Function.errback (/vercel/path0/node_modules/gensync/index.js:113:7)
+[23:21:57.847]     at errback (/vercel/path0/node_modules/@babel/core/lib/gensync-utils/async.js:65:18)
+[23:21:57.847]     at async (/vercel/path0/node_modules/gensync/index.js:188:17)
+[23:21:57.847]     at onFirstPause (/vercel/path0/node_modules/gensync/index.js:216:13)
+[23:21:57.847]     at Generator.next (<anonymous>)
+[23:21:57.847]     at cachedFunction (/vercel/path0/node_modules/@babel/core/lib/config/caching.js:52:46)
+[23:21:57.847]     at cachedFunction.next (<anonymous>)
+[23:21:57.847]     at mergeChainOpts (/vercel/path0/node_modules/@babel/core/lib/config/config-chain.js:349:34)
+[23:21:57.847]     at mergeChainOpts.next (<anonymous>)
+[23:21:57.848]     at chainWalker (/vercel/path0/node_modules/@babel/core/lib/config/config-chain.js:316:14)
+[23:21:57.848]     at chainWalker.next (<anonymous>)
+[23:21:57.848]     at buildRootChain (/vercel/path0/node_modules/@babel/core/lib/config/config-chain.js:56:36)
+[23:21:57.848]     at buildRootChain.next (<anonymous>)
+[23:21:57.848]     at loadPrivatePartialConfig (/vercel/path0/node_modules/@babel/core/lib/config/partial.js:72:62)
+[23:21:57.848]     at loadPrivatePartialConfig.next (<anonymous>)
+[23:21:57.848]     at loadFullConfig (/vercel/path0/node_modules/@babel/core/lib/config/full.js:36:46)
+[23:21:57.848]     at loadFullConfig.next (<anonymous>)
+[23:21:57.848]     at transform (/vercel/path0/node_modules/@babel/core/lib/transform.js:20:44)
+[23:21:57.848]     at transform.next (<anonymous>)
+[23:21:57.848]     at step (/vercel/path0/node_modules/gensync/index.js:269:25)
+[23:21:57.849]     at evaluateAsync (/vercel/path0/node_modules/gensync/index.js:291:5)
+[23:21:57.849]     at /vercel/path0/node_modules/gensync/index.js:93:9
+[23:21:57.849]     at new Promise (<anonymous>)
+[23:21:57.849]     at async (/vercel/path0/node_modules/gensync/index.js:92:14)
+[23:21:57.849]     at stopHiding - secret - don't use this - v1 (/vercel/path0/node_modules/@babel/core/lib/errors/rewrite-stack-trace.js:47:12)
+[23:21:57.849]     at Module.transformAsync (/vercel/path0/node_modules/@babel/core/lib/transform.js:45:77)
+[23:21:57.849]     at Object.transform (file:///vercel/path0/node_modules/@vitejs/plugin-react/dist/index.mjs:185:35)
+[23:21:57.849]     at async transform (file:///vercel/path0/node_modules/rollup/dist/es/shared/node-entry.js:19640:16)
+[23:21:57.849]     at async ModuleLoader.addModuleSource (file:///vercel/path0/node_modules/rollup/dist/es/shared/node-entry.js:19856:36)[39m
+[23:21:57.866] Error: Command "cd client && npm install && cp ../theme.json . && vite build --config ../vite.vercel.config.ts" exited with 1
+[23:21:58.427] 
