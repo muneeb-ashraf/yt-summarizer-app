@@ -1,6 +1,6 @@
 {
-  "buildCommand": "cd client && npm install && cp ../theme.json . && vite build --config ../vite.vercel.config.ts",
-  "outputDirectory": "client/dist",
+  "buildCommand": "npm install && cd client && npm install && vite build --config ../vite.vercel.config.ts",
+  "outputDirectory": "dist/public",
   "framework": "vite",
   "rewrites": [
     {
@@ -16,28 +16,6 @@
     "VITE_SUPABASE_URL": "${VITE_SUPABASE_URL}",
     "VITE_SUPABASE_ANON_KEY": "${VITE_SUPABASE_ANON_KEY}",
     "VITE_API_URL": "https://${VERCEL_URL}",
-    "GEMINI_API_KEY": "${GEMINI_API_KEY}",
-    "YOUTUBE_API_KEY": "${YOUTUBE_API_KEY}",
     "NODE_ENV": "production"
-  },
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=0, must-revalidate"
-        }
-      ]
-    },
-    {
-      "source": "/assets/(.*)",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=31536000, immutable"
-        }
-      ]
-    }
-  ]
+  }
 }
