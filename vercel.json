@@ -1,5 +1,5 @@
 {
-  "buildCommand": "npm install && cd client && npm install && vite build --config ../vite.vercel.config.ts",
+  "buildCommand": "npm install && npm install --prefix client && cp theme.json client/ && cd client && vite build --config ../vite.vercel.config.ts",
   "outputDirectory": "dist/public",
   "framework": "vite",
   "rewrites": [

@@ -1,0 +1,60 @@
+[01:02:36.621] Running build in Washington, D.C., USA (East) – iad1
+[01:02:36.739] Cloning github.com/muneeb-ashraf/yt-summarizer-app (Branch: main, Commit: 36773e6)
+[01:02:37.617] Cloning completed: 874.000ms
+[01:02:40.449] Restored build cache from previous deployment (DemovD3vJvHqX2r6yW6zdDwYtpup)
+[01:02:40.531] Running "vercel build"
+[01:02:40.939] Vercel CLI 41.2.2
+[01:02:41.543] Installing dependencies...
+[01:02:43.554] 
+[01:02:43.555] up to date in 1s
+[01:02:43.555] 
+[01:02:43.555] 68 packages are looking for funding
+[01:02:43.556]   run `npm fund` for details
+[01:02:45.575] 
+[01:02:45.576] up to date, audited 561 packages in 2s
+[01:02:45.576] 
+[01:02:45.576] 68 packages are looking for funding
+[01:02:45.577]   run `npm fund` for details
+[01:02:45.600] 
+[01:02:45.601] 6 moderate severity vulnerabilities
+[01:02:45.602] 
+[01:02:45.602] To address issues that do not require attention, run:
+[01:02:45.602]   npm audit fix
+[01:02:45.602] 
+[01:02:45.603] To address all issues (including breaking changes), run:
+[01:02:45.603]   npm audit fix --force
+[01:02:45.603] 
+[01:02:45.603] Run `npm audit` for details.
+[01:02:46.595] 
+[01:02:46.596] up to date, audited 252 packages in 924ms
+[01:02:46.597] 
+[01:02:46.598] 42 packages are looking for funding
+[01:02:46.598]   run `npm fund` for details
+[01:02:46.611] 
+[01:02:46.612] 2 moderate severity vulnerabilities
+[01:02:46.612] 
+[01:02:46.612] To address all issues (including breaking changes), run:
+[01:02:46.612]   npm audit fix --force
+[01:02:46.612] 
+[01:02:46.612] Run `npm audit` for details.
+[01:02:47.112] [36mvite v5.4.10 [32mbuilding for production...[36m[39m
+[01:02:47.283] transforming...
+[01:02:47.911] 
+[01:02:47.915] [1m[33mwarn[39m[22m - The `content` option in your Tailwind CSS configuration is missing or empty.
+[01:02:47.916] [1m[33mwarn[39m[22m - Configure your content sources or your generated CSS will be missing styles.
+[01:02:47.916] [1m[33mwarn[39m[22m - https://tailwindcss.com/docs/content-configuration
+[01:02:52.667] [32m✓[39m 1876 modules transformed.
+[01:02:52.943] rendering chunks...
+[01:02:53.364] computing gzip size...
+[01:02:53.386] [2m../dist/public/[22m[32mindex.html                  [39m[1m[2m  0.79 kB[22m[1m[22m[2m │ gzip:   0.45 kB[22m
+[01:02:53.386] [2m../dist/public/[22m[2massets/[22m[35mindex-B8kLYQ6p.css   [39m[1m[2m  5.03 kB[22m[1m[22m[2m │ gzip:   1.45 kB[22m
+[01:02:53.386] [2m../dist/public/[22m[2massets/[22m[36mbrowser-B9AXE4E2.js  [39m[1m[2m  0.30 kB[22m[1m[22m[2m │ gzip:   0.25 kB[22m
+[01:02:53.386] [2m../dist/public/[22m[2massets/[22m[36mvendor-DD7GGAga.js   [39m[1m[2m182.19 kB[22m[1m[22m[2m │ gzip:  57.21 kB[22m
+[01:02:53.387] [2m../dist/public/[22m[2massets/[22m[36mindex-glOXdp47.js    [39m[1m[2m430.35 kB[22m[1m[22m[2m │ gzip: 127.83 kB[22m
+[01:02:53.387] [32m✓ built in 6.22s[39m
+[01:02:53.475] Build Completed in /vercel/output [12s]
+[01:02:53.580] Deploying outputs...
+[01:02:54.710] 
+[01:02:55.024] Deployment completed
+[01:03:10.915] Uploading build cache [83.23 MB]...
+[01:03:12.082] Build cache uploaded: 1.167s
