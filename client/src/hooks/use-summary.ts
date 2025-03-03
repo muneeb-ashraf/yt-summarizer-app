@@ -16,13 +16,16 @@ export function useSummaries() {
     queryFn: async () => {
       try {
         const session = await getCurrentSession();
-        if (!session) throw new Error('Not authenticated');
+        if (!session?.access_token) {
+          throw new Error('Please sign in to view summaries');
+        }
 
         const res = await fetch('/api/summaries', {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${session.access_token}`,
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
           }
         });
 
@@ -66,7 +69,9 @@ export function useCreateSummary() {
     mutationFn: async (params: CreateSummaryParams) => {
       try {
         const session = await getCurrentSession();
-        if (!session) throw new Error('Not authenticated');
+        if (!session?.access_token) {
+          throw new Error('Please sign in to create summaries');
+        }
 
         const res = await fetch('/api/summaries', {
           method: 'POST',
@@ -103,7 +108,6 @@ export function useCreateSummary() {
       });
     },
     onError: (error: Error) => {
-      console.error('Summary creation error:', error);
       toast({
         title: "Error",
         description: error.message,
@@ -126,7 +130,9 @@ export function useDeleteSummary() {
     mutationFn: async (summaryId: string) => {
       try {
         const session = await getCurrentSession();
-        if (!session) throw new Error('Not authenticated');
+        if (!session?.access_token) {
+          throw new Error('Please sign in to delete summaries');
+        }
 
         const res = await fetch(`/api/summaries/${summaryId}`, {
           method: 'DELETE',
