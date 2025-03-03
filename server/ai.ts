@@ -83,12 +83,12 @@ export async function generateSummary(
     console.log('AI service initialized');
 
     const model = ai.getGenerativeModel({ 
-      model: "gemini-pro",
+      model: "gemini-2.0-flash",
       generationConfig: {
         temperature: 0.7,
         topK: 40,
         topP: 0.95,
-        maxOutputTokens: 1024,
+        maxOutputTokens: 2048,
       },
     });
     console.log('Got generative model instance');
@@ -123,7 +123,6 @@ export async function generateSummary(
     // Format the final summary based on the requested format
     if (format === 'bullets') {
       console.log('Formatting bullet points');
-      // Ensure bullet points are properly formatted
       return combinedSummary
         .split('\n')
         .filter(line => line.trim())
