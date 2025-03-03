@@ -1,5 +1,5 @@
 {
-  "buildCommand": "npm install && npm install --prefix client && cp theme.json client/ && cd client && NODE_ENV=production vite build --config ../vite.vercel.config.ts --mode production",
+  "buildCommand": "npm install && npm install --prefix client && cp theme.json client/ && cd client && NODE_ENV=production NODE_OPTIONS=--max_old_space_size=4096 vite build --config ../vite.vercel.config.ts",
   "outputDirectory": "dist/public",
   "framework": "vite",
   "rewrites": [
@@ -17,6 +17,6 @@
     "VITE_SUPABASE_ANON_KEY": "${VITE_SUPABASE_ANON_KEY}",
     "VITE_API_URL": "https://${VERCEL_URL}",
     "NODE_ENV": "production",
-    "NODE_OPTIONS": "--experimental-json-modules"
+    "NODE_OPTIONS": "--experimental-json-modules --max_old_space_size=4096"
   }
 }

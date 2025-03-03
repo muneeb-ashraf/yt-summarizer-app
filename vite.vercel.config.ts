@@ -11,9 +11,7 @@ export default defineConfig({
     react({
       jsxRuntime: 'automatic',
       jsxImportSource: 'react',
-      babel: {
-        plugins: []
-      }
+      // Remove any additional babel plugins for now
     }),
     tsconfigPaths(),
     themePlugin()
@@ -23,6 +21,8 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "client/src"),
+      "react": path.resolve(__dirname, "node_modules/react"),
+      "react-dom": path.resolve(__dirname, "node_modules/react-dom")
     },
   },
   css: {
@@ -43,13 +43,8 @@ export default defineConfig({
       input: path.resolve(__dirname, 'client/index.html'),
       output: {
         manualChunks: {
-          'vendor': [
-            'react',
-            'react-dom',
-            'react/jsx-runtime',
-            '@tanstack/react-query',
-            'wouter'
-          ],
+          'vendor': ['react', 'react-dom', 'react/jsx-runtime'],
+          'app': ['@tanstack/react-query', 'wouter'],
           'ui': [
             '@radix-ui/react-toast',
             '@radix-ui/react-dialog',
@@ -58,18 +53,14 @@ export default defineConfig({
           ]
         }
       }
-    },
-    minify: 'esbuild',
-    sourcemap: false
+    }
   },
   optimizeDeps: {
     include: [
       'react',
       'react-dom',
-      'react/jsx-runtime',
-      '@tanstack/react-query',
-      'wouter'
+      'react/jsx-runtime'
     ],
-    exclude: []
+    force: true
   }
 });
