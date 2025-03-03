@@ -11,7 +11,6 @@ export default defineConfig({
     react({
       jsxRuntime: 'automatic',
       jsxImportSource: 'react',
-      // Remove any additional babel plugins for now
     }),
     tsconfigPaths(),
     themePlugin()
@@ -44,7 +43,6 @@ export default defineConfig({
       output: {
         manualChunks: {
           'vendor': ['react', 'react-dom', 'react/jsx-runtime'],
-          'app': ['@tanstack/react-query', 'wouter'],
           'ui': [
             '@radix-ui/react-toast',
             '@radix-ui/react-dialog',

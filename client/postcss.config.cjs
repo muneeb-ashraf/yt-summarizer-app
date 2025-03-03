@@ -1,1 +1,8 @@
-// This file should be deleted
+module.exports = {
+  plugins: {
+    tailwindcss: {
+      config: '../tailwind.config.ts'
+    },
+    autoprefixer: {},
+  },
+}

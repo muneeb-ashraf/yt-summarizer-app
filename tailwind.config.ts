@@ -3,10 +3,10 @@ import type { Config } from "tailwindcss";
 export default {
   darkMode: ["class"],
   content: [
-    "./client/src/**/*.{ts,tsx}",
-    "./client/src/components/**/*.{ts,tsx}",
-    "./client/src/pages/**/*.{ts,tsx}",
-    "./client/index.html"
+    "./src/**/*.{ts,tsx}",
+    "./src/components/**/*.{ts,tsx}",
+    "./src/pages/**/*.{ts,tsx}",
+    "./index.html"
   ],
   future: {
     hoverOnlyWhenSupported: true,
