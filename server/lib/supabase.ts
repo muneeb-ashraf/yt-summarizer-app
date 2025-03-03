@@ -19,7 +19,7 @@ export const supabase = createClient<Database>(
       persistSession: false,
       detectSessionInUrl: false,
       autoRefreshToken: true,
-      storage: undefined // Disable storage since we're on server-side
+      storage: undefined
     }
   }
 );
@@ -28,18 +28,33 @@ export const supabase = createClient<Database>(
 export const getUser = async (token: string) => {
   try {
     if (!token) {
-      throw new Error('No auth token provided');
+      console.error('No auth token provided');
+      return null;
     }
 
-    const { data: { user }, error } = await supabase.auth.getUser(token);
+    // Create a new client with the provided token
+    const authClient = createClient(
+      process.env.VITE_SUPABASE_URL!,
+      process.env.VITE_SUPABASE_ANON_KEY!,
+      {
+        auth: {
+          persistSession: false,
+          autoRefreshToken: false,
+          storage: undefined
+        },
+        global: {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      }
+    );
+
+    const { data: { user }, error } = await authClient.auth.getUser();
 
     if (error) {
       console.error('Supabase auth error:', error);
-      throw error;
-    }
-
-    if (!user) {
-      throw new Error('User not found');
+      return null;
     }
 
     return user;
@@ -61,9 +76,8 @@ export const getAuthenticatedClient = (token: string) => {
     {
       auth: {
         persistSession: false,
-        detectSessionInUrl: false,
-        autoRefreshToken: true,
-        storage: undefined // Disable storage since we're on server-side
+        autoRefreshToken: false,
+        storage: undefined
       },
       global: {
         headers: {

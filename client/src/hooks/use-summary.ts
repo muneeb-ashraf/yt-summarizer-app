@@ -87,6 +87,7 @@ export function useCreateSummary() {
         try {
           data = await res.json();
         } catch (e) {
+          console.error('JSON parse error:', e);
           throw new Error('Failed to parse server response');
         }
 
