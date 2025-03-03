@@ -67,6 +67,26 @@ export default async function handler(req, res) {
 
     const supabaseClient = getAuthenticatedClient(token);
 
+    if (req.method === 'GET') {
+      try {
+        const { data: summaries, error } = await supabaseClient
+          .from('summaries')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false });
+
+        if (error) {
+          console.error("Error fetching summaries:", error);
+          return res.status(500).json({ error: "Failed to fetch summaries" });
+        }
+
+        return res.status(200).json(summaries || []);
+      } catch (error) {
+        console.error("Error in GET /summaries:", error);
+        return res.status(500).json({ error: "Failed to fetch summaries" });
+      }
+    }
+
     if (req.method === 'POST') {
       try {
         const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
