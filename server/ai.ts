@@ -2,7 +2,6 @@ import type { Express } from "express";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
 
-// This will be initialized once the GEMINI_API_KEY is available
 let genAI: GoogleGenerativeAI | null = null;
 
 function initializeAI() {
@@ -19,6 +18,10 @@ function initializeAI() {
 }
 
 async function chunkText(text: string) {
+  if (!text || text.trim().length === 0) {
+    return ['No description available'];
+  }
+
   console.log('Chunking text of length:', text.length);
   const splitter = new RecursiveCharacterTextSplitter({
     chunkSize: 2000,
@@ -76,15 +79,18 @@ export async function generateSummary(
   try {
     console.log('Starting summary generation for video:', videoId);
 
-    if (!process.env.GEMINI_API_KEY) {
-      console.error("Missing GEMINI_API_KEY");
-      throw new Error("GEMINI_API_KEY is required for summary generation");
-    }
-
     const ai = initializeAI();
     console.log('AI service initialized');
 
-    const model = ai.getGenerativeModel({ model: "gemini-pro" });
+    const model = ai.getGenerativeModel({ 
+      model: "gemini-1.0-pro",
+      generationConfig: {
+        temperature: 0.7,
+        topK: 40,
+        topP: 0.95,
+        maxOutputTokens: 1024,
+      },
+    });
     console.log('Got generative model instance');
 
     // Split the text into manageable chunks
@@ -98,11 +104,12 @@ export async function generateSummary(
     for (let i = 0; i < chunks.length; i++) {
       console.log(`Processing chunk ${i + 1}/${chunks.length}`);
       const chunk = chunks[i];
+
       try {
-        const result = await model.generateContent([
-          prompt,
-          `Content to summarize:\n${chunk}`
-        ]);
+        const result = await model.generateContent({
+          contents: [{ role: 'user', parts: [{ text: prompt }, { text: `Content to summarize:\n${chunk}` }]}],
+        });
+
         const response = await result.response;
         const text = response.text();
         console.log(`Successfully generated summary for chunk ${i + 1}`);
