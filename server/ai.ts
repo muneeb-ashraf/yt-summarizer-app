@@ -83,7 +83,7 @@ export async function generateSummary(
     console.log('AI service initialized');
 
     const model = ai.getGenerativeModel({ 
-      model: "gemini-1.0-pro",
+      model: "gemini-pro",
       generationConfig: {
         temperature: 0.7,
         topK: 40,
