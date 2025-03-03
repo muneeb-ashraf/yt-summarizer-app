@@ -69,10 +69,26 @@ export function registerRoutes(app: Express): Server {
 
       const { videoId, format, language } = result.data;
 
+      // Get video metadata first
+      const response = await fetch(
+        `https://www.googleapis.com/youtube/v3/videos?id=${videoId}&part=snippet&key=${process.env.YOUTUBE_API_KEY}`
+      );
+
+      if (!response.ok) {
+        throw new Error(`YouTube API error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      if (!data.items || data.items.length === 0) {
+        throw new Error('Video not found');
+      }
+
+      const videoDescription = data.items[0].snippet.description;
+
       try {
-        // Generate summary
+        // Generate summary with video description
         console.log("Generating summary for video:", videoId);
-        const summary = await generateSummary(videoId, format, language, '');
+        const summary = await generateSummary(videoId, format, language, videoDescription);
 
         if (!summary) {
           throw new Error("Failed to generate summary");
