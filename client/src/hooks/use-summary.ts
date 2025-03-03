@@ -18,8 +18,6 @@ export function useSummaries() {
         const session = await getCurrentSession();
         if (!session) throw new Error('Not authenticated');
 
-        console.log('Fetching summaries with session:', !!session);
-
         const res = await fetch('/api/summaries', {
           method: 'GET',
           headers: {
@@ -29,13 +27,11 @@ export function useSummaries() {
         });
 
         if (!res.ok) {
-          const errorData = await res.json();
-          console.error('Error fetching summaries:', errorData);
-          throw new Error(errorData.error || 'Failed to fetch summaries');
+          const errorData = await res.json().catch(() => ({ error: 'Failed to parse error response' }));
+          throw new Error(errorData.error || `Failed to fetch summaries: ${res.status}`);
         }
 
         const data = await res.json();
-        console.log('Successfully fetched summaries:', data.length);
         return data;
       } catch (error: any) {
         console.error('Failed to fetch summaries:', error);
@@ -67,8 +63,6 @@ export function useCreateSummary() {
         const session = await getCurrentSession();
         if (!session) throw new Error('Not authenticated');
 
-        console.log('Creating summary with params:', params);
-
         const res = await fetch('/api/summaries', {
           method: 'POST',
           headers: {
@@ -78,18 +72,19 @@ export function useCreateSummary() {
           body: JSON.stringify(params)
         });
 
-        const data = await res.json();
+        // Always try to parse the response as JSON, with a fallback for invalid JSON
+        const data = await res.json().catch(() => ({ 
+          error: 'Failed to parse server response' 
+        }));
 
         if (!res.ok) {
-          console.error('Summary creation failed:', data);
-          throw new Error(data.error || 'Failed to create summary');
+          throw new Error(data.error || `Failed to create summary: ${res.status}`);
         }
 
-        console.log('Summary created successfully:', data);
         return data as Summary;
       } catch (error: any) {
         console.error('Failed to create summary:', error);
-        throw error;
+        throw new Error(error.message || 'Failed to create summary');
       }
     },
     onSuccess: () => {
@@ -101,18 +96,9 @@ export function useCreateSummary() {
     },
     onError: (error: Error) => {
       console.error('Summary creation error:', error);
-      let errorMessage = error.message;
-
-      // Handle specific error cases
-      if (errorMessage.includes('API key')) {
-        errorMessage = 'Server configuration error. Please try again later.';
-      } else if (errorMessage.includes('Not authenticated')) {
-        errorMessage = 'Please sign in to create summaries.';
-      }
-
       toast({
         title: "Error",
-        description: errorMessage,
+        description: error.message,
         variant: "destructive",
       });
     },
@@ -134,8 +120,6 @@ export function useDeleteSummary() {
         const session = await getCurrentSession();
         if (!session) throw new Error('Not authenticated');
 
-        console.log('Deleting summary:', summaryId);
-
         const res = await fetch(`/api/summaries/${summaryId}`, {
           method: 'DELETE',
           headers: {
@@ -145,8 +129,7 @@ export function useDeleteSummary() {
         });
 
         if (!res.ok) {
-          const errorData = await res.json();
-          console.error('Summary deletion failed:', errorData);
+          const errorData = await res.json().catch(() => ({ error: 'Failed to parse error response' }));
           throw new Error(errorData.error || 'Failed to delete summary');
         }
 
