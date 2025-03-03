@@ -16,7 +16,6 @@ const createSummarySchema = z.object({
   })
 });
 
-// Configure CORS
 const corsOptions = {
   origin: true,
   credentials: true,
@@ -27,6 +26,9 @@ const corsOptions = {
 const corsMiddleware = cors(corsOptions);
 
 export default async function handler(req, res) {
+  // Ensure response is always JSON
+  res.setHeader('Content-Type', 'application/json');
+
   try {
     // Handle CORS
     await new Promise((resolve, reject) => {
@@ -40,16 +42,14 @@ export default async function handler(req, res) {
 
     // Handle preflight requests
     if (req.method === 'OPTIONS') {
-      return res.status(200).end();
+      return res.status(200).json({ status: 'ok' });
     }
 
     // Verify required API keys
-    if (!process.env.GEMINI_API_KEY) {
-      return res.status(500).json({ error: "Server configuration error: Missing API key" });
-    }
-
-    if (!process.env.YOUTUBE_API_KEY) {
-      return res.status(500).json({ error: "Server configuration error: Missing YouTube API key" });
+    if (!process.env.GEMINI_API_KEY || !process.env.YOUTUBE_API_KEY) {
+      return res.status(500).json({ 
+        error: "Server configuration error: Missing required API keys" 
+      });
     }
 
     // Verify authentication
@@ -67,31 +67,15 @@ export default async function handler(req, res) {
 
     const supabaseClient = getAuthenticatedClient(token);
 
-    if (req.method === 'GET') {
-      const { data: summaries, error } = await supabaseClient
-        .from('summaries')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        console.error("Error fetching summaries:", error);
-        return res.status(500).json({ error: "Failed to fetch summaries" });
-      }
-
-      return res.status(200).json(summaries);
-    }
-
     if (req.method === 'POST') {
       try {
-        // Parse request body
         const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
 
-        // Validate request
         const result = createSummarySchema.safeParse(body);
         if (!result.success) {
-          const errorMessage = result.error.issues.map(i => i.message).join(", ");
-          return res.status(400).json({ error: errorMessage });
+          return res.status(400).json({ 
+            error: result.error.issues.map(i => i.message).join(", ") 
+          });
         }
 
         const { videoId, format, language } = result.data;
@@ -111,11 +95,14 @@ export default async function handler(req, res) {
         }
 
         if (userData?.subscription === 'free' && metadata.duration > 900) {
-          return res.status(400).json({ error: "Free users can only summarize videos up to 15 minutes long" });
+          return res.status(400).json({ 
+            error: "Free users can only summarize videos up to 15 minutes long" 
+          });
         }
 
         // Generate summary
         const summary = await generateSummary(videoId, format, language, metadata.description);
+
         if (!summary) {
           return res.status(500).json({ error: "Failed to generate summary" });
         }
@@ -140,14 +127,18 @@ export default async function handler(req, res) {
 
         if (insertError) {
           if (insertError.code === '42501') {
-            return res.status(403).json({ error: "Permission denied: Cannot create summary" });
+            return res.status(403).json({ 
+              error: "Permission denied: Cannot create summary" 
+            });
           }
-          return res.status(500).json({ error: `Failed to save summary: ${insertError.message}` });
+          return res.status(500).json({ 
+            error: `Failed to save summary: ${insertError.message}` 
+          });
         }
 
         return res.status(200).json(newSummary);
       } catch (error) {
-        console.error("Error during summary creation:", error);
+        console.error("Summary creation error:", error);
         return res.status(500).json({
           error: error.message || "Failed to create summary"
         });
@@ -201,7 +192,6 @@ async function getYouTubeMetadata(videoId) {
 function parseDuration(duration) {
   const match = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
   if (!match) return 0;
-
   const [_, hours = '0', minutes = '0', seconds = '0'] = match;
   return (parseInt(hours) * 3600) + (parseInt(minutes) * 60) + parseInt(seconds);
 }

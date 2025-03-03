@@ -26,12 +26,17 @@ export function useSummaries() {
           }
         });
 
-        if (!res.ok) {
-          const errorData = await res.json().catch(() => ({ error: 'Failed to parse error response' }));
-          throw new Error(errorData.error || `Failed to fetch summaries: ${res.status}`);
+        let data;
+        try {
+          data = await res.json();
+        } catch (e) {
+          throw new Error('Failed to parse server response');
         }
 
-        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.error || `Failed to fetch summaries: ${res.status}`);
+        }
+
         return data;
       } catch (error: any) {
         console.error('Failed to fetch summaries:', error);
@@ -67,15 +72,18 @@ export function useCreateSummary() {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${session.access_token}`,
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
           },
           body: JSON.stringify(params)
         });
 
-        // Always try to parse the response as JSON, with a fallback for invalid JSON
-        const data = await res.json().catch(() => ({ 
-          error: 'Failed to parse server response' 
-        }));
+        let data;
+        try {
+          data = await res.json();
+        } catch (e) {
+          throw new Error('Failed to parse server response');
+        }
 
         if (!res.ok) {
           throw new Error(data.error || `Failed to create summary: ${res.status}`);
@@ -124,16 +132,23 @@ export function useDeleteSummary() {
           method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${session.access_token}`,
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
           }
         });
 
-        if (!res.ok) {
-          const errorData = await res.json().catch(() => ({ error: 'Failed to parse error response' }));
-          throw new Error(errorData.error || 'Failed to delete summary');
+        let data;
+        try {
+          data = await res.json();
+        } catch (e) {
+          throw new Error('Failed to parse server response');
         }
 
-        return res.json();
+        if (!res.ok) {
+          throw new Error(data.error || 'Failed to delete summary');
+        }
+
+        return data;
       } catch (error: any) {
         console.error('Failed to delete summary:', error);
         throw error;
