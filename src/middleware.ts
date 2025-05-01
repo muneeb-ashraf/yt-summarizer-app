@@ -1,4 +1,4 @@
-import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { clerkMiddleware } from "@clerk/nextjs/server";
 
 // Define routes that REQUIRE authentication
 // If you need protected routes, re-introduce isProtectedRoute and use it:
