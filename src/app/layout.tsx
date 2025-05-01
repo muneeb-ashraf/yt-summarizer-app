@@ -10,7 +10,6 @@ import Link from 'next/link';
 import "@/styles/globals.css"; // Import global styles
 import { Toaster } from "@/components/ui/sonner"; // Import Toaster
 import { Button } from "@/components/ui/button";
-import ClientWrapper from "@/components/ClientWrapper"; // Import the Schematic w rapper
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -29,7 +28,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <ClerkProvider>
-          <ClientWrapper>
+         
             <header className="flex justify-between items-center p-4 h-16 border-b bg-background">
               <h1 className="text-xl font-semibold">YouTube Summarizer AI</h1>
               <div className="flex items-center gap-4">
@@ -48,7 +47,7 @@ export default function RootLayout({
             </header>
             <main>{children}</main>
             <Toaster richColors position="top-right" />
-          </ClientWrapper>
+      
         </ClerkProvider>
       </body>
     </html>
