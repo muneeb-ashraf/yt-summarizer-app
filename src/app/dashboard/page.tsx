@@ -1,7 +1,6 @@
 "use client"; // Add directive if using hooks/state/handlers now or later
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { useSchematicEvents, useSchematicFlag } from '@schematichq/schematic-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@clerk/nextjs';
@@ -22,12 +21,8 @@ export default function Page() {
   const [summary, setSummary] = useState('');
   const [recentSummaries, setRecentSummaries] = useState<Summary[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const { track } = useSchematicEvents();
   const { userId } = useAuth();
   
-  // Check if user has access to the summaries feature
-  const summariesEnabled = useSchematicFlag("summaries") || true; // Default to true if flag not set
-
   // Fetch recent summaries on load
   useEffect(() => {
     if (userId) {
@@ -50,14 +45,11 @@ export default function Page() {
 
   // Function to handle summarization and track usage
   const handleSummarize = async () => {
-    if (!videoUrl.trim() || !summariesEnabled) return;
+    if (!videoUrl.trim()) return;
     
     try {
       setIsLoading(true);
       setSummary('');
-      
-      // Track the usage of the summary feature
-      track({ event: "summary-created" });
       
       // Call the API to generate summary
       const response = await fetch('/api/summaries/create', {
@@ -112,42 +104,31 @@ export default function Page() {
         {/* Summarize Input */}
         <div className="p-6 bg-card rounded-lg border md:col-span-2 lg:col-span-3">
           <h2 className="text-xl font-semibold mb-4">Summarize New Video</h2>
-          {summariesEnabled ? (
-            <>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  placeholder="Paste YouTube video URL here..."
-                  className="flex-grow p-2 border rounded-md bg-input"
-                  value={videoUrl}
-                  onChange={(e) => setVideoUrl(e.target.value)}
-                  disabled={isLoading}
-                />
-                <Button 
-                  onClick={handleSummarize}
-                  disabled={isLoading || !videoUrl.trim()}
-                >
-                  {isLoading ? (
-                    <>
-                      <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      Processing...
-                    </>
-                  ) : "Summarize"}
-                </Button>
-              </div>
-              <p className="text-xs text-muted-foreground mt-2">Paste the full YouTube video link (e.g., https://www.youtube.com/watch?v=...)</p>
-            </>
-          ) : (
-            <div className="bg-muted/50 p-4 rounded-md text-center">
-              <p className="font-medium text-muted-foreground">You need to upgrade your plan to access video summaries.</p>
-              <Link href="/dashboard/billing" className="mt-2 inline-block text-sm text-primary hover:underline">
-                Upgrade Now
-              </Link>
-            </div>
-          )}
+          <div className="flex gap-2">
+            <input
+              type="text"
+              placeholder="Paste YouTube video URL here..."
+              className="flex-grow p-2 border rounded-md bg-input"
+              value={videoUrl}
+              onChange={(e) => setVideoUrl(e.target.value)}
+              disabled={isLoading}
+            />
+            <Button 
+              onClick={handleSummarize}
+              disabled={isLoading || !videoUrl.trim()}
+            >
+              {isLoading ? (
+                <>
+                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Processing...
+                </>
+              ) : "Summarize"}
+            </Button>
+          </div>
+          <p className="text-xs text-muted-foreground mt-2">Paste the full YouTube video link (e.g., https://www.youtube.com/watch?v=...)</p>
         </div>
         
         {/* Summary Result Area */}
@@ -198,36 +179,30 @@ export default function Page() {
         {/* Recent Summaries List */}
         <div className="p-6 bg-card rounded-lg border md:col-span-2 lg:col-span-3">
           <h2 className="text-xl font-semibold mb-4">Recent Summaries</h2>
-          {summariesEnabled ? (
-            <>
-              {recentSummaries.length > 0 ? (
-                <ul className="space-y-3">
-                  {recentSummaries.map((summary) => (
-                    <li key={summary.id} className="p-3 bg-muted/30 rounded-md">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <h3 className="font-medium">{summary.title || `Video ${extractVideoId(summary.youtube_url)}`}</h3>
-                          <p className="text-sm text-muted-foreground">
-                            {formatDate(summary.created_at)}
-                          </p>
-                        </div>
-                        <Link href={`/dashboard/summaries?id=${summary.id}`} className="text-sm text-primary hover:underline">
-                          View
-                        </Link>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="text-muted-foreground">No summaries yet. Try summarizing your first video!</p>
-              )}
-              <Link href="/dashboard/summaries" className="text-sm text-primary hover:underline mt-4 inline-block">
-                View All Summaries
-              </Link>
-            </>
+          {recentSummaries.length > 0 ? (
+            <ul className="space-y-3">
+              {recentSummaries.map((summary) => (
+                <li key={summary.id} className="p-3 bg-muted/30 rounded-md">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h3 className="font-medium">{summary.title || `Video ${extractVideoId(summary.youtube_url)}`}</h3>
+                      <p className="text-sm text-muted-foreground">
+                        {formatDate(summary.created_at)}
+                      </p>
+                    </div>
+                    <Link href={`/dashboard/summaries?id=${summary.id}`} className="text-sm text-primary hover:underline">
+                      View
+                    </Link>
+                  </div>
+                </li>
+              ))}
+            </ul>
           ) : (
-            <p className="text-muted-foreground">Upgrade your plan to see your summary history.</p>
+            <p className="text-muted-foreground">No summaries yet. Try summarizing your first video!</p>
           )}
+          <Link href="/dashboard/summaries" className="text-sm text-primary hover:underline mt-4 inline-block">
+            View All Summaries
+          </Link>
         </div>
       </div>
     </div>
