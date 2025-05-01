@@ -1,7 +1,6 @@
 "use client"; // Add directive if using hooks/state/handlers now or later
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@clerk/nextjs';
 import { toast } from 'sonner';

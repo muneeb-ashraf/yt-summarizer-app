@@ -201,7 +201,7 @@ export default function Page() {
             </div>
           ) : (
             <div className="text-center py-16 bg-muted/30 rounded-lg">
-              <p className="text-muted-foreground">You haven't created any summaries yet.</p>
+              <p className="text-muted-foreground">You haven&apos;t created any summaries yet.</p>
               <button 
                 className="mt-4 text-primary hover:underline"
                 onClick={() => window.location.href = '/dashboard'}
