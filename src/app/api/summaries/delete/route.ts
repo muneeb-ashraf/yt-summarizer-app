@@ -18,7 +18,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // 3. Initialize Supabase client
-    const supabase = createClient();
+    const supabase = await createClient();
     
     // 4. First verify that the summary belongs to this user
     const { data: summary, error: fetchError } = await supabase

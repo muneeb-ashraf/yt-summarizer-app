@@ -80,7 +80,7 @@ export async function POST(request: NextRequest) {
     }
     
     // 5. Initialize Supabase client
-    const supabase = createClient();
+    const supabase = await createClient();
     
     // 6. Store the summary in the database (stores the HTML content)
     const { data, error } = await supabase

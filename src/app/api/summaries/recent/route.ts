@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
     }
 
     // 2. Initialize Supabase client
-    const supabase = createClient();
+    const supabase = await createClient();
     
     // 3. Fetch recent summaries for this user
     const { data: summaries, error } = await supabase
