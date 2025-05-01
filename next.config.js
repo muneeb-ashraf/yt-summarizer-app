@@ -18,7 +18,6 @@ const nextConfig = {
       config.resolve.alias = {
         ...config.resolve.alias,
         'coffee-script': false,
-        'schematic/lib/Compiler': false,
       };
     }
     
