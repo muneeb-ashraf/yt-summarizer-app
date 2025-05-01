@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -14,7 +14,20 @@ interface Summary {
   title?: string;
 }
 
-export default function Page() {
+// Define a loading component for Suspense fallback
+function LoadingSummaries() {
+  return (
+    <div className="container mx-auto py-10">
+      <h1 className="text-3xl font-bold mb-6">My Summaries</h1>
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    </div>
+  );
+}
+
+// Move the original Page content into a new component
+function SummariesPageContent() {
   const [summaries, setSummaries] = useState<Summary[]>([]);
   const [selectedSummary, setSelectedSummary] = useState<Summary | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -213,5 +226,14 @@ export default function Page() {
         </>
       )}
     </div>
+  );
+}
+
+// The main Page component now wraps the content in Suspense
+export default function Page() {
+  return (
+    <Suspense fallback={<LoadingSummaries />}>
+      <SummariesPageContent />
+    </Suspense>
   );
 } 
