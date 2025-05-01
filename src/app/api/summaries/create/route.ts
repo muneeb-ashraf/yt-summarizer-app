@@ -39,41 +39,76 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // --- Debugging n8n response ---
-    const responseClone = response.clone(); // Clone the response to read body twice
-    const contentType = response.headers.get('content-type');
-    const rawResponseBody = await responseClone.text();
-    // console.log("N8N Response Content-Type:", contentType); // Keep for debugging if needed
-    // console.log("N8N Raw Response Body:", rawResponseBody);
-    // --- End Debugging ---
-
     // 4. Get the summary data from the n8n response
     let summaryContent = '';
     try {
-      // Re-use original response object here
+      const rawResponseBody = await response.text(); // Read text body first
+
+      // Check content type AFTER reading the body
+      const contentType = response.headers.get('content-type');
+
       if (contentType && contentType.includes('application/json')) {
-        // If content type is JSON, parse the raw text we already got
-        const summaryData = JSON.parse(rawResponseBody);
-        // *** Extract from 'cleanedHtml' based on logs ***
-        summaryContent = summaryData.cleanedHtml; 
-        if (!summaryContent) {
-            console.warn("Parsed JSON but 'cleanedHtml' property was missing or empty. Trying fallbacks.", summaryData);
-            // Attempt fallback keys (less likely now but keep for robustness)
-            summaryContent = summaryData.summary || summaryData.text || summaryData.result || summaryData.content;
+        try {
+          // Attempt to parse only if header indicates JSON
+          const summaryData = JSON.parse(rawResponseBody);
+          // *** Extract from 'cleanedHtml' based on logs ***
+          summaryContent = summaryData.cleanedHtml;
+          if (!summaryContent) {
+              console.warn("Parsed JSON but 'cleanedHtml' property was missing or empty. Trying fallbacks.", summaryData);
+              // Attempt fallback keys (less likely now but keep for robustness)
+              summaryContent = summaryData.summary || summaryData.text || summaryData.result || summaryData.content;
+          }
+          // If still no content after parsing JSON and checking keys, treat as empty
+          if (!summaryContent || summaryContent.trim() === '') {
+             console.error("Summary content is empty after parsing JSON response.");
+             // Fallback to raw body ONLY IF IT CONTAINS SOMETHING OTHER THAN EMPTY JSON
+             if (rawResponseBody.trim() !== '{}' && rawResponseBody.trim() !== '') {
+                console.warn("Falling back to raw response body as JSON parsing yielded no content.");
+                summaryContent = rawResponseBody;
+             } else {
+                return NextResponse.json(
+                    { error: "Received empty summary content from webhook (JSON)" },
+                    { status: 500 }
+                );
+             }
+          }
+        } catch (parseError) {
+          // JSON parsing failed even though header said JSON
+          console.error("Error parsing N8N JSON response despite header:", parseError);
+          console.warn("Raw response body was:", rawResponseBody);
+          // Fallback to raw text IF IT IS NOT EMPTY
+          if (rawResponseBody && rawResponseBody.trim() !== '') {
+            summaryContent = rawResponseBody;
+          } else {
+            return NextResponse.json(
+                { error: "Failed to parse summary response from webhook" },
+                { status: 500 }
+            );
+          }
         }
       } else {
-        // If not JSON, use the raw text
+        // If not JSON according to header, use the raw text directly
         summaryContent = rawResponseBody;
+        if (!summaryContent || summaryContent.trim() === '') {
+           console.error("Received empty non-JSON response from webhook.");
+           return NextResponse.json(
+            { error: "Received empty summary response from webhook" },
+            { status: 500 }
+          );
+        }
       }
-    } catch (parseError) {
-       console.error("Error parsing N8N response:", parseError);
-       // Fallback to raw text if JSON parsing failed unexpectedly
-       summaryContent = rawResponseBody;
+    } catch (readError) {
+        console.error("Error reading N8N response body:", readError);
+        return NextResponse.json(
+            { error: "Could not read response from summary service" },
+            { status: 500 }
+        );
     }
 
-    if (!summaryContent || summaryContent.trim() === '') { // Check for empty or whitespace-only
-       console.error("Summary content is empty after parsing.");
-       return NextResponse.json(
+    // Final check after all parsing/fallback attempts
+    if (!summaryContent || summaryContent.trim() === '') {
+      console.error("Summary content is ultimately empty after all checks.");
+      return NextResponse.json(
         { error: "Received empty summary from webhook" },
         { status: 500 }
       );
