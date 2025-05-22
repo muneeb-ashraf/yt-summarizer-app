@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PLANS } from "@/utils/stripe";
-import { createClient } from "@/utils/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { Loader2 } from "lucide-react";
 
@@ -13,7 +12,6 @@ export default function BillingPage() {
   const [loading, setLoading] = useState<string | null>(null);
   const router = useRouter();
   const { toast } = useToast();
-  const supabase = createClient();
 
   const handleSubscribe = async (priceId: string) => {
     try {
@@ -26,14 +24,18 @@ export default function BillingPage() {
         body: JSON.stringify({ priceId }),
       });
 
+      if (!response.ok) {
+        throw new Error("Failed to create checkout session");
+      }
+
       const { url } = await response.json();
       if (url) {
         router.push(url);
       }
-    } catch (error) {
+    } catch (_error) {
       toast({
         title: "Error",
-        description: "Something went wrong. Please try again.",
+        content: "Something went wrong. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -48,14 +50,18 @@ export default function BillingPage() {
         method: "POST",
       });
 
+      if (!response.ok) {
+        throw new Error("Failed to create portal session");
+      }
+
       const { url } = await response.json();
       if (url) {
         router.push(url);
       }
-    } catch (error) {
+    } catch (_error) {
       toast({
         title: "Error",
-        description: "Something went wrong. Please try again.",
+        content: "Failed to access billing portal",
         variant: "destructive",
       });
     } finally {
@@ -64,31 +70,9 @@ export default function BillingPage() {
   };
 
   return (
-    <div className="container max-w-5xl py-6">
-      <div className="flex justify-between items-center mb-8">
-        <div>
-          <h1 className="text-3xl font-bold">Subscription Plans</h1>
-          <p className="text-muted-foreground mt-2">
-            Choose the plan that best fits your needs
-          </p>
-        </div>
-        <Button
-          variant="outline"
-          onClick={handleManageSubscription}
-          disabled={loading === "manage"}
-        >
-          {loading === "manage" ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Loading...
-            </>
-          ) : (
-            "Manage Subscription"
-          )}
-        </Button>
-      </div>
-
-      <div className="grid gap-6 md:grid-cols-3">
+    <div className="container mx-auto py-10">
+      <h1 className="text-3xl font-bold mb-8">Subscription Plans</h1>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {PLANS.map((plan) => (
           <Card key={plan.id} className="flex flex-col">
             <CardHeader>
@@ -98,26 +82,14 @@ export default function BillingPage() {
             <CardContent className="flex-grow">
               <div className="text-3xl font-bold mb-4">
                 ${plan.price}
-                <span className="text-base font-normal text-muted-foreground">
+                <span className="text-sm font-normal text-muted-foreground">
                   /month
                 </span>
               </div>
               <ul className="space-y-2">
                 {plan.features.map((feature, index) => (
                   <li key={index} className="flex items-center">
-                    <svg
-                      className="h-4 w-4 mr-2 text-green-500"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
+                    <span className="mr-2">✓</span>
                     {feature}
                   </li>
                 ))}
@@ -132,8 +104,10 @@ export default function BillingPage() {
                 {loading === plan.id ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Loading...
+                    Processing...
                   </>
+                ) : plan.price === 0 ? (
+                  "Current Plan"
                 ) : (
                   "Subscribe"
                 )}
@@ -141,6 +115,22 @@ export default function BillingPage() {
             </CardFooter>
           </Card>
         ))}
+      </div>
+      <div className="mt-8 flex justify-center">
+        <Button
+          onClick={handleManageSubscription}
+          disabled={loading === "manage"}
+          variant="outline"
+        >
+          {loading === "manage" ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Loading...
+            </>
+          ) : (
+            "Manage Subscription"
+          )}
+        </Button>
       </div>
     </div>
   );

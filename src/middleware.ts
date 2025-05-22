@@ -1,53 +1,18 @@
-import { authMiddleware } from "@clerk/nextjs";
-import { NextResponse } from "next/server";
-import { getUserCredits } from "@/lib/prisma";
+import { authMiddleware } from '@clerk/nextjs';
 
-// Define routes that REQUIRE authentication
-// If you need protected routes, re-introduce isProtectedRoute and use it:
-// const isProtectedRoute = createRouteMatcher(['/dashboard(.*)']);
-// export default clerkMiddleware((auth, req) => {
-//   if (isProtectedRoute(req)) auth().protect();
-// });
-
-const publicRoutes = ["/", "/api/webhooks/stripe", "/sign-in*", "/sign-up*"];
-
-// Default Clerk middleware setup (protects nothing by default)
+// This example protects all routes including api/trpc routes
+// Please edit this to allow other routes to be public as needed.
+// See https://clerk.com/docs/references/nextjs/auth-middleware for more information about configuring your middleware
 export default authMiddleware({
-  publicRoutes: publicRoutes,
-  async afterAuth(auth, req) {
-    // Only check credits for summary generation endpoints
-    if (req.nextUrl.pathname.startsWith("/api/summarize")) {
-      if (!auth.userId) {
-        return new NextResponse("Unauthorized", { status: 401 });
-      }
-
-      try {
-        const credits = await getUserCredits(auth.userId);
-
-        if (!credits) {
-          return new NextResponse("No credits found", { status: 400 });
-        }
-
-        if (credits.summariesLeft <= 0) {
-          return new NextResponse(
-            JSON.stringify({
-              error: "No summaries left",
-              plan: credits.plan,
-              upgradeUrl: "/dashboard/billing",
-            }),
-            { status: 403 }
-          );
-        }
-      } catch (error) {
-        console.error("Error checking credits:", error);
-        return new NextResponse("Error checking credits", { status: 500 });
-      }
-    }
-  },
+  publicRoutes: [
+    '/',
+    '/api/webhooks/stripe',
+    '/api/webhooks/clerk',
+    '/sign-in',
+    '/sign-up',
+  ],
 });
 
 export const config = {
-  // The following matcher runs middleware on all routes
-  // except static assets and other Next.js internals.
-  matcher: ["/((?!.+\\.[\\w]+$|_next).*)", "/", "/(api|trpc)(.*)"],
+  matcher: ['/((?!.+\\.[\\w]+$|_next).*)', '/', '/(api|trpc)(.*)'],
 };

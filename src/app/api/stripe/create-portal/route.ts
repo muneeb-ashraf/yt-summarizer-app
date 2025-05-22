@@ -1,9 +1,18 @@
 import { NextResponse } from 'next/server';
 import { createPortalSession } from '@/utils/stripe';
 import { createClient } from '@/utils/supabase/server';
+import { auth } from '@clerk/nextjs';
 
-export async function POST(req: Request) {
+export async function POST() {
   try {
+    const { userId } = auth();
+    if (!userId) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
     const supabase = await createClient();
     
     const {
