@@ -6,14 +6,20 @@ import { auth } from '@clerk/nextjs/server';
 
 export async function POST(req: Request) {
   try {
-    const { priceId } = await req.json();
+    const body = await req.json();
+    console.log('Received body:', body);
 
-    // Clerk authentication
+    const { priceId } = body;
+    console.log('priceId:', priceId);
+
     const { userId, sessionClaims } = await auth();
+    console.log('userId:', userId, 'sessionClaims:', sessionClaims);
+
     if (!userId) {
       return new NextResponse('Unauthorized', { status: 401 });
     }
     const email = sessionClaims?.email as string;
+    console.log('email:', email);
     if (!email) {
       return new NextResponse('User email not found', { status: 400 });
     }
