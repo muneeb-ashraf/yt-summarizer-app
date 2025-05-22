@@ -22,12 +22,14 @@ export async function POST(req: Request) {
     const email = (sessionClaims?.email as string) || (userId + '@clerk.fake');
     console.log('email (using fallback if missing):', email);
 
+    // Find the plan
+    const plan = PLANS.find(p => p.id === priceId);
+    if (!plan) {
+      return new NextResponse('Invalid plan', { status: 400 });
+    }
+
     // Handle free plan
     if (priceId === 'free') {
-      const plan = PLANS.find(p => p.id === 'free');
-      if (!plan) {
-        return new NextResponse('Invalid plan', { status: 400 });
-      }
       await updateUserCredits(userId, {
         plan: 'free',
         summariesLeft: plan.summariesLimit,
@@ -36,8 +38,13 @@ export async function POST(req: Request) {
       return NextResponse.json({ url: '/dashboard/billing?success=true' });
     }
 
-    // Handle paid plans
-    const session = await createCheckoutSession(priceId, email);
+    // For paid plans, use the Stripe Price ID
+    if (!plan.stripePriceId) {
+      return new NextResponse('Stripe price ID not configured for this plan', { status: 400 });
+    }
+
+    console.log('Using Stripe price ID:', plan.stripePriceId);
+    const session = await createCheckoutSession(plan.stripePriceId, email);
     if (!session) {
       return new NextResponse('Failed to create checkout session', { status: 500 });
     }
