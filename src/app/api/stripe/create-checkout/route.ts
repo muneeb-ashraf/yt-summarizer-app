@@ -1,41 +1,39 @@
 import { NextResponse } from 'next/server';
 import { createCheckoutSession } from '@/utils/stripe';
-import { createClient } from '@/utils/supabase/server';
 import { updateUserCredits } from '@/lib/prisma';
 import { PLANS } from "@/utils/plans";
+import { auth } from '@clerk/nextjs/server';
 
 export async function POST(req: Request) {
   try {
     const { priceId } = await req.json();
-    
-    const supabase = await createClient();
-    
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
 
-    if (!user) {
+    // Clerk authentication
+    const { userId, sessionClaims } = await auth();
+    if (!userId) {
       return new NextResponse('Unauthorized', { status: 401 });
     }
+    const email = sessionClaims?.email as string;
+    if (!email) {
+      return new NextResponse('User email not found', { status: 400 });
+    }
 
-    // Handle free plan without Stripe
+    // Handle free plan
     if (priceId === 'free') {
       const plan = PLANS.find(p => p.id === 'free');
       if (!plan) {
         return new NextResponse('Invalid plan', { status: 400 });
       }
-
-      await updateUserCredits(user.id, {
+      await updateUserCredits(userId, {
         plan: 'free',
         summariesLeft: plan.summariesLimit,
         subscriptionStatus: 'active',
       });
-
       return NextResponse.json({ url: '/dashboard/billing?success=true' });
     }
 
-    // Handle paid plans with Stripe
-    const session = await createCheckoutSession(priceId, user.email!);
+    // Handle paid plans
+    const session = await createCheckoutSession(priceId, email);
     if (!session) {
       return new NextResponse('Failed to create checkout session', { status: 500 });
     }
