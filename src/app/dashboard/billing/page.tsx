@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { PLANS } from "@/utils/stripe";
+import { PLANS, StripeProduct } from "@/utils/plans";
 import { useToast } from "@/components/ui/use-toast";
 import { Loader2 } from "lucide-react";
 
@@ -73,28 +73,28 @@ export default function BillingPage() {
     <div className="container mx-auto py-10">
       <h1 className="text-3xl font-bold mb-8">Subscription Plans</h1>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {PLANS.map((plan) => (
+        {PLANS.map((plan: StripeProduct) => (
           <Card key={plan.id} className="flex flex-col">
-            <CardHeader>
+      <CardHeader>
               <CardTitle>{plan.name}</CardTitle>
               <CardDescription>{plan.description}</CardDescription>
-            </CardHeader>
+      </CardHeader>
             <CardContent className="flex-grow">
               <div className="text-3xl font-bold mb-4">
                 ${plan.price}
                 <span className="text-sm font-normal text-muted-foreground">
                   /month
                 </span>
-              </div>
+        </div>
               <ul className="space-y-2">
-                {plan.features.map((feature, index) => (
+                {plan.features.map((feature: string, index: number) => (
                   <li key={index} className="flex items-center">
                     <span className="mr-2">✓</span>
                     {feature}
                   </li>
                 ))}
               </ul>
-            </CardContent>
+      </CardContent>
             <CardFooter>
               <Button
                 className="w-full"
@@ -113,7 +113,7 @@ export default function BillingPage() {
                 )}
               </Button>
             </CardFooter>
-          </Card>
+    </Card>
         ))}
       </div>
       <div className="mt-8 flex justify-center">

@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
-import { createCheckoutSession, PLANS } from '@/utils/stripe';
+import { createCheckoutSession } from '@/utils/stripe';
 import { createClient } from '@/utils/supabase/server';
 import { updateUserCredits } from '@/lib/prisma';
+import { PLANS } from "@/utils/plans";
 
 export async function POST(req: Request) {
   try {

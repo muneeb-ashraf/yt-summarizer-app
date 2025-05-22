@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { stripe } from "@/utils/stripe";
 import Stripe from "stripe";
 import { updateUserCredits } from "@/lib/prisma";
-import { PLANS } from "@/utils/stripe";
+import { PLANS } from "@/utils/plans";
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
 
