@@ -18,11 +18,9 @@ export async function POST(req: Request) {
     if (!userId) {
       return new NextResponse('Unauthorized', { status: 401 });
     }
-    const email = sessionClaims?.email as string;
-    console.log('email:', email);
-    if (!email) {
-      return new NextResponse('User email not found', { status: 400 });
-    }
+    // Use fallback email if missing
+    const email = (sessionClaims?.email as string) || (userId + '@clerk.fake');
+    console.log('email (using fallback if missing):', email);
 
     // Handle free plan
     if (priceId === 'free') {
