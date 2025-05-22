@@ -36,6 +36,23 @@ model Summary {
   @@map("summaries") // Explicitly map to the 'summaries' table name
 }
 
+model Credits {
+  id                String   @id @default(cuid())
+  userId            String   @unique // Clerk user ID
+  summariesLeft     Int      @default(0)
+  plan              String   @default("free") // free, basic, pro, enterprise
+  stripeCustomerId  String?  @unique
+  subscriptionId    String?
+  subscriptionStatus String? // active, canceled, past_due, etc.
+  lastSummaryAt     DateTime?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([userId])
+  @@index([stripeCustomerId])
+  @@index([subscriptionId])
+}
+
 
 
 

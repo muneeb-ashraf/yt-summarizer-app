@@ -8,7 +8,7 @@ import {
 import { Inter } from "next/font/google";
 import Link from 'next/link';
 import "@/styles/globals.css"; // Import global styles
-import { Toaster } from "@/components/ui/sonner"; // Import Toaster
+import { Toaster } from "@/components/ui/toaster"; // Import Toaster
 import { Button } from "@/components/ui/button";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -46,7 +46,7 @@ export default function RootLayout({
               </div>
             </header>
             <main>{children}</main>
-            <Toaster richColors position="top-right" />
+            <Toaster />
       
         </ClerkProvider>
       </body>
