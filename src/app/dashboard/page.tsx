@@ -14,12 +14,21 @@ interface Summary {
   title?: string;
 }
 
+interface JobStatus {
+  status: 'pending' | 'processing' | 'completed' | 'failed';
+  error?: string;
+  summaryId?: string;
+  createdAt: string;
+  completedAt?: string;
+}
+
 // Rename function to Page (conventional)
 export default function Page() {
   const [videoUrl, setVideoUrl] = useState('');
   const [summary, setSummary] = useState('');
   const [recentSummaries, setRecentSummaries] = useState<Summary[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [currentJobId, setCurrentJobId] = useState<string | null>(null);
   const { userId } = useAuth();
   
   // Fetch recent summaries on load
@@ -28,6 +37,52 @@ export default function Page() {
       fetchRecentSummaries();
     }
   }, [userId]);
+
+  // Poll for job status when a job is active
+  useEffect(() => {
+    let pollInterval: NodeJS.Timeout;
+
+    if (currentJobId) {
+      pollInterval = setInterval(async () => {
+        try {
+          const response = await fetch(`/api/summaries/job-status?jobId=${currentJobId}`);
+          if (!response.ok) {
+            throw new Error('Failed to check job status');
+          }
+
+          const jobStatus: JobStatus = await response.json();
+          
+          if (jobStatus.status === 'completed') {
+            // Job completed successfully
+            clearInterval(pollInterval);
+            setCurrentJobId(null);
+            setIsLoading(false);
+            toast.success('Summary generated successfully!');
+            fetchRecentSummaries(); // Refresh the list
+          } else if (jobStatus.status === 'failed') {
+            // Job failed
+            clearInterval(pollInterval);
+            setCurrentJobId(null);
+            setIsLoading(false);
+            toast.error(jobStatus.error || 'Failed to generate summary');
+          }
+          // For 'pending' and 'processing' states, continue polling
+        } catch (error) {
+          console.error('Error polling job status:', error);
+          clearInterval(pollInterval);
+          setCurrentJobId(null);
+          setIsLoading(false);
+          toast.error('Error checking summary status');
+        }
+      }, 2000); // Poll every 2 seconds
+    }
+
+    return () => {
+      if (pollInterval) {
+        clearInterval(pollInterval);
+      }
+    };
+  }, [currentJobId]);
 
   // Function to fetch recent summaries
   const fetchRecentSummaries = async () => {
@@ -42,7 +97,7 @@ export default function Page() {
     }
   };
 
-  // Function to handle summarization and track usage
+  // Function to handle summarization
   const handleSummarize = async () => {
     if (!videoUrl.trim()) return;
     
@@ -50,7 +105,7 @@ export default function Page() {
       setIsLoading(true);
       setSummary('');
       
-      // Call the API to generate summary
+      // Call the API to create a summarization job
       const response = await fetch('/api/summaries/create', {
         method: 'POST',
         headers: {
@@ -61,22 +116,16 @@ export default function Page() {
       
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to generate summary');
+        throw new Error(errorData.error || 'Failed to start summarization');
       }
       
       const data = await response.json();
-      // Ensure we have the summary content before setting
-      if (data && data.summary && data.summary.summary_content) {
-        setSummary(data.summary.summary_content);
-        toast.success('Summary generated successfully!');
-        fetchRecentSummaries(); // Refresh recent list
-      } else {
-        throw new Error('Invalid summary data received from API');
-      }
+      setCurrentJobId(data.jobId);
+      toast.info('Started generating summary...');
+      
     } catch (error: unknown) {
-      console.error('Error generating summary:', error);
-      toast.error(error instanceof Error ? error.message : 'Failed to generate summary');
-    } finally {
+      console.error('Error starting summarization:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to start summarization');
       setIsLoading(false);
     }
   };
@@ -122,7 +171,7 @@ export default function Page() {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
-                  Processing...
+                  {currentJobId ? 'Processing...' : 'Starting...'}
                 </>
               ) : "Summarize"}
             </Button>

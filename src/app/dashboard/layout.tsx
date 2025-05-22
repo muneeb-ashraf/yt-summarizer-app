@@ -1,27 +1,39 @@
 "use client"; // Needs to be client component for useRouter and onClick
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation'; // Use usePathname from next/navigation
+import { useAuth, useClerk } from '@clerk/nextjs';
+import { Loader2, User } from 'lucide-react';
 // Import icons from lucide-react or another library if desired
 // import { Home, List, Settings, LogOut } from 'lucide-react';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname(); // Use usePathname hook for active state
+  const { isLoaded, userId } = useAuth();
+  const { openUserProfile } = useClerk();
 
-  // Placeholder logout function
-  const handleLogout = () => {
-    console.log('Logging out...');
-    // Add actual logout logic here (e.g., clear session, redirect)
-    router.push('/'); // Redirect to home/login page after logout
-  };
+  // Redirect to sign-in if not authenticated
+  useEffect(() => {
+    if (isLoaded && !userId) {
+      router.push('/sign-in');
+    }
+  }, [isLoaded, userId, router]);
+
+  // Show loading state while checking authentication
+  if (!isLoaded || !userId) {
+    return (
+      <div className="h-screen w-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
 
   const navItems = [
     { href: '/dashboard', label: 'Dashboard' /* icon: Home */ },
     { href: '/dashboard/summaries', label: 'Summaries' /* icon: List */ },
     { href: '/dashboard/billing', label: 'Billing' /* icon: List */ },
-    { href: '/dashboard/settings', label: 'Settings' /* icon: Settings */ },
   ];
 
   return (
@@ -43,13 +55,20 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             );
           })}
         </nav>
-        <div className="mt-auto">
-           <button
-                onClick={handleLogout}
-                className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary">
-                {/* <LogOut className="h-4 w-4" /> */}
-                <span>Logout</span>
-            </button>
+        <div className="mt-auto space-y-2">
+          <button
+            onClick={() => openUserProfile()}
+            className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
+          >
+            <User className="h-4 w-4" />
+            <span>Manage Profile</span>
+          </button>
+          <button
+            onClick={() => router.push('/')}
+            className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
+          >
+            <span>Logout</span>
+          </button>
         </div>
       </aside>
 
