@@ -5,6 +5,7 @@ export type StripeProduct = {
   price: number;
   features: string[];
   summariesLimit: number;
+  stripePriceId: string;
 };
 
 export const PLANS: StripeProduct[] = [
@@ -14,6 +15,7 @@ export const PLANS: StripeProduct[] = [
     description: 'Perfect for trying out the service',
     price: 0,
     summariesLimit: 3,
+    stripePriceId: '',
     features: [
       '3 video summaries per month',
       'Basic summary quality',
@@ -26,6 +28,7 @@ export const PLANS: StripeProduct[] = [
     description: 'Best for content creators',
     price: 9.99,
     summariesLimit: 20,
+    stripePriceId: 'price_1RRfrIIoaOwPno5ESgGnCIj6',
     features: [
       '20 video summaries per month',
       'Enhanced summary quality',
@@ -39,6 +42,7 @@ export const PLANS: StripeProduct[] = [
     description: 'For teams and businesses',
     price: 29.99,
     summariesLimit: 50,
+    stripePriceId: 'price_1RRfrmIoaOwPno5Eq2efx6DA',
     features: [
       '50 video summaries per month',
       'Premium summary quality',
