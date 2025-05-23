@@ -183,10 +183,10 @@ export default function BillingPage() {
               currentPlan?.id === plan.id ? 'border-primary' : ''
             }`}
           >
-            <CardHeader>
+      <CardHeader>
               <CardTitle>{plan.name}</CardTitle>
               <CardDescription>{plan.description}</CardDescription>
-            </CardHeader>
+      </CardHeader>
             <CardContent className="flex-grow">
               <div className="text-3xl font-bold mb-4">
                 ${plan.price}
