@@ -9,13 +9,15 @@ export default authMiddleware({
     "/",
     "/api/webhooks/stripe",
     "/api/webhooks/clerk",
-    "/sign-in*",
-    "/sign-up*",
+    "/sign-in",
+    "/sign-up",
+    "/sign-in/[[...sign-in]]",
+    "/sign-up/[[...sign-up]]"
   ],
   // Routes that can be accessed while signed out
   ignoredRoutes: [
     "/api/webhooks/stripe",
-    "/api/webhooks/clerk",
+    "/api/webhooks/clerk"
   ],
 });
 
