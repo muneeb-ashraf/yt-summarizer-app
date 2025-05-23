@@ -19,8 +19,12 @@ export default function LandingPage() {
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-4">
               <SignedOut>
-                <Button size="lg" asChild><SignUpButton>Get Started Free</SignUpButton></Button>
-                <Button size="lg" variant="secondary" asChild><SignInButton>Sign In</SignInButton></Button>
+                <SignUpButton mode="modal">
+                  <Button size="lg">Get Started Free</Button>
+                </SignUpButton>
+                <SignInButton mode="modal">
+                  <Button size="lg" variant="secondary">Sign In</Button>
+                </SignInButton>
               </SignedOut>
               <SignedIn>
                 <Button size="lg" asChild><Link href="/dashboard">Go to Dashboard</Link></Button>
@@ -155,13 +159,13 @@ export default function LandingPage() {
                 </ul>
                 <SignedOut>
                   {plan.id === 'free' ? (
-                    <Button className="w-full mt-auto" variant="outline" asChild>
-                      <SignUpButton>Get Started</SignUpButton>
-                    </Button>
+                    <SignUpButton mode="modal">
+                      <Button className="w-full mt-auto" variant="outline">Get Started</Button>
+                    </SignUpButton>
                   ) : (
-                    <Button className="w-full mt-auto" asChild>
-                      <SignUpButton>Subscribe to {plan.name}</SignUpButton>
-                    </Button>
+                    <SignUpButton mode="modal">
+                      <Button className="w-full mt-auto">Subscribe to {plan.name}</Button>
+                    </SignUpButton>
                   )}
                 </SignedOut>
                 <SignedIn>
@@ -190,7 +194,9 @@ export default function LandingPage() {
               Sign up today and start summarizing YouTube videos in seconds. Get started for free!
             </p>
              <SignedOut>
-                <Button size="lg" asChild><SignUpButton>Sign Up Now</SignUpButton></Button>
+                <SignUpButton mode="modal">
+                  <Button size="lg">Sign Up Now</Button>
+                </SignUpButton>
              </SignedOut>
              <SignedIn>
                 <Button size="lg" asChild><Link href="/dashboard">Go to Dashboard</Link></Button>
