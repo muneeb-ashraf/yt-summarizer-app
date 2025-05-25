@@ -14,17 +14,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id       Int     @id @default(autoincrement())
-  name     String
-  username String  @unique
-  email    String  @unique
-  password String
-  city     String?
-  country  String?
-  createdAt DateTime @default(now())
-}
-
 model Summary {
   id            String   @id @default(cuid())
   user_id       String   // Matches Clerk User ID format
@@ -38,7 +27,7 @@ model Summary {
 
 model Credits {
   id                String   @id @default(cuid())
-  userId            String   @unique // Clerk user ID
+  userId            String   @unique // Clerk User ID
   summariesLeft     Int      @default(0)
   plan              String   @default("free") // free, basic, pro, enterprise
   stripeCustomerId  String?  @unique
@@ -51,21 +40,7 @@ model Credits {
   @@index([userId])
   @@index([stripeCustomerId])
   @@index([subscriptionId])
-}
-
-model SummaryJob {
-  id            String   @id @default(nanoid())
-  userId        String
-  youtubeUrl    String
-  status        String   @default("pending") // pending, processing, completed, failed
-  error         String?  // Store error message if failed
-  summaryId     String?  // Reference to the summary once completed
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  completedAt   DateTime?
-
-  @@index([userId])
-  @@index([status])
+  @@map("credits")
 }
 
 
