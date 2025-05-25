@@ -62,9 +62,11 @@ async function processSummary(summaryId: string) {
     });
 
     if (!summary) {
+      console.error(`processSummary error: Summary with ID ${summaryId} not found after setting status to processing.`);
       throw new Error("Summary not found");
     }
 
+    console.log(`processSummary: Sending request to n8n for summary ID ${summaryId} and URL ${summary.youtube_url}`);
     // 3. Send the YouTube URL to the n8n webhook
     const response = await fetch(N8N_WEBHOOK_URL, {
       method: "POST",
@@ -76,22 +78,33 @@ async function processSummary(summaryId: string) {
 
     if (!response.ok) {
       const errorText = await response.text();
+      console.error(`processSummary error: N8N webhook returned non-OK status ${response.status}: ${errorText}`);
       throw new Error(`N8N API error: ${errorText}`);
     }
 
+    console.log(`processSummary: Received OK response from n8n for summary ID ${summaryId}. Processing response.`);
     // 4. Get the summary data from the n8n response
     let summaryContent = '';
     const rawResponseBody = await response.text();
     const contentType = response.headers.get('content-type');
 
     if (contentType?.includes('application/json')) {
-      const summaryData = JSON.parse(rawResponseBody);
-      summaryContent = summaryData.cleanedHtml || summaryData.summary || summaryData.text || summaryData.result || summaryData.content;
+      try {
+        const summaryData = JSON.parse(rawResponseBody);
+        summaryContent = summaryData.cleanedHtml || summaryData.summary || summaryData.text || summaryData.result || summaryData.content;
+        console.log(`processSummary: Successfully parsed JSON response for summary ID ${summaryId}. Content length: ${summaryContent.length}`);
+      } catch (parseError) {
+        console.error(`processSummary error: Failed to parse JSON response for summary ID ${summaryId}: ${parseError}`);
+        // Fallback to raw text if JSON parsing fails
+        summaryContent = rawResponseBody;
+      }
     } else {
       summaryContent = rawResponseBody;
+      console.log(`processSummary: Received non-JSON response for summary ID ${summaryId}. Using raw text. Content length: ${summaryContent.length}`);
     }
 
     if (!summaryContent || summaryContent.trim() === '') {
+      console.error(`processSummary error: Received empty summary content from webhook for summary ID ${summaryId}`);
       throw new Error("Received empty summary from webhook");
     }
 
@@ -102,9 +115,10 @@ async function processSummary(summaryId: string) {
         summary_content: summaryContent,
       },
     });
+    console.log(`processSummary: Successfully updated summary ID ${summaryId} with content.`);
 
   } catch (error) {
-    console.error("Summary processing error:", error);
+    console.error("Job processing error for summary ID " + summaryId + ":", error);
     // Update summary status to failed
     await prisma.summary.update({
       where: { id: summaryId },
@@ -112,5 +126,6 @@ async function processSummary(summaryId: string) {
         summary_content: `Error: ${error instanceof Error ? error.message : "An unexpected error occurred"}`,
       },
     });
+    console.error(`processSummary: Marked summary ID ${summaryId} as failed due to error.`);
   }
 } 

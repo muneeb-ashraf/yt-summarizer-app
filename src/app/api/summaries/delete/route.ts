@@ -1,60 +1,57 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
-import { createClient } from "@/utils/supabase/server";
+import { prisma } from "@/lib/prisma";
 
 export async function DELETE(request: NextRequest) {
+  console.log("Received request to delete summary.");
+  let userId: string | null = null;
+  let summaryId: string | null = null;
+
   try {
     // 1. Get authenticated user
-    const { userId } = await auth();
+    const authResult = await auth();
+    userId = authResult.userId;
     
     if (!userId) {
+      console.log("Unauthorized request for summary deletion.");
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+    console.log(`Authenticated user: ${userId}`);
 
     // 2. Get summary ID from request URL
-    const summaryId = request.nextUrl.searchParams.get("id");
+    summaryId = request.nextUrl.searchParams.get("id");
     if (!summaryId) {
+      console.log("Missing summary ID in request for summary deletion.");
       return NextResponse.json({ error: "Summary ID is required" }, { status: 400 });
     }
+    console.log(`Attempting to delete summary with ID: ${summaryId}`);
 
-    // 3. Initialize Supabase client
-    const supabase = await createClient();
-    
-    // 4. First verify that the summary belongs to this user
-    const { data: summary, error: fetchError } = await supabase
-      .from("summaries")
-      .select("id")
-      .eq("id", summaryId)
-      .eq("user_id", userId)
-      .single();
+    // 3. Delete the summary using Prisma, ensuring it belongs to the user
+    console.log(`Deleting summary with ID ${summaryId} for user ${userId} from database.`);
+    const deleteResult = await prisma.summary.delete({
+      where: {
+        id: summaryId,
+        user_id: userId, // Ensure the summary belongs to the user
+      },
+    });
 
-    if (fetchError || !summary) {
-      return NextResponse.json(
-        { error: "Summary not found or not authorized" },
-        { status: 404 }
-      );
-    }
+    console.log(`Successfully deleted summary with ID ${summaryId}.`);
 
-    // 5. Delete the summary
-    const { error: deleteError } = await supabase
-      .from("summaries")
-      .delete()
-      .eq("id", summaryId)
-      .eq("user_id", userId);
-
-    if (deleteError) {
-      console.error("Supabase delete error:", deleteError);
-      return NextResponse.json(
-        { error: "Failed to delete summary" },
-        { status: 500 }
-      );
-    }
-
-    // 6. Return success response
+    // 4. Return success response
     return NextResponse.json({ success: true });
     
   } catch (error) {
-    console.error("Error deleting summary:", error);
+    console.error("Error in delete summary API route:", error);
+
+    // Check if the error is due to the summary not being found (P2025)
+    if (typeof error === 'object' && error !== null && 'code' in error && error.code === 'P2025') {
+        console.log(`Summary with ID ${summaryId} not found or not owned by user ${userId}.`);
+        return NextResponse.json(
+            { error: "Summary not found or not authorized" },
+            { status: 404 }
+        );
+    }
+
     return NextResponse.json(
       { error: "An unexpected error occurred" },
       { status: 500 }
