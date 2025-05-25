@@ -28,7 +28,7 @@ export async function DELETE(request: NextRequest) {
 
     // 3. Delete the summary using Prisma, ensuring it belongs to the user
     console.log(`Deleting summary with ID ${summaryId} for user ${userId} from database.`);
-    const deleteResult = await prisma.summary.delete({
+    const _deleteResult = await prisma.summary.delete({
       where: {
         id: summaryId,
         user_id: userId, // Ensure the summary belongs to the user
