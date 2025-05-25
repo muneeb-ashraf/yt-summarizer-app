@@ -23,11 +23,11 @@ export async function POST(request: NextRequest) {
     }
 
     // 3. Create a new job in the database
-    const job = await prisma.summaryJob.create({
+    const job = await prisma.summary.create({
       data: {
-        userId,
-        youtubeUrl,
-        status: "pending",
+        user_id: userId,
+        youtube_url: youtubeUrl,
+        summary_content: "",
       },
     });
 
@@ -54,13 +54,13 @@ export async function POST(request: NextRequest) {
 async function processJob(jobId: string) {
   try {
     // 1. Update job status to processing
-    await prisma.summaryJob.update({
+    await prisma.summary.update({
       where: { id: jobId },
-      data: { status: "processing" },
+      data: { summary_content: "processing" },
     });
 
     // 2. Get the job details
-    const job = await prisma.summaryJob.findUnique({
+    const job = await prisma.summary.findUnique({
       where: { id: jobId },
     });
 
@@ -74,7 +74,7 @@ async function processJob(jobId: string) {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ youtubeUrl: job.youtubeUrl }),
+      body: JSON.stringify({ youtubeUrl: job.youtube_url }),
     });
 
     if (!response.ok) {
@@ -106,8 +106,8 @@ async function processJob(jobId: string) {
       .from("summaries")
       .insert({
         id: nanoid(),
-        user_id: job.userId,
-        youtube_url: job.youtubeUrl,
+        user_id: job.user_id,
+        youtube_url: job.youtube_url,
         summary_content: summaryContent,
         created_at: new Date().toISOString(),
       })
@@ -119,23 +119,20 @@ async function processJob(jobId: string) {
     }
 
     // 7. Update job status to completed
-    await prisma.summaryJob.update({
+    await prisma.summary.update({
       where: { id: jobId },
       data: {
-        status: "completed",
-        summaryId: summary.id,
-        completedAt: new Date(),
+        summary_content: summaryContent,
       },
     });
 
   } catch (error) {
     console.error("Job processing error:", error);
     // Update job status to failed
-    await prisma.summaryJob.update({
+    await prisma.summary.update({
       where: { id: jobId },
       data: {
-        status: "failed",
-        error: error instanceof Error ? error.message : "An unexpected error occurred",
+        summary_content: `Error: ${error instanceof Error ? error.message : "An unexpected error occurred"}`,
       },
     });
   }
