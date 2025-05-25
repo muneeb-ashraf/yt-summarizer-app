@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -27,7 +27,7 @@ export default function BillingPage() {
   const { userId } = useAuth();
 
   // Fetch user credits and subscription status
-  const fetchUserCredits = async () => {
+  const fetchUserCredits = useCallback(async () => {
     if (!userId) return;
     
     try {
@@ -48,7 +48,7 @@ export default function BillingPage() {
     } finally {
       setIsLoadingCredits(false);
     }
-  };
+  }, [userId, toast]);
 
   // Fetch credits on mount and when returning from Stripe
   useEffect(() => {
@@ -70,7 +70,7 @@ export default function BillingPage() {
         content: "Subscription process was canceled",
       });
     }
-  }, [userId, searchParams]);
+  }, [userId, searchParams, fetchUserCredits, toast]);
 
   const handleSubscribe = async (priceId: string) => {
     try {

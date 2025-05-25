@@ -11,13 +11,12 @@ interface Summary {
   youtube_url: string;
   summary_content: string;
   created_at: string;
-  title?: string;
 }
 
-interface JobStatus {
+interface SummaryStatus {
   status: 'pending' | 'processing' | 'completed' | 'failed';
   error?: string;
-  summaryId?: string;
+  summaryId: string;
   createdAt: string;
   completedAt?: string;
 }
@@ -28,7 +27,7 @@ export default function Page() {
   const [summary, setSummary] = useState('');
   const [recentSummaries, setRecentSummaries] = useState<Summary[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [currentJobId, setCurrentJobId] = useState<string | null>(null);
+  const [currentSummaryId, setCurrentSummaryId] = useState<string | null>(null);
   const { userId } = useAuth();
   
   // Fetch recent summaries on load
@@ -38,39 +37,39 @@ export default function Page() {
     }
   }, [userId]);
 
-  // Poll for job status when a job is active
+  // Poll for summary status when a summary is being processed
   useEffect(() => {
     let pollInterval: NodeJS.Timeout;
 
-    if (currentJobId) {
+    if (currentSummaryId) {
       pollInterval = setInterval(async () => {
         try {
-          const response = await fetch(`/api/summaries/job-status?jobId=${currentJobId}`);
+          const response = await fetch(`/api/summaries/job-status?summaryId=${currentSummaryId}`);
           if (!response.ok) {
-            throw new Error('Failed to check job status');
+            throw new Error('Failed to check summary status');
           }
 
-          const jobStatus: JobStatus = await response.json();
+          const summaryStatus: SummaryStatus = await response.json();
           
-          if (jobStatus.status === 'completed') {
-            // Job completed successfully
+          if (summaryStatus.status === 'completed') {
+            // Summary completed successfully
             clearInterval(pollInterval);
-            setCurrentJobId(null);
+            setCurrentSummaryId(null);
             setIsLoading(false);
             toast.success('Summary generated successfully!');
             fetchRecentSummaries(); // Refresh the list
-          } else if (jobStatus.status === 'failed') {
-            // Job failed
+          } else if (summaryStatus.status === 'failed') {
+            // Summary failed
             clearInterval(pollInterval);
-            setCurrentJobId(null);
+            setCurrentSummaryId(null);
             setIsLoading(false);
-            toast.error(jobStatus.error || 'Failed to generate summary');
+            toast.error(summaryStatus.error || 'Failed to generate summary');
           }
           // For 'pending' and 'processing' states, continue polling
         } catch (error) {
-          console.error('Error polling job status:', error);
+          console.error('Error polling summary status:', error);
           clearInterval(pollInterval);
-          setCurrentJobId(null);
+          setCurrentSummaryId(null);
           setIsLoading(false);
           toast.error('Error checking summary status');
         }
@@ -82,7 +81,7 @@ export default function Page() {
         clearInterval(pollInterval);
       }
     };
-  }, [currentJobId]);
+  }, [currentSummaryId]);
 
   // Function to fetch recent summaries
   const fetchRecentSummaries = async () => {
@@ -105,7 +104,7 @@ export default function Page() {
       setIsLoading(true);
       setSummary('');
       
-      // Call the API to create a summarization job
+      // Call the API to create a summary
       const response = await fetch('/api/summaries/create', {
         method: 'POST',
         headers: {
@@ -120,7 +119,7 @@ export default function Page() {
       }
       
       const data = await response.json();
-      setCurrentJobId(data.jobId);
+      setCurrentSummaryId(data.summaryId);
       toast.info('Started generating summary...');
       
     } catch (error: unknown) {
@@ -143,6 +142,11 @@ export default function Page() {
     const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
     const match = url.match(regExp);
     return (match && match[2].length === 11) ? match[2] : null;
+  }
+
+  function getYouTubeTitle(videoId: string | null): string {
+    // Implement your logic to fetch and return the YouTube video title based on the videoId
+    return videoId ? `Video ${videoId}` : 'Untitled Video';
   }
 
   return (
@@ -171,7 +175,7 @@ export default function Page() {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
-                  {currentJobId ? 'Processing...' : 'Starting...'}
+                  {currentSummaryId ? 'Processing...' : 'Starting...'}
                 </>
               ) : "Summarize"}
             </Button>
@@ -228,23 +232,25 @@ export default function Page() {
         <div className="p-6 bg-card rounded-lg border md:col-span-2 lg:col-span-3">
           <h2 className="text-xl font-semibold mb-4">Recent Summaries</h2>
           {recentSummaries.length > 0 ? (
-            <ul className="space-y-3">
-              {recentSummaries.map((summary) => (
-                <li key={summary.id} className="p-3 bg-muted/30 rounded-md">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h3 className="font-medium">{summary.title || `Video ${extractVideoId(summary.youtube_url)}`}</h3>
-                      <p className="text-sm text-muted-foreground">
-                        {formatDate(summary.created_at)}
-                      </p>
-                    </div>
-                    <Link href={`/dashboard/summaries?id=${summary.id}`} className="text-sm text-primary hover:underline">
-                      View
-                    </Link>
-                  </div>
-                </li>
-              ))}
-            </ul>
+            <table className="min-w-full divide-y divide-gray-200">
+              <tbody className="bg-white divide-y divide-gray-200">
+                {recentSummaries.map((summary) => (
+                  <tr key={summary.id}>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-foreground">
+                      {getYouTubeTitle(extractVideoId(summary.youtube_url))}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
+                      {formatDate(summary.created_at)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
+                      <Link href={`/dashboard/summaries?id=${summary.id}`} className="text-sm text-primary hover:underline">
+                        View
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           ) : (
             <p className="text-muted-foreground">No summaries yet. Try summarizing your first video!</p>
           )}

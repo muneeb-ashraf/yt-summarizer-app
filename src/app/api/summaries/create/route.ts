@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
-import { createClient } from "@/utils/supabase/server";
-import { nanoid } from 'nanoid';
 import { prisma } from "@/lib/prisma";
 
 // N8N webhook URL - in production, this should be in environment variables
@@ -22,27 +20,26 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "YouTube URL is required" }, { status: 400 });
     }
 
-    // 3. Create a new job in the database
-    const job = await prisma.summary.create({
+    // 3. Create a new summary in the database
+    const summary = await prisma.summary.create({
       data: {
         user_id: userId,
         youtube_url: youtubeUrl,
-        summary_content: "",
+        summary_content: "pending",
       },
     });
 
     // 4. Start the summarization process in the background
-    processJob(job.id).catch(console.error);
+    processSummary(summary.id).catch(console.error);
 
-    // 5. Return the job ID immediately
+    // 5. Return the summary ID immediately
     return NextResponse.json({ 
       success: true,
-      jobId: job.id,
-      status: "pending"
+      summaryId: summary.id
     });
     
   } catch (error) {
-    console.error("Job creation error:", error);
+    console.error("Summary creation error:", error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "An unexpected error occurred" },
       { status: 500 }
@@ -50,22 +47,22 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// Function to process the job in the background
-async function processJob(jobId: string) {
+// Function to process the summary in the background
+async function processSummary(summaryId: string) {
   try {
-    // 1. Update job status to processing
+    // 1. Update summary status to processing
     await prisma.summary.update({
-      where: { id: jobId },
+      where: { id: summaryId },
       data: { summary_content: "processing" },
     });
 
-    // 2. Get the job details
-    const job = await prisma.summary.findUnique({
-      where: { id: jobId },
+    // 2. Get the summary details
+    const summary = await prisma.summary.findUnique({
+      where: { id: summaryId },
     });
 
-    if (!job) {
-      throw new Error("Job not found");
+    if (!summary) {
+      throw new Error("Summary not found");
     }
 
     // 3. Send the YouTube URL to the n8n webhook
@@ -74,7 +71,7 @@ async function processJob(jobId: string) {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ youtubeUrl: job.youtube_url }),
+      body: JSON.stringify({ youtubeUrl: summary.youtube_url }),
     });
 
     if (!response.ok) {
@@ -98,39 +95,19 @@ async function processJob(jobId: string) {
       throw new Error("Received empty summary from webhook");
     }
 
-    // 5. Initialize Supabase client
-    const supabase = await createClient();
-    
-    // 6. Store the summary in the database
-    const { data: summary, error } = await supabase
-      .from("summaries")
-      .insert({
-        id: nanoid(),
-        user_id: job.user_id,
-        youtube_url: job.youtube_url,
-        summary_content: summaryContent,
-        created_at: new Date().toISOString(),
-      })
-      .select()
-      .single();
-
-    if (error) {
-      throw new Error(`Failed to save summary: ${error.message}`);
-    }
-
-    // 7. Update job status to completed
+    // 5. Update summary with the content
     await prisma.summary.update({
-      where: { id: jobId },
+      where: { id: summaryId },
       data: {
         summary_content: summaryContent,
       },
     });
 
   } catch (error) {
-    console.error("Job processing error:", error);
-    // Update job status to failed
+    console.error("Summary processing error:", error);
+    // Update summary status to failed
     await prisma.summary.update({
-      where: { id: jobId },
+      where: { id: summaryId },
       data: {
         summary_content: `Error: ${error instanceof Error ? error.message : "An unexpected error occurred"}`,
       },
