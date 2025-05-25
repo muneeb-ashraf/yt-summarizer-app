@@ -234,21 +234,21 @@ export default function Page() {
           {recentSummaries.length > 0 ? (
             <table className="min-w-full divide-y divide-gray-200">
               <tbody className="bg-white divide-y divide-gray-200">
-                {recentSummaries.map((summary) => (
+              {recentSummaries.map((summary) => (
                   <tr key={summary.id}>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-foreground">
                       {getYouTubeTitle(extractVideoId(summary.youtube_url))}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
-                      {formatDate(summary.created_at)}
+                        {formatDate(summary.created_at)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
-                      <Link href={`/dashboard/summaries?id=${summary.id}`} className="text-sm text-primary hover:underline">
-                        View
-                      </Link>
+                    <Link href={`/dashboard/summaries?id=${summary.id}`} className="text-sm text-primary hover:underline">
+                      View
+                    </Link>
                     </td>
                   </tr>
-                ))}
+              ))}
               </tbody>
             </table>
           ) : (
