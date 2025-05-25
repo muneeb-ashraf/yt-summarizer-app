@@ -57,6 +57,8 @@ export default function Page() {
             setCurrentSummaryId(null);
             setIsLoading(false);
             toast.success('Summary generated successfully!');
+            // Fetch the complete summary to display
+            fetchSummaryContent(summaryStatus.summaryId);
             fetchRecentSummaries(); // Refresh the list
           } else if (summaryStatus.status === 'failed') {
             // Summary failed
@@ -81,7 +83,7 @@ export default function Page() {
         clearInterval(pollInterval);
       }
     };
-  }, [currentSummaryId]);
+  }, [currentSummaryId, fetchRecentSummaries]);
 
   // Function to fetch recent summaries
   const fetchRecentSummaries = async () => {
@@ -93,6 +95,23 @@ export default function Page() {
       }
     } catch (error) {
       console.error('Error fetching recent summaries:', error);
+    }
+  };
+
+  // Function to fetch and set the summary content for display
+  const fetchSummaryContent = async (summaryId: string) => {
+    try {
+      const response = await fetch(`/api/summaries/${summaryId}`); // Assuming an endpoint like /api/summaries/[id] exists
+      if (response.ok) {
+        const data = await response.json();
+        setSummary(data.summary.summary_content); // Assuming the response structure is { summary: { summary_content: '...' } }
+      } else {
+        console.error('Failed to fetch summary content:', response.statusText);
+        setSummary('Error loading summary content.');
+      }
+    } catch (error) {
+      console.error('Error fetching summary content:', error);
+      setSummary('Error loading summary content.');
     }
   };
 
@@ -184,10 +203,10 @@ export default function Page() {
         </div>
         
         {/* Summary Result Area */}
-        {(summary || isLoading) && (
+        {(summary || (isLoading && currentSummaryId)) && (
           <div className="p-6 bg-card rounded-lg border md:col-span-2 lg:col-span-3">
             <h2 className="text-xl font-semibold mb-4">Generated Summary</h2>
-            {isLoading ? (
+            {isLoading && currentSummaryId ? (
               <div className="space-y-3">
                  <Skeleton className="h-4 w-full" />
                  <Skeleton className="h-4 w-full" />
